@@ -59,9 +59,50 @@ int main(){
     int idAttack1;
     int year1;
     float financialLoss1;
-    char country1[20] ="1"; // keyword igual a 1
+    char country1[20]; // keyword igual a 1
     char attackType1[20];//keyword igual a 2
     char targetIndustry1[20];//keyword igual a 3
     char defenseMechanism1[20];//keyword igual a 4
+
+    char aux;
+    
+    fread(&aux,sizeof(char),1,fp);
+    int i = 0;
+    if(aux == '1'){
+        do{
+            fread(&reg.country[i],sizeof(char),1,fp);
+        }
+        while(reg.country[i++]!='|');
+        reg.country[i-1] = '\0'; 
+    }
+          
+    
+    fread(&aux,sizeof(char),1,fp);
+    i = 0;
+    if(aux == '2'){
+        do{
+            fread(&reg.attackType[i],sizeof(char),1,fp);
+        }
+        while(reg.attackType[i++]!='|'); 
+        reg.attackType[i-1] = '\0';     
+    }
+    fread(&aux,sizeof(char),1,fp);
+    i=0;
+    if(aux == '3'){
+        do{
+            fread(&reg.country[i],sizeof(char),1,fp);
+        }
+        while(reg.country[i++]!='|');
+        targetIndustry[i-1] = '\0';      
+    }
+    fread(&aux,sizeof(char),1,fp);
+    i=0;
+    if(aux == '4'){
+        do{
+            fread(&defenseMechanism1[i],sizeof(char),1,fp);
+        }
+        while(defenseMechanism1[i++]!='|');
+        defenseMechanism1[i-1] = '\0';      
+    }
 
 }

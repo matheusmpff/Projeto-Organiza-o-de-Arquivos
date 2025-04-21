@@ -114,18 +114,18 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS reg){
     i=0;
     if(aux == '3'){
         do{
-            fread(&reg.country[i],sizeof(char),1,fp);
+            fread(&reg.targetIndustry[i],sizeof(char),1,fp);
         }
-        while(reg.country[i++]!='|');
+        while(reg.targetIndustry[i++]!='|');
         reg.targetIndustry[i-1] = '\0';      
     }
     fread(&aux,sizeof(char),1,fp);
     i=0;
     if(aux == '4'){
         do{
-            fread(&reg.country[i],sizeof(char),1,fp);
+            fread(&reg.defenseMechanism[i],sizeof(char),1,fp);
         }
-        while(reg.country[i++]!='|');
+        while(reg.defenseMechanism[i++]!='|');
         reg.defenseMechanism[i-1] = '\0';      
     }
      
