@@ -1,0 +1,107 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include "RegRW.h"
+
+struct HEADER{
+    char status;
+    long int topo;
+    long int proxByteOffset;
+    int nroReqArq;
+    int nroReqRem;
+    char descreveIdentificador [24];
+    char descreveYear[28];
+    char descreverFinancialLoss[29];
+    char codDescreveCountry;
+    char descreveCountry[27];
+    char codDescreveType;
+    char descreveType[39];
+    char codDescreveTargetIndustry;
+    char descreveTargetIndustry[39];
+    char codDescreveDefense;
+    char descreveDefense[68];
+};
+
+struct REG_DADOS{
+    char removido;
+    int tamanhoRegistro;
+    long int prox;
+    int idAttack;
+    int year;
+    float financialLoss;
+    char country[20]; // keyword igual a 1
+    char attackType[20];//keyword igual a 2
+    char targetIndustry[20];//keyword igual a 3
+    char defenseMechanism[20];//keyword igual a 4
+};
+
+header create_header(){
+
+    HEADER h;
+    h.status = 0;
+    h.topo = 0;
+    h.proxByteOffset = 0;
+    h.nroReqArq = 0;
+    h.nroReqRem = 0;
+    h.codDescreveCountry = '2';
+    h.codDescreveType= '2';
+    h.codDescreveTargetIndustry = '3';
+    h.codDescreveDefense = '4';
+    
+        
+    return h;
+}
+
+REG_DADOS criar_regDados(){
+    REG_DADOS reg;
+
+    reg.removido = '0';
+    reg.tamanhoRegistro = 25;
+    reg.prox = -1;
+
+    return reg;
+}
+
+void add_lixo(int tam, char *vet){
+    for(int i = 0;i<tam;i++){
+        vet[i] = '$';
+    }
+}
+
+REG_DADOS escrever_regDados(FILE* fp){
+    
+}
+
+void ler_campos_variaveis(FILE *fp,REG_DADOS reg){
+    char aux;
+    
+    for(int i = 1;i<4;i++){
+        fread(&aux,sizeof(char),1,fp);
+        if(aux == '1'){
+            for(int i = 0; reg.country[i-1] != '|';i++){
+                fread(&reg.country[i],sizeof(char),1,fp);
+            }
+            reg.country[i-1] = '\0';      
+        }
+        if(aux == '2'){
+            for(int i = 0; reg.country[i-1] != '|';i++){
+                fread(&reg.country[i],sizeof(char),1,fp);
+            }
+            reg.country[i-1] = '\0';      
+        }
+
+    }
+    
+}
+
+REG_DADOS ler_regDados(FILE *fp){
+    REG_DADOS reg = criar_regDados();
+    fread(&reg.removido,sizeof(char),1,fp);
+    fread(&reg.tamanhoRegistro,sizeof(int),1,fp);
+    fread(&reg.prox,sizeof(long int),1,fp);
+    fread(&reg.idAttack,sizeof(int),1,fp);
+    fread(&reg.year,sizeof(int),1,fp);
+    fread(&reg.financialLoss,sizeof(float),1,fp);
+    
+    ler_campos_variaveis(fp, reg);
+}
