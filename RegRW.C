@@ -75,7 +75,7 @@ REG_DADOS escrever_regDados(FILE* fp){
 void ler_campos_variaveis(FILE *fp,REG_DADOS reg){
     char aux;
     
-    for(int i = 1;i<4;i++){
+    for(int i = 1;i<5;i++){
         fread(&aux,sizeof(char),1,fp);
         if(aux == '1'){
             for(int i = 0; reg.country[i-1] != '|';i++){
@@ -84,14 +84,24 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS reg){
             reg.country[i-1] = '\0';      
         }
         if(aux == '2'){
-            for(int i = 0; reg.country[i-1] != '|';i++){
-                fread(&reg.country[i],sizeof(char),1,fp);
+            for(int i = 0; reg.attackType[i-1] != '|';i++){
+                fread(&reg.attackType[i],sizeof(char),1,fp);
             }
-            reg.country[i-1] = '\0';      
+            reg.attackType[i-1] = '\0';      
         }
-
-    }
-    
+        if(aux == '3'){
+            for(int i = 0; reg.targetIndustry[i-1] != '|';i++){
+                fread(&reg.targetIndustry[i],sizeof(char),1,fp);
+            }
+            reg.targetIndustry[i-1] = '\0';      
+        }
+        if(aux == '4'){
+            for(int i = 0; reg.defenseMechanism[i-1] != '|';i++){
+                fread(&reg.defenseMechanism[i],sizeof(char),1,fp);
+            }
+            reg.defenseMechanism[i-1] = '\0';      
+        }
+    }  
 }
 
 REG_DADOS ler_regDados(FILE *fp){
