@@ -3,7 +3,7 @@
 #include <string.h>
 #include "RegRW.h"
 
-struct HEADER{
+struct header{
     char status;
     long int topo;
     long int proxByteOffset;
@@ -22,7 +22,7 @@ struct HEADER{
     char descreveDefense[68];
 };
 
-struct REG_DADOS{
+struct reg_dados{
     char removido;
     int tamanhoRegistro;
     long int prox;
@@ -35,7 +35,7 @@ struct REG_DADOS{
     char defenseMechanism[20];//keyword igual a 4
 };
 
-header create_header(){
+HEADER create_header(){
 
     HEADER h;
     h.status = 0;
@@ -114,4 +114,6 @@ REG_DADOS ler_regDados(FILE *fp){
     fread(&reg.financialLoss,sizeof(float),1,fp);
     
     ler_campos_variaveis(fp, reg);
+
+    return reg;
 }

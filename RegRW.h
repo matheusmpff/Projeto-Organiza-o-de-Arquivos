@@ -1,7 +1,7 @@
 #ifndef RegRW
     #define RegRW
 
-    typedef HEADER header;
+    typedef struct header HEADER;
+    typedef struct reg_dados REG_DADOS;
 
-    header create_header(int flag);
 #endif
