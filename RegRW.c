@@ -71,7 +71,7 @@ REG_DADOS escrever_regDados(REG_DADOS reg){
 
     if(fp == NULL){
         printf("Erro ao abrir o arquivo");
-        return; 
+         
     }
     
     fwrite(&reg.removido,sizeof(char),1,fp);
@@ -83,7 +83,7 @@ REG_DADOS escrever_regDados(REG_DADOS reg){
 
     char aux = reg.country[0];
     fclose(fp);
-
+    return reg;
     
 }
 

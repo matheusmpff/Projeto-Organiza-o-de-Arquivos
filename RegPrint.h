@@ -1,6 +1,6 @@
 #ifndef RegPrint
     #define RegPrint
-
-    void select_registros(FILE *fp);
+    
+    void print_registros(FILE *fp);
 
 #endif

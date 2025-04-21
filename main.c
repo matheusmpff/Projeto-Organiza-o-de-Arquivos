@@ -65,6 +65,7 @@ int main(){
     char defenseMechanism1[20];//keyword igual a 4
 
     char aux;
+    REG_DADOS reg = criar_regDados();
     
     fread(&aux,sizeof(char),1,fp);
     int i = 0;
@@ -105,4 +106,6 @@ int main(){
         defenseMechanism1[i-1] = '\0';      
     }
 
+    print_registros(fp);
+    return 1;
 }

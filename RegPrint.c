@@ -19,11 +19,26 @@ struct reg_dados{
 void imprimir_registros(REG_DADOS *r) {
     printf("IDENTIFICADOR DO ATAQUE: %d\n", r->idAttack);
     printf("ANO EM QUE O ATAQUE OCORREU: %d\n", r->year);
-    printf("PAIS ONDE OCORREU O ATAQUE: %s\n", r->country);
-    printf("SETOR DA INDUSTRIA QUE SOFREU O ATAQUE: %s\n", r->targetIndustry);
-    printf("TIPO DE AMEACA A SEGURANCA CIBERNETICA: %s\n", r->attackType);
+    printf("PAIS ONDE OCORREU O ATAQUE: ");
+    for(int i = 0; r->country[i] != '\0'; i++) {
+        printf("%c", r->country[i]);
+    }
+    printf("\n");
+    printf("SETOR DA INDUSTRIA QUE SOFREU O ATAQUE: ");
+    for(int i = 0; r->targetIndustry[i] != '\0'; i++) {
+        printf("%c", r->targetIndustry[i]);
+    }
+    printf("\n");
+    printf("TIPO DE AMEACA A SEGURANCA CIBERNETICA: ");
+    for(int i = 0; r->attackType[i] != '\0'; i++) {
+        printf("%c", r->attackType[i]);
+    }
+    printf("\n");
     printf("PREJUIZO CAUSADO PELO ATAQUE: %f\n", r->financialLoss);
-    printf("ESTRATEGIA DE DEFESA CIBERNETICA EMPREGADA PARA RESOLVER O PROBLEMA: %s\n", r->defenseMechanism);
+    printf("ESTRATEGIA DE DEFESA CIBERNETICA EMPREGADA PARA RESOLVER O PROBLEMA: ");
+    for(int i = 0; r->defenseMechanism[i] != '\0'; i++) {
+        printf("%c", r->defenseMechanism[i]);
+    }
     printf("\n");
 }
 
@@ -41,7 +56,7 @@ int verificar_vazio(FILE *fp) {
     return tamanho;
 }
 
-void select_registros(FILE *fp) {
+void print_registros(FILE *fp) {
     REG_DADOS r;
     char buffer;
 

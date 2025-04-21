@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "RegRW.C": "cpp"
+        "RegRW.C": "cpp",
+        "RegPrint.C": "cpp"
     }
 }
