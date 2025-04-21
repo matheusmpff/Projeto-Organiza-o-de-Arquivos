@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "RegRW.h"
-
+#include "RegPrint.h"
 
 int main(){
     FILE *fp = fopen("binario.bin","w");
 
     if(fp == NULL){
         printf("Problema na abertura");
-        return;
+        return 0;
     }
 
     char removido = '0';
@@ -41,4 +41,9 @@ int main(){
     char targetIndustry1[20];//keyword igual a 3
     char defenseMechanism1[20];//keyword igual a 4
 
+    select_registros(fp);
+    
+    fclose(fp);
+
+    return 1;
 }
