@@ -4,11 +4,11 @@
 #include "RegPrint.h"
 
 int main(){
-    FILE *fp = fopen("binario.bin","w");
+    FILE *fp = fopen("binario.bin","wb");
 
     if(fp == NULL){
         printf("Problema na abertura");
-        return 0;
+        return 1;
     }
 
     char removido = '0';
@@ -29,6 +29,29 @@ int main(){
     fwrite(&year,sizeof(int),1,fp);
     fwrite(&financialLoss,sizeof(float),1,fp);
 
+    for(int i = 0; country[i] != '\0';i++){
+        fwrite(&country[i],sizeof(char),1,fp);
+    }
+    for(int i = 0; attackType[i] != '\0';i++){
+        fwrite(&attackType[i],sizeof(char),1,fp);
+    }
+    for(int i = 0; targetIndustry[i] != '\0';i++){
+        fwrite(&targetIndustry[i],sizeof(char),1,fp);
+    }
+    for(int i = 0; defenseMechanism[i] != '\0';i++){
+        fwrite(&defenseMechanism[i],sizeof(char),1,fp);
+    }
+    fclose(fp);
+
+    fp = fopen("binario.bin","rb");
+
+    if(fp == NULL){
+        printf("Problema na abertura");
+        return 1;
+    }
+
+    
+
 
     char removido1;
     int tamanhoRegistro1;
@@ -36,14 +59,9 @@ int main(){
     int idAttack1;
     int year1;
     float financialLoss1;
-    char country1[20]; // keyword igual a 1
+    char country1[20] ="1"; // keyword igual a 1
     char attackType1[20];//keyword igual a 2
     char targetIndustry1[20];//keyword igual a 3
     char defenseMechanism1[20];//keyword igual a 4
 
-    select_registros(fp);
-    
-    fclose(fp);
-
-    return 1;
 }

@@ -90,33 +90,45 @@ REG_DADOS escrever_regDados(REG_DADOS reg){
 void ler_campos_variaveis(FILE *fp,REG_DADOS reg){
     char aux;
     
-    for(int i = 1;i<5;i++){
-        fread(&aux,sizeof(char),1,fp);
-        if(aux == '1'){
-            for(int i = 0; reg.country[i-1] != '|';i++){
-                fread(&reg.country[i],sizeof(char),1,fp);
-            }
-            reg.country[i-1] = '\0';      
+    fread(&aux,sizeof(char),1,fp);
+    int i = 0;
+    if(aux == '1'){
+        do{
+            fread(&reg.country[i],sizeof(char),1,fp);
         }
-        if(aux == '2'){
-            for(int i = 0; reg.attackType[i-1] != '|';i++){
-                fread(&reg.attackType[i],sizeof(char),1,fp);
-            }
-            reg.attackType[i-1] = '\0';      
+        while(reg.country[i++]!='|');
+        reg.country[i-1] = '\0'; 
+    }
+          
+    
+    fread(&aux,sizeof(char),1,fp);
+    i = 0;
+    if(aux == '2'){
+        do{
+            fread(&reg.attackType[i],sizeof(char),1,fp);
         }
-        if(aux == '3'){
-            for(int i = 0; reg.targetIndustry[i-1] != '|';i++){
-                fread(&reg.targetIndustry[i],sizeof(char),1,fp);
-            }
-            reg.targetIndustry[i-1] = '\0';      
+        while(reg.attackType[i++]!='|'); 
+        reg.attackType[i-1] = '\0';     
+    }
+    fread(&aux,sizeof(char),1,fp);
+    i=0;
+    if(aux == '3'){
+        do{
+            fread(&reg.country[i],sizeof(char),1,fp);
         }
-        if(aux == '4'){
-            for(int i = 0; reg.defenseMechanism[i-1] != '|';i++){
-                fread(&reg.defenseMechanism[i],sizeof(char),1,fp);
-            }
-            reg.defenseMechanism[i-1] = '\0';      
+        while(reg.country[i++]!='|');
+        reg.targetIndustry[i-1] = '\0';      
+    }
+    fread(&aux,sizeof(char),1,fp);
+    i=0;
+    if(aux == '4'){
+        do{
+            fread(&reg.country[i],sizeof(char),1,fp);
         }
-    }  
+        while(reg.country[i++]!='|');
+        reg.defenseMechanism[i-1] = '\0';      
+    }
+     
 }
 
 REG_DADOS ler_regDados(FILE *fp){
