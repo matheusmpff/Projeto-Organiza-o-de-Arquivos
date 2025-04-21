@@ -66,12 +66,12 @@ void add_lixo(int tam, char *vet){
     }
 }
 
-REG_DADOS escrever_regDados(REG_DADOS reg){
+bool escrever_regDados(REG_DADOS reg){
     FILE * fp = fopen("arquivoB.bin", "a+");
 
     if(fp == NULL){
         printf("Erro ao abrir o arquivo");
-         
+         return false;
     }
     
     fwrite(&reg.removido,sizeof(char),1,fp);
@@ -80,10 +80,9 @@ REG_DADOS escrever_regDados(REG_DADOS reg){
     fwrite(&reg.idAttack,sizeof(int),1,fp);
     fwrite(&reg.year,sizeof(int),1,fp);
     fwrite(&reg.financialLoss,sizeof(float),1,fp);
-
-    char aux = reg.country[0];
+    
     fclose(fp);
-    return reg;
+    return true;
     
 }
 

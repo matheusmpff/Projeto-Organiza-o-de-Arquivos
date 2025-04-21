@@ -53,7 +53,7 @@ int main(){
     
 
 
-    /*char removido1;
+    char removido1;
     int tamanhoRegistro1;
     long int prox1;
     int idAttack1;
@@ -64,47 +64,47 @@ int main(){
     char targetIndustry1[20];//keyword igual a 3
     char defenseMechanism1[20];//keyword igual a 4
 
-    char aux;
-    REG_DADOS reg = criar_regDados();
+    fread(&removido1,sizeof(char),1,fp);
+    fread(&tamanhoRegistro1,sizeof(int),1,fp);
+    fread(&prox1,sizeof(long int),1,fp);
+    fread(&idAttack1,sizeof(int),1,fp);
+    fread(&year1,sizeof(int),1,fp);
+    fread(&financialLoss1,sizeof(float),1,fp);
 
-    fread(&aux,sizeof(char),1,fp);
+    char aux;
     int i = 0;
-    if(aux == '1'){
+    
         do{
-            fread(&reg.country[i],sizeof(char),1,fp);
+            fread(&country1[i],sizeof(char),1,fp);
         }
-        while(reg.country[i++]!='|');
-        reg.country[i-1] = '\0'; 
-    }
+        while(country[i++]!='|');
+        country1[i-1] = '\0'; 
           
     
-    fread(&aux,sizeof(char),1,fp);
+    
     i = 0;
-    if(aux == '2'){
+    
         do{
-            fread(&reg.attackType[i],sizeof(char),1,fp);
+            fread(&attackType1[i],sizeof(char),1,fp);
         }
-        while(reg.attackType[i++]!='|'); 
-        reg.attackType[i-1] = '\0';     
-    }
-    fread(&aux,sizeof(char),1,fp);
+        while(attackType1[i++]!='|'); 
+        attackType1[i-1] = '\0';     
+    
     i=0;
-    if(aux == '3'){
+
         do{
-            fread(&reg.country[i],sizeof(char),1,fp);
+            fread(&targetIndustry1[i],sizeof(char),1,fp);
         }
-        while(reg.country[i++]!='|');
-        targetIndustry[i-1] = '\0';      
-    }
-    fread(&aux,sizeof(char),1,fp);
+        while(targetIndustry1[i++]!='|');
+        targetIndustry1[i-1] = '\0';      
+
     i=0;
-    if(aux == '4'){
         do{
             fread(&defenseMechanism1[i],sizeof(char),1,fp);
         }
         while(defenseMechanism1[i++]!='|');
         defenseMechanism1[i-1] = '\0';      
-    }*/
+    
 
     print_registros(fp);
     return 1;
