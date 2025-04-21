@@ -57,7 +57,6 @@ int verificar_vazio(FILE *fp) {
 }
 
 void print_registros(FILE *fp) {
-    REG_DADOS r;
     char buffer;
 
     if(verificar_vazio == 0) {
@@ -65,7 +64,7 @@ void print_registros(FILE *fp) {
     } else {
         while(fread(&buffer, sizeof(char), 1, fp) > 0) {
             fseek(fp, -1, SEEK_CUR);
-            r = ler_regDados(fp);
+            REG_DADOS r = ler_regDados(fp);
             if (r.removido == '0') {
                 imprimir_registros(&r);
             }

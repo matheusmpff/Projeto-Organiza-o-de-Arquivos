@@ -53,7 +53,7 @@ int main(){
     
 
 
-    char removido1;
+    /*char removido1;
     int tamanhoRegistro1;
     long int prox1;
     int idAttack1;
@@ -66,7 +66,7 @@ int main(){
 
     char aux;
     REG_DADOS reg = criar_regDados();
-    
+
     fread(&aux,sizeof(char),1,fp);
     int i = 0;
     if(aux == '1'){
@@ -104,7 +104,7 @@ int main(){
         }
         while(defenseMechanism1[i++]!='|');
         defenseMechanism1[i-1] = '\0';      
-    }
+    }*/
 
     print_registros(fp);
     return 1;
