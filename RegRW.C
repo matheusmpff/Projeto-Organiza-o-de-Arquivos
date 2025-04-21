@@ -47,8 +47,6 @@ HEADER create_header(){
     h.codDescreveType= '2';
     h.codDescreveTargetIndustry = '3';
     h.codDescreveDefense = '4';
-    
-        
     return h;
 }
 
@@ -68,7 +66,24 @@ void add_lixo(int tam, char *vet){
     }
 }
 
-REG_DADOS escrever_regDados(FILE* fp){
+REG_DADOS escrever_regDados(REG_DADOS reg){
+    FILE * fp = fopen("arquivoB.bin", "a+");
+
+    if(fp == NULL){
+        printf("Erro ao abrir o arquivo");
+        return; 
+    }
+    
+    fwrite(&reg.removido,sizeof(char),1,fp);
+    fwrite(&reg.tamanhoRegistro,sizeof(int),1,fp);
+    fwrite(&reg.prox,sizeof(long int),1,fp);
+    fwrite(&reg.idAttack,sizeof(int),1,fp);
+    fwrite(&reg.year,sizeof(int),1,fp);
+    fwrite(&reg.financialLoss,sizeof(float),1,fp);
+
+    char aux = reg.country[0];
+    fclose(fp);
+
     
 }
 
