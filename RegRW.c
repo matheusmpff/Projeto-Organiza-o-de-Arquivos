@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include "RegRW.h"
@@ -50,15 +51,24 @@ HEADER create_header(){
     return h;
 }
 
-REG_DADOS criar_regDados(){
-    REG_DADOS reg;
+    REG_DADOS* criar_regDados(REGPARAMS params){
+        REG_DADOS* reg;
 
-    reg.removido = '0';
-    reg.tamanhoRegistro = 25;
-    reg.prox = -1;
+        reg = (REG_DADOS*) malloc(sizeof(REG_DADOS)*1);
 
-    return reg;
-}
+        reg->removido = params.removido; 
+        reg->tamanhoRegistro = params.tamanhoRegistro;
+        reg->prox = params.prox;
+        reg->year = params.year;
+        reg->idAttack = params.idAttack;
+        reg->financialLoss = params.financialLoss;
+        strcpy(reg->targetIndustry,params.targetIndustry);
+        strcpy(reg->defenseMechanism,params.defenseMechanism);
+        strcpy(reg->attackType,params.attackType);
+        strcpy(reg->country,params.country);
+
+        return reg;
+    }
 
 void add_lixo(int tam, char *vet){
     for(int i = 0;i<tam;i++){
@@ -66,7 +76,7 @@ void add_lixo(int tam, char *vet){
     }
 }
 
-bool escrever_regDados(REG_DADOS reg){
+bool escrever_regDados(REG_DADOS *reg){
     FILE * fp = fopen("arquivoB.bin", "a+");
 
     if(fp == NULL){
@@ -74,72 +84,130 @@ bool escrever_regDados(REG_DADOS reg){
          return false;
     }
     
-    fwrite(&reg.removido,sizeof(char),1,fp);
-    fwrite(&reg.tamanhoRegistro,sizeof(int),1,fp);
-    fwrite(&reg.prox,sizeof(long int),1,fp);
-    fwrite(&reg.idAttack,sizeof(int),1,fp);
-    fwrite(&reg.year,sizeof(int),1,fp);
-    fwrite(&reg.financialLoss,sizeof(float),1,fp);
+    fwrite(&reg->removido,sizeof(char),1,fp);
+    fwrite(&reg->tamanhoRegistro,sizeof(int),1,fp);
+    fwrite(&reg->prox,sizeof(long int),1,fp);
+    fwrite(&reg->idAttack,sizeof(int),1,fp);
+    fwrite(&reg->year,sizeof(int),1,fp);
+    fwrite(&reg->financialLoss,sizeof(float),1,fp);
     
+    char aux = '|';
+
+    char flag = '1';
+    if(reg->country[0]!='\0'){fwrite(&flag,sizeof(char),1,fp);}
+    for(int i = 0; reg->country[i]!='\0';i++){
+        fwrite(&reg->country[i],sizeof(char),1,fp);
+    }
+    if(reg->country[0]!='\0'){
+        fwrite(&aux,sizeof(char),1,fp);
+    }
+    
+    flag = '2';
+    if(reg->attackType[0]!='\0'){fwrite(&flag,sizeof(char),1,fp);}
+    for(int i = 0; reg->attackType[i]!='\0';i++){
+        fwrite(&reg->attackType[i],sizeof(char),1,fp);
+    }
+    if(reg->attackType[0] != '\0'){
+        fwrite(&aux,sizeof(char),1,fp);
+    }
+    
+    flag = '3';
+    if(reg->targetIndustry[0]!='\0'){fwrite(&flag,sizeof(char),1,fp);}
+    for(int i = 0; reg->targetIndustry[i]!='\0';i++){
+        fwrite(&reg->targetIndustry[i],sizeof(char),1,fp);
+    }
+    if(reg->targetIndustry[0]!= '\0'){
+        fwrite(&aux,sizeof(char),1,fp);
+    }
+   
+    flag = '4';
+    if(reg->defenseMechanism[0]!='\0'){fwrite(&flag,sizeof(char),1,fp);}
+    for(int i = 0; reg->defenseMechanism[i]!='\0';i++){
+        fwrite(&reg->defenseMechanism[i],sizeof(char),1,fp);
+    }
+    if(reg->defenseMechanism[0]!='\0'){
+        fwrite(&aux,sizeof(char),1,fp);
+    }
+
     fclose(fp);
     return true;
     
 }
 
-void ler_campos_variaveis(FILE *fp,REG_DADOS reg){
+void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
     char aux;
     
     fread(&aux,sizeof(char),1,fp);
     int i = 0;
     if(aux == '1'){
         do{
-            fread(&reg.country[i],sizeof(char),1,fp);
+            fread(&reg->country[i],sizeof(char),1,fp);
+            i++;
         }
-        while(reg.country[i++]!='|');
-        reg.country[i-1] = '\0'; 
+        while(reg->country[i]!='|');
+        reg->country[i-1] = '\0'; 
     }
-          
     
-    fread(&aux,sizeof(char),1,fp);
     i = 0;
     if(aux == '2'){
         do{
-            fread(&reg.attackType[i],sizeof(char),1,fp);
+            fread(&reg->attackType[i],sizeof(char),1,fp);
+            i++;
         }
-        while(reg.attackType[i++]!='|'); 
-        reg.attackType[i-1] = '\0';     
+        while(reg->attackType[i]!='|'); 
+        reg->attackType[i-1] = '\0';
+        fread(&aux,sizeof(char),1,fp);    
     }
-    fread(&aux,sizeof(char),1,fp);
+    
     i=0;
     if(aux == '3'){
         do{
-            fread(&reg.targetIndustry[i],sizeof(char),1,fp);
+            fread(&reg->targetIndustry[i],sizeof(char),1,fp);
+            i++;
         }
-        while(reg.targetIndustry[i++]!='|');
-        reg.targetIndustry[i-1] = '\0';      
+        while(reg->targetIndustry[i]!='|');
+        reg->targetIndustry[i-1] = '\0';
+        fread(&aux,sizeof(char),1,fp);      
     }
-    fread(&aux,sizeof(char),1,fp);
+    
     i=0;
     if(aux == '4'){
         do{
-            fread(&reg.defenseMechanism[i],sizeof(char),1,fp);
+            fread(&reg->defenseMechanism[i],sizeof(char),1,fp);
+            i++;
         }
-        while(reg.defenseMechanism[i++]!='|');
-        reg.defenseMechanism[i-1] = '\0';      
+        while(reg->defenseMechanism[i]!='|');
+        reg->defenseMechanism[i-1] = '\0';      
     }
      
 }
 
-REG_DADOS ler_regDados(FILE *fp){
-    REG_DADOS reg = criar_regDados();
-    fread(&reg.removido,sizeof(char),1,fp);
-    fread(&reg.tamanhoRegistro,sizeof(int),1,fp);
-    fread(&reg.prox,sizeof(long int),1,fp);
-    fread(&reg.idAttack,sizeof(int),1,fp);
-    fread(&reg.year,sizeof(int),1,fp);
-    fread(&reg.financialLoss,sizeof(float),1,fp);
+REG_DADOS* ler_regDados(FILE *fp){
+    REGPARAMS params;
+    REG_DADOS *reg = criar_regDados(params);
+    fread(&reg->removido,sizeof(char),1,fp);
+    fread(&reg->tamanhoRegistro,sizeof(int),1,fp);
+    fread(&reg->prox,sizeof(long int),1,fp);
+    fread(&reg->idAttack,sizeof(int),1,fp);
+    fread(&reg->year,sizeof(int),1,fp);
+    fread(&reg->financialLoss,sizeof(float),1,fp);
+    
     
     ler_campos_variaveis(fp, reg);
 
     return reg;
+}
+
+void printt_reg(REG_DADOS* reg){
+
+    printf("removido: %c\n",reg->removido);
+    printf("tamanhoReg: %d\n",reg->tamanhoRegistro);
+    printf("prox: %ld\n",reg->prox);
+    printf("idAttack: %d\n",reg->idAttack);
+    printf("year: %d\n",reg->year);
+    printf("financial loss: %f\n",reg->financialLoss);
+    printf("country: %s\n",reg->country);
+    printf("attacktype: %s\n",reg->attackType);
+    printf("defense: %s\n",reg->defenseMechanism);
+    printf("target: %s\n",reg->targetIndustry);
 }
