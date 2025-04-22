@@ -3,41 +3,28 @@
 #include "RegRW.h"
 #include "RegPrint.h"
 
-struct reg_dados{
-    char removido;
-    int tamanhoRegistro;
-    long int prox;
-    int idAttack;
-    int year;
-    float financialLoss;
-    char country[20]; // keyword igual a 1
-    char attackType[20];//keyword igual a 2
-    char targetIndustry[20];//keyword igual a 3
-    char defenseMechanism[20];//keyword igual a 4
-};
-
 void imprimir_registros(REG_DADOS *r) {
-    printf("IDENTIFICADOR DO ATAQUE: %d\n", r->idAttack);
-    printf("ANO EM QUE O ATAQUE OCORREU: %d\n", r->year);
+    printf("IDENTIFICADOR DO ATAQUE: %d\n", get_idAttack(r));
+    printf("ANO EM QUE O ATAQUE OCORREU: %d\n", get_year(r));
     printf("PAIS ONDE OCORREU O ATAQUE: ");
-    for(int i = 1; r->country[i] != '\0' && r->country[i] != '$'; i++) {
-        printf("%c", r->country[i]);
+    for(int i = 1; get_country(r)[i] != '\0' && get_country(r)[i] != '$'; i++) {
+        printf("%c", get_country(r)[i]);
     }
     printf("\n");
     printf("SETOR DA INDUSTRIA QUE SOFREU O ATAQUE: ");
-    for(int i = 1; r->targetIndustry[i] != '\0'; i++) {
-        printf("%c", r->targetIndustry[i]);
+    for(int i = 1; get_targetIndustry(r)[i] != '\0'; i++) {
+        printf("%c", get_targetIndustry(r)[i]);
     }
     printf("\n");
     printf("TIPO DE AMEACA A SEGURANCA CIBERNETICA: ");
-    for(int i = 1; r->attackType[i] != '\0'; i++) {
-        printf("%c", r->attackType[i]);
+    for(int i = 1; get_attackType(r)[i] != '\0'; i++) {
+        printf("%c", get_attackType(r)[i]);
     }
     printf("\n");
-    printf("PREJUIZO CAUSADO PELO ATAQUE: %f\n", r->financialLoss);
+    printf("PREJUIZO CAUSADO PELO ATAQUE: %f\n", get_financialLoss(r));
     printf("ESTRATEGIA DE DEFESA CIBERNETICA EMPREGADA PARA RESOLVER O PROBLEMA: ");
-    for(int i = 1; r->defenseMechanism[i] != '\0'; i++) {
-        printf("%c", r->defenseMechanism[i]);
+    for(int i = 1; get_defenseMechanism(r)[i] != '\0'; i++) {
+        printf("%c", get_defenseMechanism(r)[i]);
     }
     printf("\n");
 }
@@ -64,9 +51,10 @@ void print_registros(FILE *fp) {
     } else {
         while(fread(&buffer, sizeof(char), 1, fp) == 1) {
             fseek(fp, -1, SEEK_CUR);
-            REG_DADOS r = ler_regDados(fp);
-            if (r.removido == '0') {
-                imprimir_registros(&r);
+            REG_DADOS *r = ler_regDados(fp);
+            r = ler_regDados(fp);
+            if (get_removido(r) == '0') {
+                imprimir_registros(r);
             }
         } 
     }

@@ -70,6 +70,38 @@ HEADER create_header(){
         return reg;
     }
 
+char get_removido(REG_DADOS *r){
+    return r->removido;
+}
+
+int get_idAttack(REG_DADOS *r){
+    return r->idAttack;
+}
+
+int get_year(REG_DADOS *r){
+    return r->year;
+}
+
+float get_financialLoss(REG_DADOS *r){
+    return r->financialLoss;
+}
+
+char* get_country(REG_DADOS *r){
+    return r->country;
+}
+
+char* get_attackType(REG_DADOS *r){
+    return r->attackType;
+}
+
+char* get_targetIndustry(REG_DADOS *r){
+    return r->targetIndustry;
+}
+
+char* get_defenseMechanism(REG_DADOS *r){
+    return r->defenseMechanism;
+}
+
 void add_lixo(int tam, char *vet){
     for(int i = 0;i<tam;i++){
         vet[i] = '$';

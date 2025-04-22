@@ -4,19 +4,6 @@
 #include "RegRW.h"
 #include "RegPrint.h"
 
-struct reg_dados{
-    char removido;
-    int tamanhoRegistro;
-    long int prox;
-    int idAttack;
-    int year;
-    float financialLoss;
-    char country[20]; // keyword igual a 1
-    char attackType[20];//keyword igual a 2
-    char targetIndustry[20];//keyword igual a 3
-    char defenseMechanism[20];//keyword igual a 4
-};
-
 void scan_quote_string(char *str) {
 
 	/*
@@ -69,24 +56,22 @@ scanf("%*c") --> lê um char e não guarda em nenhuma variável, como se tivesse
 
 */
 
-REG_DADOS busca_registrador(FILE *fp, char *nomeDoCampo, void *valorDoCampo, int quantidadeBuscas) {
-    REG_DADOS reg = criar_regDados();
+/*REGPARAMS busca_registrador(FILE *fp, char *nomeDoCampo, void *valorDoCampo, int quantidadeBuscas) {
 
     if(verificar_vazio == 0) {
         printf("Registro inexistente.\n");
     } else {
-        for(int i = 0; i < quantidadeBuscas; i++) {
-            while(fread(&buffer, sizeof(char), 1, fp) == 1) {
-                fseek(fp, -1, SEEK_CUR);
-                REG_DADOS r = ler_regDados(fp);
-                if (r.removido == '0') {
-                    comparar_registrador(r, nomeDoCampo, valorDoCampo);
-                }
-            } 
-        }
+		while(fread(&buffer, sizeof(char), 1, fp) == 1) {
+			fseek(fp, -1, SEEK_CUR);
+			REGPARAMS *r = ler_regDados(fp);
+			if (r->removido == '0') {
+				int auxiliar = 1;
+				comparar_registrador(r, nomeDoCampo, valorDoCampo);
+			}
+		} 
     }
 
 
 
     return reg;
-}
+}*/

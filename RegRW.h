@@ -23,5 +23,13 @@
     REG_DADOS* ler_regDados(FILE *fp);
     bool escrever_regDados(REG_DADOS* reg);
     void printt_reg(REG_DADOS* reg);
+    char get_removido(REG_DADOS *r);
+    int get_idAttack(REG_DADOS *r);
+    int get_year(REG_DADOS *r);
+    float get_financialLoss(REG_DADOS *r);
+    char* get_country(REG_DADOS *r);
+    char* get_attackType(REG_DADOS *r);
+    char* get_targetIndustry(REG_DADOS *r);
+    char* get_defenseMechanism(REG_DADOS *r);
 
 #endif
