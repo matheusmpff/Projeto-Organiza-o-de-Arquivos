@@ -20,23 +20,23 @@ void imprimir_registros(REG_DADOS *r) {
     printf("IDENTIFICADOR DO ATAQUE: %d\n", r->idAttack);
     printf("ANO EM QUE O ATAQUE OCORREU: %d\n", r->year);
     printf("PAIS ONDE OCORREU O ATAQUE: ");
-    for(int i = 0; r->country[i] != '\0'; i++) {
+    for(int i = 1; r->country[i] != '\0' && r->country[i] != '$'; i++) {
         printf("%c", r->country[i]);
     }
     printf("\n");
     printf("SETOR DA INDUSTRIA QUE SOFREU O ATAQUE: ");
-    for(int i = 0; r->targetIndustry[i] != '\0'; i++) {
+    for(int i = 1; r->targetIndustry[i] != '\0'; i++) {
         printf("%c", r->targetIndustry[i]);
     }
     printf("\n");
     printf("TIPO DE AMEACA A SEGURANCA CIBERNETICA: ");
-    for(int i = 0; r->attackType[i] != '\0'; i++) {
+    for(int i = 1; r->attackType[i] != '\0'; i++) {
         printf("%c", r->attackType[i]);
     }
     printf("\n");
     printf("PREJUIZO CAUSADO PELO ATAQUE: %f\n", r->financialLoss);
     printf("ESTRATEGIA DE DEFESA CIBERNETICA EMPREGADA PARA RESOLVER O PROBLEMA: ");
-    for(int i = 0; r->defenseMechanism[i] != '\0'; i++) {
+    for(int i = 1; r->defenseMechanism[i] != '\0'; i++) {
         printf("%c", r->defenseMechanism[i]);
     }
     printf("\n");
@@ -62,7 +62,7 @@ void print_registros(FILE *fp) {
     if(verificar_vazio == 0) {
         printf("Registro inexistente.\n");
     } else {
-        while(fread(&buffer, sizeof(char), 1, fp) > 0) {
+        while(fread(&buffer, sizeof(char), 1, fp) == 1) {
             fseek(fp, -1, SEEK_CUR);
             REG_DADOS r = ler_regDados(fp);
             if (r.removido == '0') {
