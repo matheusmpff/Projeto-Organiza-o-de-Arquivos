@@ -11,7 +11,7 @@ int main(){
     REGPARAMS params;
 
     params.removido = '0';
-    params.tamanhoRegistro = 12;
+    params.tamanhoRegistro = 57;
     params.prox = 13;
     params.idAttack = 14;
     params.year = 2001;

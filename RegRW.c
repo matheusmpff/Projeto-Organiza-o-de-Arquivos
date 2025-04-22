@@ -167,49 +167,59 @@ bool escrever_regDados(REG_DADOS *reg){
 }
 
 void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
+
     char aux;
-    
-    fread(&aux,sizeof(char),1,fp);
-    int i = 0;
-    if(aux == '1'){
-        do{
-            fread(&reg->country[i],sizeof(char),1,fp);
-            i++;
+    int tam = reg->tamanhoRegistro;
+
+    while(tam > 25){
+        fread(&aux,sizeof(char),1,fp);
+        int i = 0;
+        if(aux == '1'){
+            do{
+                fread(&reg->country[i],sizeof(char),1,fp);
+                i++;
+            }
+            while(reg->country[i-1]!='|');
+            reg->country[i-1] = '\0';
+            tam = tam - strlen(reg->country) - 1; 
+            printf("%d\n",tam);
         }
-        while(reg->country[i]!='|');
-        reg->country[i-1] = '\0'; 
-    }
-    
-    i = 0;
-    if(aux == '2'){
-        do{
-            fread(&reg->attackType[i],sizeof(char),1,fp);
-            i++;
+        
+        i = 0;
+        if(aux == '2'){
+            do{
+                fread(&reg->attackType[i],sizeof(char),1,fp);
+                i++;
+            }
+            while(reg->attackType[i-1]!='|'); 
+            reg->attackType[i-1] = '\0';
+            tam = tam - strlen(reg->attackType) - 1;
+            printf("%d\n",tam);   
         }
-        while(reg->attackType[i]!='|'); 
-        reg->attackType[i-1] = '\0';
-        fread(&aux,sizeof(char),1,fp);    
-    }
-    
-    i=0;
-    if(aux == '3'){
-        do{
-            fread(&reg->targetIndustry[i],sizeof(char),1,fp);
-            i++;
+        
+        i=0;
+        if(aux == '3'){
+            do{
+                fread(&reg->targetIndustry[i],sizeof(char),1,fp);
+                i++;
+            }
+            while(reg->targetIndustry[i-1]!='|');
+            reg->targetIndustry[i-1] = '\0';
+            tam = tam - strlen(reg->targetIndustry) - 1; 
+            printf("%d\n",tam);     
         }
-        while(reg->targetIndustry[i]!='|');
-        reg->targetIndustry[i-1] = '\0';
-        fread(&aux,sizeof(char),1,fp);      
-    }
-    
-    i=0;
-    if(aux == '4'){
-        do{
-            fread(&reg->defenseMechanism[i],sizeof(char),1,fp);
-            i++;
+        
+        i=0;
+        if(aux == '4'){
+            do{
+                fread(&reg->defenseMechanism[i],sizeof(char),1,fp);
+                i++;
+            }
+            while(reg->defenseMechanism[i-1]!='|');
+            reg->defenseMechanism[i-1] = '\0';
+            tam = tam - strlen(reg->defenseMechanism) - 1;
+            printf("%d\n",tam);    
         }
-        while(reg->defenseMechanism[i]!='|');
-        reg->defenseMechanism[i-1] = '\0';      
     }
      
 }
@@ -224,8 +234,10 @@ REG_DADOS* ler_regDados(FILE *fp){
     fread(&reg->year,sizeof(int),1,fp);
     fread(&reg->financialLoss,sizeof(float),1,fp);
     
+    if(reg->tamanhoRegistro > 25){
+        ler_campos_variaveis(fp, reg);
+    }
     
-    ler_campos_variaveis(fp, reg);
 
     return reg;
 }
