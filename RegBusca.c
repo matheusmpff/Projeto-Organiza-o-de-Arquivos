@@ -1,8 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 #include "RegRW.h"
 #include "RegPrint.h"
+#include "RegBusca.h"
+
+struct filtros {
+	char parametro[20];
+	char valor[20];
+};
 
 void scan_quote_string(char *str) {
 
@@ -56,22 +63,70 @@ scanf("%*c") --> lê um char e não guarda em nenhuma variável, como se tivesse
 
 */
 
-/*REGPARAMS busca_registrador(FILE *fp, char *nomeDoCampo, void *valorDoCampo, int quantidadeBuscas) {
+FILTROS *criarFiltro(char *parametro, char *valor) {
+	FILTROS *filtro = (FILTROS*) malloc(sizeof(FILTROS) * 1);
+
+	strcpy(filtro->parametro, parametro);
+	strcpy(filtro->valor, valor);
+
+	return filtro;	
+}
+
+
+
+
+
+int compararParametros(REG_DADOS *r, FILTROS *filtro) {
+	if(strcmp(filtro->parametro, "idAttack") == 0) {
+		return atoi(filtro->valor) == get_idAttack(r);
+	} else if(strcmp(filtro->parametro, "year") == 0) {
+		return atoi(filtro->valor) == get_year(r);
+	} else if(strcmp(filtro->parametro, "financialLoss") == 0) {
+		return atof(filtro->valor) == get_financialLoss(r);
+	} else if(strcmp(filtro->parametro, "country") == 0) {
+		return strcmp(filtro->valor, get_country(r)) == 0;
+	} else if(strcmp(filtro->parametro, "attacktype") == 0) {
+		return strcmp(filtro->valor, get_attackType(r)) == 0;
+	} else if(strcmp(filtro->parametro, "targetIndustry") == 0) {
+		return strcmp(filtro->valor, get_targetIndustry(r)) == 0;
+	} else if(strcmp(filtro->parametro, "defenseMechanism") == 0) {
+		return strcmp(filtro->valor, get_defenseMechanism(r)) == 0;
+	}
+
+	return 0;
+}
+
+void busca_registrador(FILE *fp, FILTROS **filtros, int quantidadeFiltros, int quantidadeBuscas) {
+	char buffer;
+	int registrosEncontrados = 0;
 
     if(verificar_vazio == 0) {
         printf("Registro inexistente.\n");
     } else {
 		while(fread(&buffer, sizeof(char), 1, fp) == 1) {
 			fseek(fp, -1, SEEK_CUR);
-			REGPARAMS *r = ler_regDados(fp);
-			if (r->removido == '0') {
+			REG_DADOS *r = ler_regDados(fp);
+			if(get_removido(r) == '0') {
 				int auxiliar = 1;
-				comparar_registrador(r, nomeDoCampo, valorDoCampo);
+				for(int i = 0; i < quantidadeFiltros; i++) {
+					if(!compararParametros(r, &filtros[i])) {
+						auxiliar = 0;
+						break;
+					}
+
+				}
+				if(auxiliar) {
+					printf("achou busca\n");
+					imprimir_registros(r);
+					registrosEncontrados++;
+	
+					if(registrosEncontrados >= quantidadeBuscas)
+						break;
+				}
 			}
-		} 
+		}
+		if(registrosEncontrados == 0) {
+			printf("NADA CONSTA\n");
+		}
     }
-
-
-
-    return reg;
-}*/
+}
