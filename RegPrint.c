@@ -35,24 +35,28 @@ int verificar_vazio(FILE *fp) {
 
     //Vai para o final
     fseek(fp, 0, SEEK_END);
-    tamanho = ftell(fp);
+    tamanho = ftell(fp) - pos_atual;
 
     //Volta a posicao original
     fseek(fp, pos_atual, SEEK_SET);
+    printf("Verificou\n");
 
     return tamanho;
 }
 
 void print_registros(FILE *fp) {
     char buffer;
-
-    if(verificar_vazio == 0) {
+    rewind(fp);
+    fseek(fp, 276, SEEK_CUR);
+    if(verificar_vazio(fp) == 0) {
         printf("Registro inexistente.\n");
     } else {
         while(fread(&buffer, sizeof(char), 1, fp) == 1) {
+            printf("ENtrou\n");
+            printf("%c\n", buffer);
             fseek(fp, -1, SEEK_CUR);
             REG_DADOS *r = ler_regDados(fp);
-            r = ler_regDados(fp);
+            printf("AQUIUIUI\n");
             if (get_removido(r) == '0') {
                 imprimir_registros(r);
             }

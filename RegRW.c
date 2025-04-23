@@ -288,7 +288,7 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
             while(reg->country[i-1]!='|');
             reg->country[i-1] = '\0';
             tam = tam - strlen(reg->country) - 1; 
-            printf("%d\n",tam);
+            //printf("%d\n",tam);
         }
         
         i = 0;
@@ -300,7 +300,7 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
             while(reg->attackType[i-1]!='|'); 
             reg->attackType[i-1] = '\0';
             tam = tam - strlen(reg->attackType) - 1;
-            printf("%d\n",tam);   
+            //printf("%d\n",tam);   
         }
         
         i=0;
@@ -312,7 +312,7 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
             while(reg->targetIndustry[i-1]!='|');
             reg->targetIndustry[i-1] = '\0';
             tam = tam - strlen(reg->targetIndustry) - 1; 
-            printf("%d\n",tam);     
+            //printf("%d\n",tam);     
         }
         
         i=0;
@@ -324,7 +324,7 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
             while(reg->defenseMechanism[i-1]!='|');
             reg->defenseMechanism[i-1] = '\0';
             tam = tam - strlen(reg->defenseMechanism) - 1;
-            printf("%d\n",tam);    
+            //printf("%d\n",tam);    
         }
     }
      

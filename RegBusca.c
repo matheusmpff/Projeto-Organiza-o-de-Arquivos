@@ -2,6 +2,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "RegRW.h"
 #include "RegPrint.h"
 #include "RegBusca.h"
@@ -63,6 +64,10 @@ scanf("%*c") --> lê um char e não guarda em nenhuma variável, como se tivesse
 
 */
 
+/*void set_filtro(FILTROS *filtros, char *parametro, char *valor, int posicaoDoFiltro) {
+	filtros[posicaoDoFiltro] = criarFiltro(parametro, valor);
+}*/
+
 FILTROS *criarFiltro(char *parametro, char *valor) {
 	FILTROS *filtro = (FILTROS*) malloc(sizeof(FILTROS) * 1);
 
@@ -72,7 +77,12 @@ FILTROS *criarFiltro(char *parametro, char *valor) {
 	return filtro;	
 }
 
-
+/*FILTROS *gerar_filtros() {
+	FILTROS *filtro = (FILTROS *) malloc(sizeof(FILTROS) * 1);
+	strcpy(filtro->parametro, parametro);
+	strcpy(filtro->valor, valor); 
+	return filtros;
+}*/
 
 
 
@@ -96,14 +106,17 @@ int compararParametros(REG_DADOS *r, FILTROS *filtro) {
 	return 0;
 }
 
-void busca_registrador(FILE *fp, FILTROS **filtros, int quantidadeFiltros, int quantidadeBuscas) {
+void busca_registrador(FILE *fp, FILTROS *filtros, int quantidadeFiltros, int quantidadeBuscas) {
 	char buffer;
 	int registrosEncontrados = 0;
+	printf("ENTROU\n");
 
-    if(verificar_vazio == 0) {
+    if(verificar_vazio(fp) == 0) {
         printf("Registro inexistente.\n");
     } else {
+		printf("AQIUII\n");
 		while(fread(&buffer, sizeof(char), 1, fp) == 1) {
+			printf("Entrou aqui \n");
 			fseek(fp, -1, SEEK_CUR);
 			REG_DADOS *r = ler_regDados(fp);
 			if(get_removido(r) == '0') {
@@ -129,4 +142,42 @@ void busca_registrador(FILE *fp, FILTROS **filtros, int quantidadeFiltros, int q
 			printf("NADA CONSTA\n");
 		}
     }
+
+}
+
+char *readLine(FILE *fp) {
+	int n = 0;
+	int size = 128;
+	int ch;
+
+	char *line = (char *) malloc(sizeof(char) * (size + 1));
+
+	while((ch = getc(fp)) != '\n' && ch != EOF) {
+		if(n == size) {
+			size *= 2;
+			line = realloc(line, size + 1);
+		}
+		line[n++] = ch;
+	}
+	if(n == 0 && ch == EOF) {
+		free(line);
+		return NULL;
+	}
+	line[n] = '\0';
+	line = realloc(line ,n + 1);
+	return line;
+
+}
+
+void ler_linha_busca(FILE *fp) {
+	/*int quantidadeBuscas = 0;
+	char *nomeDoCampo = null;
+	while(1) {
+		scanf("%d", &quantidadeBuscas);
+		scanf(" %s", nomeDoCampo);
+
+	}*/
+	FILTROS *filtros = criarFiltro("country", "Brazil");
+	busca_registrador(fp, filtros, 1, 1);
+	
 }
