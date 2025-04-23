@@ -25,9 +25,11 @@ bool func2(char * string1){
     print_registros(fp);
 }
 
-bool func3(char* string1, char)
+bool func3(char* string1, int n){
 
-ler_entradas(){
+}
+
+void ler_entradas(){
     int func;
     char string1[20];
     char string2[20];
@@ -42,6 +44,6 @@ ler_entradas(){
     }
     if(func == 3){
         scanf("%d", &n);
-        func3(string1,string2,);
+        func3(string1,n);
     }
 }
