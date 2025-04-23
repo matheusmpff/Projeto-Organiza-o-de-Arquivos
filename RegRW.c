@@ -39,6 +39,7 @@ struct reg_dados{
 HEADER* create_header(HEADERPARAMS params){
 
     HEADER* h;
+    h =(HEADER*) malloc(sizeof(HEADER)*1);
     h->status = params.status;
     h->topo = params.topo;
     h->proxByteOffset = params.proxByteOffset;

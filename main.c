@@ -12,6 +12,4 @@ int main(){
     csv_to_bin();
     
 
-    
-
 }
