@@ -25,6 +25,8 @@ bool func2(char * string1){
     print_registros(fp);
 }
 
+bool func3(char* string1, char)
+
 ler_entradas(){
     int func;
     char string1[20];
@@ -36,8 +38,10 @@ ler_entradas(){
     
     if(func == 1){
         scanf("%s",string2);
+        func1(string1,string2);
     }
     if(func == 3){
         scanf("%s", &n);
+        func3();
     }
 }
