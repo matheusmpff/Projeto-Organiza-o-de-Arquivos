@@ -2,6 +2,8 @@
 #include "RegPrint.h"
 #include "RegRW.h"
 #include "csvRead.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 bool func1(char* string1, char*string2){
     if (csv_to_bin()){
@@ -15,7 +17,12 @@ bool func1(char* string1, char*string2){
 }
 
 bool func2(char * string1){
-    print_registros();
+    FILE* fp = fopen("arquivoB.bin","rb");
+    if(fp == NULL){
+        printf("Falha no processamento do arquivo.\n");
+        return false;
+    }
+    print_registros(fp);
 }
 
 ler_entradas(){
