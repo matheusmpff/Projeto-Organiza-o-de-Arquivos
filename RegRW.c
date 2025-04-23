@@ -297,6 +297,7 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
             while(reg->country[i-1]!='|');
             reg->country[i-1] = '\0';
             tam = tam - strlen(reg->country) - 1; 
+            printf("%s",reg->country);
             //printf("%d\n",tam);
         }
         
@@ -352,6 +353,7 @@ REG_DADOS* ler_regDados(FILE *fp){
     if(reg->tamanhoRegistro > 25){
         ler_campos_variaveis(fp, reg);
     }
+    
     
 
     return reg;

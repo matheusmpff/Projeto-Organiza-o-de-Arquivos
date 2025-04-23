@@ -42,6 +42,7 @@ int verificar_vazio(FILE *fp) {
     fseek(fp, pos_atual, SEEK_SET);
 
     return tamanho;
+    
 }
 
 void print_registros(FILE *fp) {

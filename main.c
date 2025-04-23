@@ -10,6 +10,6 @@
 
 int main(){
     csv_to_bin();
-    
-
+    FILE *fp = fopen("aruivoB.bin","rb");
+    print_registros(fp);
 }
