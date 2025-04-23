@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "RegRW.h"
 #include "RegPrint.h"
 
@@ -39,27 +40,26 @@ int verificar_vazio(FILE *fp) {
 
     //Volta a posicao original
     fseek(fp, pos_atual, SEEK_SET);
-    printf("Verificou\n");
 
     return tamanho;
 }
 
 void print_registros(FILE *fp) {
     char buffer;
-    rewind(fp);
-    fseek(fp, 276, SEEK_CUR);
-    if(verificar_vazio(fp) == 0) {
+    fseek(fp, 0, SEEK_END);
+    long int fimArquivo = ftell(fp);
+    fseek(fp, 276, SEEK_SET);
+
+    if(verificar_vazio(fp) <= 0) {
         printf("Registro inexistente.\n");
     } else {
-        while(fread(&buffer, sizeof(char), 1, fp) == 1) {
-            printf("ENtrou\n");
-            printf("%c\n", buffer);
-            fseek(fp, -1, SEEK_CUR);
+        while(ftell(fp) != fimArquivo) {
+            printf("%ld\n", ftell(fp));
             REG_DADOS *r = ler_regDados(fp);
-            printf("AQUIUIUI\n");
             if (get_removido(r) == '0') {
                 imprimir_registros(r);
             }
+            free(r);
         } 
     }
 
