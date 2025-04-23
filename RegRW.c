@@ -36,39 +36,150 @@ struct reg_dados{
     char defenseMechanism[20];//keyword igual a 4
 };
 
-HEADER create_header(){
+HEADER* create_header(){
 
-    HEADER h;
-    h.status = 0;
-    h.topo = 0;
-    h.proxByteOffset = 0;
-    h.nroReqArq = 0;
-    h.nroReqRem = 0;
-    h.codDescreveCountry = '2';
-    h.codDescreveType= '2';
-    h.codDescreveTargetIndustry = '3';
-    h.codDescreveDefense = '4';
+    HEADER* h;
+    h->status = '0';
+    h->topo = -1;
+    h->proxByteOffset = 0;
+    h->nroReqArq = 0;
+    h->nroReqRem = 0;
+    h->codDescreveCountry = '2';
+    h->codDescreveType= '2';
+    h->codDescreveTargetIndustry = '3';
+    h->codDescreveDefense = '4';
+
     return h;
 }
 
-    REG_DADOS* criar_regDados(REGPARAMS params){
-        REG_DADOS* reg;
+bool escrever_header(HEADER* h, FILE* fp){
+    fwrite(&h->status,sizeof(char),1,fp);
+    fwrite(&h->topo,sizeof(long int),1,fp);
+    fwrite(&h->proxByteOffset,sizeof(long int),1,fp);
+    fwrite(&h->nroReqArq,sizeof(int),1,fp);
+    fwrite(&h->nroReqRem,sizeof(int),1,fp);
+    fwrite(h->descreveIdentificador,sizeof(char),23,fp);
+    fwrite(h->descreveYear,sizeof(char),27,fp);
+    fwrite(h->descreverFinancialLoss,sizeof(char),28,fp);
+    fwrite(&h->codDescreveCountry,sizeof(char),1,fp);
+    fwrite(&h->descreveCountry,sizeof(char),26,fp);
+    fwrite(&h->codDescreveType,sizeof(char),1,fp);
+    fwrite(&h->descreveType,sizeof(char),38,fp);
+    fwrite(&h->codDescreveTargetIndustry,sizeof(char),1,fp);
+    fwrite(&h->descreveTargetIndustry,sizeof(char),38,fp);
+    fwrite(&h->codDescreveDefense,sizeof(char),1,fp);
+    fwrite(&h->descreveDefense,sizeof(char),67,fp);
 
-        reg = (REG_DADOS*) malloc(sizeof(REG_DADOS)*1);
+    return true;
 
-        reg->removido = params.removido; 
-        reg->tamanhoRegistro = params.tamanhoRegistro;
-        reg->prox = params.prox;
-        reg->year = params.year;
-        reg->idAttack = params.idAttack;
-        reg->financialLoss = params.financialLoss;
-        strcpy(reg->targetIndustry,params.targetIndustry);
-        strcpy(reg->defenseMechanism,params.defenseMechanism);
-        strcpy(reg->attackType,params.attackType);
-        strcpy(reg->country,params.country);
+}
 
-        return reg;
-    }
+int get_status(HEADER * h){
+    return h->status;
+}
+bool set_status(HEADER * h,int x){
+    h->status = x;
+    return true;
+}
+int get_topo(HEADER *h){
+    return h->topo;
+}
+bool set_topo(HEADER *h, int x){
+    h->topo = x;
+}
+int get_proxByteOffset(HEADER *h){
+    return h->proxByteOffset;
+}
+bool set_proxByteOffset(HEADER *h){
+    return h->proxByteOffset;
+}
+int get_nroReqArq(HEADER *h){
+    return h->nroReqArq;
+}
+bool set_nroReqArq(HEADER *h,int x){
+    h->nroReqArq = x;
+    return true;
+}
+int get_nroReqRem(HEADER *h){
+    return h->nroReqRem;
+}
+bool set_nroReqRem(HEADER *h, int x){
+    h->nroReqRem = x;
+    return true;
+}
+char * get_descreveident(HEADER *h){
+    return h->descreveIdentificador;
+}
+bool set_descreveident(HEADER *h,char * src){
+    strcpy(h->descreveIdentificador,src);
+    return true;
+}
+char * get_descreveYear(HEADER *h){
+    return h->descreveYear;
+}
+bool set_descreveYear(HEADER *h, char*src){
+    strcpy(h->descreveYear,src);
+    return true;
+}
+char * get_descreveFl(HEADER * h){
+    return h->descreverFinancialLoss;
+}
+bool set_descreveFl(HEADER *h, char * src){
+    strcpy(h->descreverFinancialLoss,src);
+    return true;
+}
+char *get_descreveCountry(HEADER *h){
+    return h->descreveCountry;
+}
+bool set_descreveCountry(HEADER * h,char * src){
+    strcpy(h->descreveCountry,src);
+    return true;
+}
+char *get_descreveType(HEADER *h){
+    return h->descreveType;
+}
+bool set_descreveType(HEADER *h, char* src){
+    strcpy(h->descreveType,src);
+    return true;
+}
+char * get_descreveTarget(HEADER *h){
+    return h->descreveTargetIndustry;
+}
+bool set_descreveTarget(HEADER *h, char* src){
+    strcpy(h->descreveTargetIndustry,src);
+    return true;
+}
+char * get_descreveDefense(HEADER *h){
+    return h->descreveDefense;
+}
+bool set_descreveDefense(HEADER *h, char* src){
+    strcpy(h->descreveDefense,src);
+    return true;
+}
+
+
+
+
+
+
+REG_DADOS* criar_regDados(REGPARAMS params){
+    REG_DADOS* reg;
+
+    reg = (REG_DADOS*) malloc(sizeof(REG_DADOS)*1);
+
+    reg->removido = params.removido; 
+    reg->tamanhoRegistro = params.tamanhoRegistro;
+    reg->prox = params.prox;
+    reg->year = params.year;
+    reg->idAttack = params.idAttack;
+    reg->financialLoss = params.financialLoss;
+    strcpy(reg->targetIndustry,params.targetIndustry);
+    strcpy(reg->defenseMechanism,params.defenseMechanism);
+    strcpy(reg->attackType,params.attackType);
+    strcpy(reg->country,params.country);
+
+    return reg;
+}
 
 char get_removido(REG_DADOS *r){
     return r->removido;
@@ -108,13 +219,8 @@ void add_lixo(int tam, char *vet){
     }
 }
 
-bool escrever_regDados(REG_DADOS *reg){
-    FILE * fp = fopen("arquivoB.bin", "a+");
+bool escrever_regDados(FILE* fp,REG_DADOS *reg){
 
-    if(fp == NULL){
-        printf("Erro ao abrir o arquivo");
-         return false;
-    }
     
     fwrite(&reg->removido,sizeof(char),1,fp);
     fwrite(&reg->tamanhoRegistro,sizeof(int),1,fp);
