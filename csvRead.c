@@ -8,7 +8,7 @@ bool csv_to_bin(){
     FILE* bin;
     HEADERPARAMS params_h;
 
-    fp = fopen("exemplos.csv","r");
+    fp = fopen("ataques.csv","r");
     bin = fopen("arquivoB.bin","ab");
     
 
@@ -45,7 +45,7 @@ bool csv_to_bin(){
 
 
 
-    while(fp != fim_csv){ 
+    while(ftell(fp) != fim_csv){ 
         REGPARAMS aux;
         aux.removido = '0';
         aux.tamanhoRegistro = 25;
@@ -60,7 +60,7 @@ bool csv_to_bin(){
         if(fscanf(fp,"%f,",&aux.financialLoss)!=1){
             aux.financialLoss = -1;
         }
-        fscanf("%[^,],%[^,],%[^,],%[^,]",aux.country,aux.attackType,aux.targetIndustry,aux.defenseMechanism);
+        fscanf(fp,"%[^,],%[^,],%[^,],%[^,]",aux.country,aux.attackType,aux.targetIndustry,aux.defenseMechanism);
 
         if(aux.country[0]!='\0'){
             aux.tamanhoRegistro += strlen(aux.country);
@@ -85,4 +85,6 @@ bool csv_to_bin(){
     fseek(bin,0,SEEK_SET);
     HEADER* h = create_header(params_h);
     escrever_header(h,bin);
+
+    return true;
 }
