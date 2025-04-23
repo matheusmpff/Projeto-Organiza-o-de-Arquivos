@@ -40,8 +40,6 @@ int main(){
     //ler_linha_busca(NULL);
     print_registros(fp);
 
-    fclose(fp);
-
     
 
 }

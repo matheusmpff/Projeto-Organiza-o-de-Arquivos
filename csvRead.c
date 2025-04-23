@@ -24,7 +24,7 @@ bool csv_to_bin(){
     params_h.proxByteOffset = 0;
     params_h.nroReqArq = 0;
     params_h.nroReqRem = 0;
-    
+
     fread(params_h.descreveIdentificador,sizeof(char),24,fp);
     params_h.descreveIdentificador[23] = '\0';
     fread(params_h.descreveYear,sizeof(char),28,fp);
@@ -83,6 +83,6 @@ bool csv_to_bin(){
     }
 
     fseek(bin,0,SEEK_SET);
-    HEADER* h = create_header();
+    HEADER* h = create_header(params_h);
     escrever_header(h,bin);
 }

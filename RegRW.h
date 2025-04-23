@@ -37,7 +37,7 @@
         char descreveDefense[68];
     }HEADERPARAMS;
 
-    HEADER* create_header();
+    HEADER* create_header(HEADERPARAMS params);
     bool escrever_header(HEADER* h, FILE* fp);
     REG_DADOS* criar_regDados();
     REG_DADOS* ler_regDados(FILE *fp);

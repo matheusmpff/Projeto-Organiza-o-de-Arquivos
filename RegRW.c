@@ -36,18 +36,25 @@ struct reg_dados{
     char defenseMechanism[20];//keyword igual a 4
 };
 
-HEADER* create_header(){
+HEADER* create_header(HEADERPARAMS params){
 
     HEADER* h;
-    h->status = '0';
-    h->topo = -1;
-    h->proxByteOffset = 0;
-    h->nroReqArq = 0;
-    h->nroReqRem = 0;
-    h->codDescreveCountry = '2';
+    h->status = params.status;
+    h->topo = params.topo;
+    h->proxByteOffset = params.proxByteOffset;
+    h->nroReqArq = params.nroReqArq;
+    h->nroReqRem = params.nroReqRem;
+    h->codDescreveCountry = '1';
     h->codDescreveType= '2';
     h->codDescreveTargetIndustry = '3';
     h->codDescreveDefense = '4';
+    strcpy(h->descreveCountry,params.descreveCountry);
+    strcpy(h->descreveDefense,params.descreveDefense);
+    strcpy(h->descreveIdentificador,params.descreveIdentificador);
+    strcpy(h->descreverFinancialLoss,params.descreverFinancialLoss);
+    strcpy(h->descreveTargetIndustry,params.descreveTargetIndustry);
+    strcpy(h->descreveType,params.descreveType);
+    strcpy(h->descreveYear,params.descreveYear);
 
     return h;
 }
