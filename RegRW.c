@@ -377,3 +377,16 @@ void printt_reg(REG_DADOS* reg){
     printf("defense: %s\n",reg->defenseMechanism);
     printf("target: %s\n",reg->targetIndustry);
 }
+
+void inicializa_params(REGPARAMS *params){
+    strcpy(params->attackType,"oi");
+    strcpy(params->country,"oi");
+    strcpy(params->defenseMechanism,"oi");
+    strcpy(params->targetIndustry,"oi");
+    params->idAttack = 0;
+    params->prox = -1;
+    params->removido = '0';
+    params->tamanhoRegistro = 25;
+    params->year = 2001;
+
+}

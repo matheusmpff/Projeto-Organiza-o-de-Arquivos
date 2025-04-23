@@ -41,7 +41,7 @@ ler_entradas(){
         func1(string1,string2);
     }
     if(func == 3){
-        scanf("%s", &n);
-        func3();
+        scanf("%d", &n);
+        func3(string1,string2,);
     }
 }
