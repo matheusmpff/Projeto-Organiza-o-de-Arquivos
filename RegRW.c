@@ -93,6 +93,7 @@ int get_topo(HEADER *h){
 }
 bool set_topo(HEADER *h, int x){
     h->topo = x;
+    return true;
 }
 int get_proxByteOffset(HEADER *h){
     return h->proxByteOffset;

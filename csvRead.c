@@ -20,6 +20,7 @@ bool csv_to_bin(){
     long int fim_csv = ftell(fp);
     fseek(fp,0,SEEK_SET);
     
+    params_h.status = '0';
     params_h.topo = -1;
     params_h.proxByteOffset = 0;
     params_h.nroReqArq = 0;
@@ -44,13 +45,12 @@ bool csv_to_bin(){
     fseek(bin,276,SEEK_SET);
 
 
-
+    int n = 0;
     while(ftell(fp) != fim_csv){ 
         REGPARAMS aux;
         aux.removido = '0';
         aux.tamanhoRegistro = 25;
         aux.prox = -1;
-       
         if(fscanf(fp,"%d,",&aux.idAttack)!=1){
             aux.idAttack = -1;
         }
@@ -60,7 +60,9 @@ bool csv_to_bin(){
         if(fscanf(fp,"%f,",&aux.financialLoss)!=1){
             aux.financialLoss = -1;
         }
-        fscanf(fp,"%[^,],%[^,],%[^,],%[^,]",aux.country,aux.attackType,aux.targetIndustry,aux.defenseMechanism);
+        char a;
+        fscanf(fp,"%[^,],%[^,],%[^,],%[^\n]",aux.country,aux.attackType,aux.targetIndustry,aux.defenseMechanism);
+        fread(&a,sizeof(char),1,fp);
 
         if(aux.country[0]!='\0'){
             aux.tamanhoRegistro += strlen(aux.country);
@@ -74,17 +76,25 @@ bool csv_to_bin(){
         if(aux.defenseMechanism[0] != '\0'){
             aux.tamanhoRegistro += strlen(aux.defenseMechanism);
         }
-
+       
         REG_DADOS* reg = criar_regDados(aux);
+        printt_reg(reg);
         escrever_regDados(bin,reg);
+        
         params_h.nroReqArq +=1;
-
-
+        
+        free(reg);
     }
+    printf("%d",n);
+
+
 
     fseek(bin,0,SEEK_SET);
     HEADER* h = create_header(params_h);
     escrever_header(h,bin);
+    free(h);
+    fclose(fp);
+    fclose(bin);
 
     return true;
 }
