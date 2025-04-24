@@ -55,7 +55,7 @@ bool csv_to_bin(){
             aux.idAttack = -1;
         }
         if(fscanf(fp,"%d,",&aux.year)!=1){
-            aux.financialLoss = -1;
+            aux.year = -1;
         }
         if(fscanf(fp,"%f,",&aux.financialLoss)!=1){
             aux.financialLoss = -1;
