@@ -276,7 +276,6 @@ bool escrever_regDados(FILE* fp,REG_DADOS *reg){
         fwrite(&aux,sizeof(char),1,fp);
     }
 
-    fclose(fp);
     return true;
     
 }
@@ -297,7 +296,6 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
             while(reg->country[i-1]!='|');
             reg->country[i-1] = '\0';
             tam = tam - strlen(reg->country) - 1; 
-            printf("%s",reg->country);
             //printf("%d\n",tam);
         }
         
@@ -341,19 +339,19 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
 }
 
 REG_DADOS* ler_regDados(FILE *fp){
-    REGPARAMS params;
-
-    params.country [0]= '\0';
-    params.defenseMechanism[0] = '\0';
-    params.targetIndustry[0] = '\0';
-    params.attackType[0] = '\0';
-    REG_DADOS *reg = criar_regDados(params);
+    REGPARAMS *params;
+    params = (REGPARAMS *) malloc(sizeof(REGPARAMS) * 1);
+    inicializa_params(params);
+    REG_DADOS *reg = criar_regDados(*params);
+    free(params);
     fread(&reg->removido,sizeof(char),1,fp);
     fread(&reg->tamanhoRegistro,sizeof(int),1,fp);
     fread(&reg->prox,sizeof(long int),1,fp);
     fread(&reg->idAttack,sizeof(int),1,fp);
     fread(&reg->year,sizeof(int),1,fp);
     fread(&reg->financialLoss,sizeof(float),1,fp);
+
+    printt_reg(reg);
     
     if(reg->tamanhoRegistro > 25){
         ler_campos_variaveis(fp, reg);

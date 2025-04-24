@@ -9,7 +9,7 @@ bool csv_to_bin(){
     HEADERPARAMS params_h;
 
     fp = fopen("ataques.csv","r");
-    bin = fopen("arquivoB.bin","ab");
+    bin = fopen("arquivoB.bin","wb");
     
 
     if(fp == NULL || bin == NULL){
@@ -90,9 +90,6 @@ bool csv_to_bin(){
         }
         aux.defenseMechanism[i] = '\0';
 
-
-
-
         if(aux.country[0]!='\0'){
             aux.tamanhoRegistro += strlen(aux.country);
         }
@@ -105,9 +102,9 @@ bool csv_to_bin(){
         if(aux.defenseMechanism[0] != '\0'){
             aux.tamanhoRegistro += strlen(aux.defenseMechanism);
         }
-       
+        //printf("COUNTRY: %s\n", aux.country);
         REG_DADOS* reg = criar_regDados(aux);
-        printt_reg(reg);
+        //printt_reg(reg);
         escrever_regDados(bin,reg);
         
         params_h.nroReqArq +=1;

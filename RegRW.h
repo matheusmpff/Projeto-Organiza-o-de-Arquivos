@@ -51,5 +51,6 @@
     char* get_attackType(REG_DADOS *r);
     char* get_targetIndustry(REG_DADOS *r);
     char* get_defenseMechanism(REG_DADOS *r);
+    void inicializa_params(REGPARAMS *params);
 
 #endif

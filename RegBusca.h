@@ -1,6 +1,8 @@
 #ifndef RegBusca
     #define RegBusca
     #include <stdbool.h>
+    #include <stdio.h>
+
     typedef struct filtros FILTROS;
 
     FILTROS *criarFiltro(char *parametro, char *valor);

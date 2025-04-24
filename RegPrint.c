@@ -8,23 +8,23 @@ void imprimir_registros(REG_DADOS *r) {
     printf("IDENTIFICADOR DO ATAQUE: %d\n", get_idAttack(r));
     printf("ANO EM QUE O ATAQUE OCORREU: %d\n", get_year(r));
     printf("PAIS ONDE OCORREU O ATAQUE: ");
-    for(int i = 1; get_country(r)[i] != '\0' && get_country(r)[i] != '$'; i++) {
+    for(int i = 0; get_country(r)[i] != '\0' && get_country(r)[i] != '$'; i++) {
         printf("%c", get_country(r)[i]);
     }
     printf("\n");
     printf("SETOR DA INDUSTRIA QUE SOFREU O ATAQUE: ");
-    for(int i = 1; get_targetIndustry(r)[i] != '\0'; i++) {
+    for(int i = 0; get_targetIndustry(r)[i] != '\0'; i++) {
         printf("%c", get_targetIndustry(r)[i]);
     }
     printf("\n");
     printf("TIPO DE AMEACA A SEGURANCA CIBERNETICA: ");
-    for(int i = 1; get_attackType(r)[i] != '\0'; i++) {
+    for(int i = 0; get_attackType(r)[i] != '\0'; i++) {
         printf("%c", get_attackType(r)[i]);
     }
     printf("\n");
     printf("PREJUIZO CAUSADO PELO ATAQUE: %f\n", get_financialLoss(r));
     printf("ESTRATEGIA DE DEFESA CIBERNETICA EMPREGADA PARA RESOLVER O PROBLEMA: ");
-    for(int i = 1; get_defenseMechanism(r)[i] != '\0'; i++) {
+    for(int i = 0; get_defenseMechanism(r)[i] != '\0'; i++) {
         printf("%c", get_defenseMechanism(r)[i]);
     }
     printf("\n");
@@ -55,9 +55,9 @@ void print_registros(FILE *fp) {
         printf("Registro inexistente.\n");
     } else {
         while(ftell(fp) != fimArquivo) {
-            printf("%ld\n", ftell(fp));
             REG_DADOS *r = ler_regDados(fp);
             if (get_removido(r) == '0') {
+                printf("ENTROU AQUI\n");
                 imprimir_registros(r);
             }
             free(r);
