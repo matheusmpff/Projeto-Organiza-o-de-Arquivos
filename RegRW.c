@@ -60,6 +60,11 @@ HEADER* create_header(HEADERPARAMS params){
     return h;
 }
 
+/*
+Parâmetros:
+    h-> ponteiro para struct header que tem as informações
+    fp-> ponteiro do arquivo binário aberto para escrita.
+Função responsável por escrever o header dentro do arquivo binário */
 bool escrever_header(HEADER* h, FILE* fp){
     fwrite(&h->status,sizeof(char),1,fp);
     fwrite(&h->topo,sizeof(long int),1,fp);
@@ -170,6 +175,11 @@ bool set_descreveDefense(HEADER *h, char* src){
 
 
 
+/*
+Parâmetros:
+    params-> struct REGPARAMS responsável por armazenar os dados que devem ser adicionados na STRUCT
+Função responsável por alocar dinamicamente a struct que representa os registros de dados, além de inicializar os campos da struct com os paramêtros.
+*/
 
 REG_DADOS* criar_regDados(REGPARAMS params){
     REG_DADOS* reg;
@@ -228,6 +238,11 @@ void add_lixo(int tam, char *vet){
     }
 }
 
+/* 
+Parâmetros:
+    fp-> ponteiro do arquivo binário aberto para escrita
+    reg-> ponteiro pra a struct registro que será adicionada ao arquivo binário. Responsável por adicionar os códigos dos campos variáveis antes do valor próprio em si do dado que deve ser armazenado nesses campos
+*/
 bool escrever_regDados(FILE* fp,REG_DADOS *reg){
 
     
@@ -276,6 +291,7 @@ bool escrever_regDados(FILE* fp,REG_DADOS *reg){
         fwrite(&aux,sizeof(char),1,fp);
     }
 
+    fclose(fp);
     return true;
     
 }
@@ -337,6 +353,11 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
     }
      
 }
+/*
+Parâmetros: 
+    fp-> ponteiro para o arquivo binário aberto para leitura
+A função é responsável por ler um registro presente no arquivo binário. Aassume-se que o ponteiro já venha posicionado adeuqadamente na posição que se deseja ler no arquivo. A função lê os valores e armazena eles na struct REG_DADOS, o qual pode ser acessada por meio de um ponteiro para ela, que é retornada pela função 
+ */
 
 REG_DADOS* ler_regDados(FILE *fp){
     REGPARAMS params;
@@ -373,6 +394,12 @@ void printt_reg(REG_DADOS* reg){
     printf("target: %s\n",reg->targetIndustry);
 }
 
+/*
+Parâmetros;
+    params-> struct para ter seus campos inicializados pela função
+A função tem como trabalho inicializar os campos de uma struct passada por parâmetro, de tal forma a ter um controle maior dos dados que estão sendo manipulados dentro dela.
+
+ */
 void inicializa_params(REGPARAMS *params){
     strcpy(params->attackType,"\0");
     strcpy(params->country,"\0");

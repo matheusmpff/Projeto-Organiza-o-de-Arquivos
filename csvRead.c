@@ -3,6 +3,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+/*Função para converter um arquvio csv para binário, a primeira parte do programa compila lé a primeira linha do arquivo para pegar os dados necessários para criar o header. Após a coleta dos dados para o header que tem um tamanho fixo sempre, começa a leitura dos dados para serem criados os registros do arquivo binário
+
+Para a leitura de dados númericos foi usado o fscanf para poder converter os dados vindos do arquivo texto para seus respectivos tipos de dados. Após a leitura dos dados númericos, começa a leitura dos dados textuais, os quais também apresentam tamanho variado. Com isso, utilizou-se o fread para poder ter controle byte a byte do que está sendo lido e não ter erro de leitura e nem ter erro na parte de adicionar o \0 ao final das Strings. 
+*/
 bool csv_to_bin(){
     FILE *fp;
     FILE* bin;
@@ -63,7 +67,7 @@ bool csv_to_bin(){
 
         int i = 0;
         char a; 
-        while (fread(&a, sizeof(char), 1, fp) == 1 && a != ',') {
+        while (fread(&a,sizeof(char),1,fp) == 1 && a != ',') {
             aux.country[i] = a;
             i++;
         }

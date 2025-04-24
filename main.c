@@ -7,7 +7,6 @@
 #include "csvRead.h"
 
 
-
 int main(){
     csv_to_bin();
     FILE *fp = fopen("arquivoB.bin","rb");
