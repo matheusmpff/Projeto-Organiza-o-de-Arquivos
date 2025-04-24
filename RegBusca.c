@@ -110,20 +110,23 @@ void busca_registrador(FILE *fp, FILTROS *filtros, int quantidadeFiltros, int qu
 	char buffer;
 	int registrosEncontrados = 0;
 	printf("ENTROU\n");
+	rewind(fp);
+	fseek(fp, 0, SEEK_END);
+    long int fimArquivo = ftell(fp);
+    fseek(fp, 276, SEEK_SET);
 
     if(verificar_vazio(fp) == 0) {
         printf("Registro inexistente.\n");
     } else {
 		printf("AQIUII\n");
-		while(fread(&buffer, sizeof(char), 1, fp) == 1) {
-			printf("Entrou aqui \n");
-			fseek(fp, -1, SEEK_CUR);
+		while(ftell(fp) != fimArquivo) {
 			REG_DADOS *r = ler_regDados(fp);
 			if(get_removido(r) == '0') {
 				int auxiliar = 1;
 				for(int i = 0; i < quantidadeFiltros; i++) {
 					if(!compararParametros(r, &filtros[i])) {
 						auxiliar = 0;
+						free(r);
 						break;
 					}
 
@@ -133,10 +136,13 @@ void busca_registrador(FILE *fp, FILTROS *filtros, int quantidadeFiltros, int qu
 					imprimir_registros(r);
 					registrosEncontrados++;
 	
-					if(registrosEncontrados >= quantidadeBuscas)
+					if(registrosEncontrados > quantidadeBuscas) {
+						free(r);
 						break;
+					}
 				}
 			}
+			free(r);
 		}
 		if(registrosEncontrados == 0) {
 			printf("NADA CONSTA\n");
@@ -177,7 +183,10 @@ void ler_linha_busca(FILE *fp) {
 		scanf(" %s", nomeDoCampo);
 
 	}*/
-	FILTROS *filtros = criarFiltro("country", "Brazil");
+	FILTROS *filtros = criarFiltro("country", "BRAZIL");
+	printf("FILTRO: %s\n", filtros->parametro);
+	printf("VALOR: %s\n", filtros->valor);
 	busca_registrador(fp, filtros, 1, 1);
+	free(filtros);
 	
 }

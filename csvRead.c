@@ -84,7 +84,7 @@ bool csv_to_bin(){
         aux.targetIndustry[i] = '\0';
 
         i=0;
-        while(fread(&a,sizeof(char),1,fp) == 1 && a != ',') {
+        while(fread(&a,sizeof(char),1,fp) == 1 && a != '\n') {
             aux.defenseMechanism[i] = a;
             i++;
         }
@@ -104,14 +104,12 @@ bool csv_to_bin(){
         }
         //printf("COUNTRY: %s\n", aux.country);
         REG_DADOS* reg = criar_regDados(aux);
-        //printt_reg(reg);
         escrever_regDados(bin,reg);
         
         params_h.nroReqArq +=1;
         
         free(reg);
     }
-    printf("%d",n);
 
 
 
