@@ -14,6 +14,10 @@ void imprimir_registros(REG_DADOS *r) {
     printf("ESTRATEGIA DE DEFESA CIBERNETICA EMPREGADA PARA RESOLVER O PROBLEMA: %s$$\n", get_defenseMechanism(r));
 }
 
+/*
+    Funcao que verifica se o ponteiro para o arquivo fp aponta para o final do arquivo.
+    Para isso, ele subtrai o valor da posicao final pela atual e retorna este valor
+*/
 int verificar_vazio(FILE *fp) {
     int tamanho = 0;
     int pos_atual = ftell(fp);
@@ -29,19 +33,24 @@ int verificar_vazio(FILE *fp) {
     
 }
 
+/*
+    Função de imprimir todos os registros do arquivo binario.
+    Recebe um ponteiro FILE para o arquivo binario,
+    pula o cabecario e imprime os registros
+*/
 void print_registros(FILE *fp) {
     char buffer;
     fseek(fp, 0, SEEK_END);
-    long int fimArquivo = ftell(fp);
-    fseek(fp, 276, SEEK_SET);
+    long int fimArquivo = ftell(fp); // Armazena a posicao do final do arquivo
+    fseek(fp, 276, SEEK_SET); // Pula o cabecalho (276 bytes)
 
-    if(verificar_vazio(fp) <= 0) {
+    if(verificar_vazio(fp) <= 0) { // Verifica se há registros nesse arquivo
         printf("Registro inexistente.\n");
     } else {
-        while(ftell(fp) != fimArquivo) {
-            REG_DADOS *r = ler_regDados(fp);
+        while(ftell(fp) != fimArquivo) { // Verifica se chegou ao fim do arquivo
+            REG_DADOS *r = ler_regDados(fp); // Le, do arquivo binario, um registro e o armazena em r
             if (get_removido(r) == '0') {
-                imprimir_registros(r);
+                imprimir_registros(r); // Caso o registro nao for removido, imprimi-lo
             }
             free(r);
         } 

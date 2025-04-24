@@ -64,9 +64,10 @@ scanf("%*c") --> lê um char e não guarda em nenhuma variável, como se tivesse
 
 */
 
-/*void set_filtro(FILTROS *filtros, char *parametro, char *valor, int posicaoDoFiltro) {
-	filtros[posicaoDoFiltro] = criarFiltro(parametro, valor);
-}*/
+/*
+	Funcao auxiliar que cria uma sctruct filtro de acordo com um parametro
+	e um valor
+*/
 
 FILTROS *criarFiltro(char *parametro, char *valor) {
 	FILTROS *filtro = (FILTROS*) malloc(sizeof(FILTROS) * 1);
@@ -77,15 +78,10 @@ FILTROS *criarFiltro(char *parametro, char *valor) {
 	return filtro;	
 }
 
-/*FILTROS *gerar_filtros() {
-	FILTROS *filtro = (FILTROS *) malloc(sizeof(FILTROS) * 1);
-	strcpy(filtro->parametro, parametro);
-	strcpy(filtro->valor, valor); 
-	return filtros;
-}*/
-
-
-
+/*
+	Funcao que seleciona qual campo o usuario inseriou e faz a comparação de acordo com esse campo no registro
+	Retorna 1 caso seja igual.
+*/
 int compararParametros(REG_DADOS *r, FILTROS *filtro) {
 	if(strcmp(filtro->parametro, "idAttack") == 0) {
 		return atoi(filtro->valor) == get_idAttack(r);
@@ -106,42 +102,48 @@ int compararParametros(REG_DADOS *r, FILTROS *filtro) {
 	return 0;
 }
 
-void busca_registrador(FILE *fp, FILTROS *filtros, int quantidadeFiltros, int quantidadeBuscas) {
+/*
+	Funcao de busca sequencial de um registro de acordo com n filtros
+	A funcao percorre o arquivo fp e le os registro um a um. 
+	Compara-se o filtro com o valor do registro, caso todos sejam iguais,
+	ela imprime o registro na tela.
+
+	Essa busca reprete n vezes.
+*/
+void busca_registro(FILE *fp, FILTROS *filtros, int quantidadeFiltros, int quantidadeBuscas) {
 	char buffer;
 	int registrosEncontrados = 0;
-	printf("ENTROU\n");
 	rewind(fp);
 	fseek(fp, 0, SEEK_END);
     long int fimArquivo = ftell(fp);
-    fseek(fp, 276, SEEK_SET);
+    fseek(fp, 276, SEEK_SET); // Posiciona o ponteiro apos o cabecalho
 
-    if(verificar_vazio(fp) == 0) {
+    if(verificar_vazio(fp) == 0) { // Verifica se ha registros no arquivo
         printf("Registro inexistente.\n");
     } else {
-		printf("AQIUII\n");
-		while(ftell(fp) != fimArquivo) {
-			REG_DADOS *r = ler_regDados(fp);
+		while(ftell(fp) != fimArquivo) { // Equanto o ponteiro fp não chega no fim do arquivo
+			REG_DADOS *r = ler_regDados(fp); // Le um registro do arquivo
 			if(get_removido(r) == '0') {
 				int auxiliar = 1;
-				for(int i = 0; i < quantidadeFiltros; i++) {
+				for(int i = 0; i < quantidadeFiltros; i++) { // Faz a iteração de acordo com a quantidade de filtros
 					if(!compararParametros(r, &filtros[i])) {
-						auxiliar = 0;
+						auxiliar = 0; // Variavel auxiliar, caso seja 0, nao imprime o registro
 						free(r);
 						break;
 					}
 
 				}
-				if(auxiliar) {
-					printf("achou busca\n");
-					imprimir_registros(r);
-					registrosEncontrados++;
+				if(auxiliar) { // Se os dois parametros forem iguais aos do registro
+					imprimir_registros(r); // Imprime o registro
+					registrosEncontrados++; // Aumenta o contador de registro encontrado
 	
-					if(registrosEncontrados > quantidadeBuscas) {
+					if(registrosEncontrados > quantidadeBuscas) { // Verifica se ja encontramos o numero desejado pelo usuario
 						free(r);
-						break;
+						break; // Sai do loop
 					}
 				}
 			}
+
 			free(r);
 		}
 		if(registrosEncontrados == 0) {
@@ -151,30 +153,9 @@ void busca_registrador(FILE *fp, FILTROS *filtros, int quantidadeFiltros, int qu
 
 }
 
-char *readLine(FILE *fp) {
-	int n = 0;
-	int size = 128;
-	int ch;
-
-	char *line = (char *) malloc(sizeof(char) * (size + 1));
-
-	while((ch = getc(fp)) != '\n' && ch != EOF) {
-		if(n == size) {
-			size *= 2;
-			line = realloc(line, size + 1);
-		}
-		line[n++] = ch;
-	}
-	if(n == 0 && ch == EOF) {
-		free(line);
-		return NULL;
-	}
-	line[n] = '\0';
-	line = realloc(line ,n + 1);
-	return line;
-
-}
-
+/*
+	Funcao incabada
+*/
 void ler_linha_busca(FILE *fp) {
 	/*int quantidadeBuscas = 0;
 	char *nomeDoCampo = null;
@@ -186,7 +167,7 @@ void ler_linha_busca(FILE *fp) {
 	FILTROS *filtros = criarFiltro("country", "BRAZIL");
 	printf("FILTRO: %s\n", filtros->parametro);
 	printf("VALOR: %s\n", filtros->valor);
-	busca_registrador(fp, filtros, 1, 1);
+	busca_registro(fp, filtros, 1, 1);
 	free(filtros);
 	
 }
