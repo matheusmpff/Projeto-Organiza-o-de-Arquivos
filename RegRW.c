@@ -295,7 +295,7 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
             }
             while(reg->country[i-1]!='|');
             reg->country[i-1] = '\0';
-            tam = tam - strlen(reg->country) - 1; 
+            tam = tam - strlen(reg->country); 
             //printf("%d\n",tam);
         }
         
@@ -307,7 +307,7 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
             }
             while(reg->attackType[i-1]!='|'); 
             reg->attackType[i-1] = '\0';
-            tam = tam - strlen(reg->attackType) - 1;
+            tam = tam - strlen(reg->attackType);
             //printf("%d\n",tam);   
         }
         
@@ -319,7 +319,7 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
             }
             while(reg->targetIndustry[i-1]!='|');
             reg->targetIndustry[i-1] = '\0';
-            tam = tam - strlen(reg->targetIndustry) - 1; 
+            tam = tam - strlen(reg->targetIndustry); 
             //printf("%d\n",tam);     
         }
         
@@ -331,7 +331,7 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
             }
             while(reg->defenseMechanism[i-1]!='|');
             reg->defenseMechanism[i-1] = '\0';
-            tam = tam - strlen(reg->defenseMechanism) - 1;
+            tam = tam - strlen(reg->defenseMechanism);
             //printf("%d\n",tam);    
         }
     }
@@ -350,12 +350,11 @@ REG_DADOS* ler_regDados(FILE *fp){
     fread(&reg->idAttack,sizeof(int),1,fp);
     fread(&reg->year,sizeof(int),1,fp);
     fread(&reg->financialLoss,sizeof(float),1,fp);
-
-    printt_reg(reg);
     
     if(reg->tamanhoRegistro > 25){
         ler_campos_variaveis(fp, reg);
     }
+    
     
     
 
@@ -377,10 +376,10 @@ void printt_reg(REG_DADOS* reg){
 }
 
 void inicializa_params(REGPARAMS *params){
-    strcpy(params->attackType,"oi");
-    strcpy(params->country,"oi");
-    strcpy(params->defenseMechanism,"oi");
-    strcpy(params->targetIndustry,"oi");
+    strcpy(params->attackType,"\0");
+    strcpy(params->country,"\0");
+    strcpy(params->defenseMechanism,"\0");
+    strcpy(params->targetIndustry,"\0");
     params->idAttack = 0;
     params->prox = -1;
     params->removido = '0';
