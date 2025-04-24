@@ -300,7 +300,7 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
 
     char aux;
     int tam = reg->tamanhoRegistro;
-
+    printf("TAMANHO: %d\n", tam);
     while(tam > 25){
         fread(&aux,sizeof(char),1,fp);
         int i = 0;
@@ -311,7 +311,7 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
             }
             while(reg->country[i-1]!='|');
             reg->country[i-1] = '\0';
-            tam = tam - strlen(reg->country); 
+            tam = tam - strlen(reg->country) - 2; 
             //printf("%d\n",tam);
         }
         
@@ -323,7 +323,7 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
             }
             while(reg->attackType[i-1]!='|'); 
             reg->attackType[i-1] = '\0';
-            tam = tam - strlen(reg->attackType);
+            tam = tam - strlen(reg->attackType) - 2;
             //printf("%d\n",tam);   
         }
         
@@ -335,7 +335,7 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
             }
             while(reg->targetIndustry[i-1]!='|');
             reg->targetIndustry[i-1] = '\0';
-            tam = tam - strlen(reg->targetIndustry); 
+            tam = tam - strlen(reg->targetIndustry) - 2; 
             //printf("%d\n",tam);     
         }
         
@@ -344,12 +344,14 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
             do{
                 fread(&reg->defenseMechanism[i],sizeof(char),1,fp);
                 i++;
+                printf("%c##\n", reg->defenseMechanism[i]);
             }
-            while(reg->defenseMechanism[i-1]!='|');
+            while(reg->defenseMechanism[i-1]!= '|');
             reg->defenseMechanism[i-1] = '\0';
-            tam = tam - strlen(reg->defenseMechanism);
+            tam = tam - strlen(reg->defenseMechanism) - 2;
             //printf("%d\n",tam);    
         }
+        printf("TAMANHO: %d\n", tam);
     }
      
 }
@@ -408,7 +410,7 @@ void inicializa_params(REGPARAMS *params){
     params->idAttack = 0;
     params->prox = -1;
     params->removido = '0';
-    params->tamanhoRegistro = 25;
-    params->year = 2001;
+    params->tamanhoRegistro = 2;
+    params->year = 0;
 
 }
