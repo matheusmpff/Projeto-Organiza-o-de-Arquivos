@@ -60,9 +60,38 @@ bool csv_to_bin(){
         if(fscanf(fp,"%f,",&aux.financialLoss)!=1){
             aux.financialLoss = -1;
         }
-        char a;
-        fscanf(fp,"%[^,],%[^,],%[^,],%[^\n]",aux.country,aux.attackType,aux.targetIndustry,aux.defenseMechanism);
-        fread(&a,sizeof(char),1,fp);
+
+        int i = 0;
+        char a; 
+        while (fread(&a, sizeof(char), 1, fp) == 1 && a != ',') {
+            aux.country[i] = a;
+            i++;
+        }
+        aux.country[i] = '\0';
+        
+        i=0;
+        while(fread(&a,sizeof(char),1,fp) == 1 && a != ',') {
+            aux.attackType[i] = a;
+            i++;
+        }
+        aux.attackType[i] = '\0';
+
+        i=0;
+        while(fread(&a,sizeof(char),1,fp) == 1 && a!=',') {
+            aux.targetIndustry[i] = a;
+            i++;
+        }
+        aux.targetIndustry[i] = '\0';
+
+        i=0;
+        while(fread(&a,sizeof(char),1,fp) == 1 && a != ',') {
+            aux.defenseMechanism[i] = a;
+            i++;
+        }
+        aux.defenseMechanism[i] = '\0';
+
+
+
 
         if(aux.country[0]!='\0'){
             aux.tamanhoRegistro += strlen(aux.country);
