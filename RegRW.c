@@ -339,11 +339,9 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
 }
 
 REG_DADOS* ler_regDados(FILE *fp){
-    REGPARAMS *params;
-    params = (REGPARAMS *) malloc(sizeof(REGPARAMS) * 1);
-    inicializa_params(params);
-    REG_DADOS *reg = criar_regDados(*params);
-    free(params);
+    REGPARAMS params;
+    inicializa_params(&params);
+    REG_DADOS *reg = criar_regDados(params);
     fread(&reg->removido,sizeof(char),1,fp);
     fread(&reg->tamanhoRegistro,sizeof(int),1,fp);
     fread(&reg->prox,sizeof(long int),1,fp);
