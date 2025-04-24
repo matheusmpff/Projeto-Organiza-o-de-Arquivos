@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-bool func1(char* string1, char*string2){
+/*bool func1(char* string1, char*string2){
     if (csv_to_bin()){
         printf("Falha no processamento do arquivo.\n");
         return false;
@@ -46,4 +46,4 @@ void ler_entradas(){
         scanf("%d", &n);
         func3(string1,n);
     }
-}
+}*/

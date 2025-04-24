@@ -12,4 +12,6 @@ int main(){
     csv_to_bin();
     FILE *fp = fopen("arquivoB.bin","rb");
     print_registros(fp);
+    //ler_linha_busca(fp);
+    fclose(fp);
 }
