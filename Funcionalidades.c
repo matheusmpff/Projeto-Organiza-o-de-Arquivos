@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "Funcionalidades.h"
+#include "funcao-fornecida.c"
 
 /* função para executar a funcionalidade 1 */
 bool func1(char* string1, char*string2){
@@ -12,7 +13,7 @@ bool func1(char* string1, char*string2){
         printf("Falha no processamento do arquivo.\n");
         return false;
     }
-    binarioNaTela();
+    binarioNaTela(string2);
     return true;
     
 
