@@ -39,7 +39,6 @@ int verificar_vazio(FILE *fp) {
     pula o cabecario e imprime os registros
 */
 void print_registros(FILE *fp) {
-    char buffer;
     fseek(fp, 0, SEEK_END);
     long int fimArquivo = ftell(fp); // Armazena a posicao do final do arquivo
     fseek(fp, 276, SEEK_SET); // Pula o cabecalho (276 bytes)

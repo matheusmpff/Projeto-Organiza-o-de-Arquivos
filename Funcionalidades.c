@@ -4,9 +4,11 @@
 #include "csvRead.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "Funcionalidades.h"
 
-/*bool func1(char* string1, char*string2){
-    if (csv_to_bin()){
+/* função para executar a funcionalidade 1 */
+bool func1(char* string1, char*string2){
+    if (csv_to_bin(string1,string2)){
         printf("Falha no processamento do arquivo.\n");
         return false;
     }
@@ -15,7 +17,7 @@
     
 
 }
-
+/*Funcção responsável para chamar as funções auxiliares que executam o que a funcionalidade 2 exige*/
 bool func2(char * string1){
     FILE* fp = fopen("arquivoB.bin","rb");
     if(fp == NULL){
@@ -29,6 +31,11 @@ bool func3(char* string1, int n){
 
 }
 
+/*Função para ler as entradas do programa e identificar qual 
+funcionalidade deve ser chamada por meio da análise da primeira entrada.
+ AS funcionalidades 1 e 3 precisam ler entradas a mais que a funcionalidade 2
+logo usa-se condicionais para tratar essa situação
+*/
 void ler_entradas(){
     int func;
     char string1[20];
@@ -46,4 +53,8 @@ void ler_entradas(){
         scanf("%d", &n);
         func3(string1,n);
     }
-}*/
+    if(func2 == 2){
+        func2(string1);
+    }
+    
+}

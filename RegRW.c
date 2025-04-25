@@ -4,6 +4,10 @@
 #include <string.h>
 #include "RegRW.h"
 
+/*
+A struct header é feita para armazenar os dados do header do arquvio binário. 
+Com isso os campos sõa criados para representar os dados que estão no header.
+ */
 struct header{
     char status;
     long int topo;
@@ -22,7 +26,10 @@ struct header{
     char codDescreveDefense;
     char descreveDefense[68];
 };
-
+/*A struct reg_dados é feita para simular os registros que estarão presentes no arquivo binário, 
+apresentam os campos pra os valores fixos e variáveis. Os campos variáveis terão keywords que
+ serão processadas durante a leitura do arquivo binário.
+*/
 struct reg_dados{
     char removido;
     int tamanhoRegistro;
@@ -36,6 +43,12 @@ struct reg_dados{
     char defenseMechanism[20];//keyword igual a 4
 };
 
+/*
+Parâmetros:
+    params-> struct para passar os parâmetros para criar o header;
+Função responsável por criar o header para ser utilizado nas demais funcionalidades,
+ aloca dinamicamente na memória a struct e retonra um ponteiro para ela.   
+*/
 HEADER* create_header(HEADERPARAMS params){
 
     HEADER* h;
@@ -178,7 +191,8 @@ bool set_descreveDefense(HEADER *h, char* src){
 /*
 Parâmetros:
     params-> struct REGPARAMS responsável por armazenar os dados que devem ser adicionados na STRUCT
-Função responsável por alocar dinamicamente a struct que representa os registros de dados, além de inicializar os campos da struct com os paramêtros.
+Função responsável por alocar dinamicamente a struct que representa os registros de dados, 
+além de inicializar os campos da struct com os paramêtros.
 */
 
 REG_DADOS* criar_regDados(REGPARAMS params){
@@ -241,7 +255,9 @@ void add_lixo(int tam, char *vet){
 /* 
 Parâmetros:
     fp-> ponteiro do arquivo binário aberto para escrita
-    reg-> ponteiro pra a struct registro que será adicionada ao arquivo binário. Responsável por adicionar os códigos dos campos variáveis antes do valor próprio em si do dado que deve ser armazenado nesses campos
+    reg-> ponteiro pra a struct registro que será adicionada ao arquivo binário. 
+Responsável por adicionar os códigos dos campos variáveis antes do valor próprio em si
+do dado que deve ser armazenado nesses campos
 */
 bool escrever_regDados(FILE* fp,REG_DADOS *reg){
 
@@ -295,6 +311,17 @@ bool escrever_regDados(FILE* fp,REG_DADOS *reg){
     return true;
     
 }
+
+/*
+Parâmetros:
+    fp-> ponteiro para o arquivo binário aberto para leitura. 
+    reg-> struct que irá armazenar os dados vindos do registro do arquivo binário
+A função serve para auxiliar a função principal a ler os campos variáveis dos registros. O primeiro passo
+ele lê o tamanho que servirá de referencia para ver se leu todos os campos variáveis,
+após isso começa a leitura das keyWords para saber qual campo deve ser armazenado na struct, o porcesso se repete, 
+reduzindo sempre o valor do tamanho do valor do campo lido, pois ao chegar no valor 25,
+sabe-se que todos os campos variáveis foram lidos e não precisa continuar na leitura desse registro 
+*/
 
 void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
 
@@ -358,7 +385,11 @@ void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
 /*
 Parâmetros: 
     fp-> ponteiro para o arquivo binário aberto para leitura
-A função é responsável por ler um registro presente no arquivo binário. Aassume-se que o ponteiro já venha posicionado adeuqadamente na posição que se deseja ler no arquivo. A função lê os valores e armazena eles na struct REG_DADOS, o qual pode ser acessada por meio de um ponteiro para ela, que é retornada pela função 
+A função é responsável por ler um registro presente no arquivo binário. 
+Aassume-se que o ponteiro já venha posicionado adeuqadamente na posição 
+que se deseja ler no arquivo. A função lê os valores e armazena eles na 
+struct REG_DADOS, o qual pode ser acessada por meio de um ponteiro para ela, 
+que é retornada pela função
  */
 
 REG_DADOS* ler_regDados(FILE *fp){
@@ -381,25 +412,11 @@ REG_DADOS* ler_regDados(FILE *fp){
 
     return reg;
 }
-
-void printt_reg(REG_DADOS* reg){
-
-    printf("removido: %c\n",reg->removido);
-    printf("tamanhoReg: %d\n",reg->tamanhoRegistro);
-    printf("prox: %ld\n",reg->prox);
-    printf("idAttack: %d\n",reg->idAttack);
-    printf("year: %d\n",reg->year);
-    printf("financial loss: %f\n",reg->financialLoss);
-    printf("country: %s\n",reg->country);
-    printf("attacktype: %s\n",reg->attackType);
-    printf("defense: %s\n",reg->defenseMechanism);
-    printf("target: %s\n",reg->targetIndustry);
-}
-
 /*
-Parâmetros;
+Parâmetros:
     params-> struct para ter seus campos inicializados pela função
-A função tem como trabalho inicializar os campos de uma struct passada por parâmetro, de tal forma a ter um controle maior dos dados que estão sendo manipulados dentro dela.
+A função tem como trabalho inicializar os campos de uma struct passada por parâmetro, 
+de tal forma a ter um controle maior dos dados que estão sendo manipulados dentro dela.
 
  */
 void inicializa_params(REGPARAMS *params){
