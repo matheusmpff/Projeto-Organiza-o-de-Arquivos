@@ -4,6 +4,9 @@
 #include <string.h>
 #include "RegRW.h"
 
+void ajuste_linha(char *linha);
+void ajuste(char* palavra);
+
 /*
 A struct header é feita para armazenar os dados do header do arquvio binário. 
 Com isso os campos sõa criados para representar os dados que estão no header.
@@ -26,11 +29,11 @@ struct header{
     char codDescreveDefense;
     char descreveDefense[68];
 };
-/*A struct reg_dados é feita para simular os registros que estarão presentes no arquivo binário, 
+/*A struct REG é feita para simular os registros que estarão presentes no arquivo binário, 
 apresentam os campos pra os valores fixos e variáveis. Os campos variáveis terão keywords que
  serão processadas durante a leitura do arquivo binário.
 */
-struct reg_dados{
+struct reg{
     char removido;
     int tamanhoRegistro;
     long int prox;
@@ -43,60 +46,46 @@ struct reg_dados{
     char defenseMechanism[20];//keyword igual a 4
 };
 
-/*
-Parâmetros:
-    params-> struct para passar os parâmetros para criar o header;
-Função responsável por criar o header para ser utilizado nas demais funcionalidades,
- aloca dinamicamente na memória a struct e retonra um ponteiro para ela.   
-*/
-HEADER* create_header(HEADERPARAMS params){
 
-    HEADER* h;
-    h =(HEADER*) malloc(sizeof(HEADER)*1);
-    h->status = params.status;
-    h->topo = params.topo;
-    h->proxByteOffset = params.proxByteOffset;
-    h->nroReqArq = params.nroReqArq;
-    h->nroReqRem = params.nroReqRem;
-    h->codDescreveCountry = '1';
-    h->codDescreveType= '2';
-    h->codDescreveTargetIndustry = '3';
-    h->codDescreveDefense = '4';
-    strcpy(h->descreveCountry,params.descreveCountry);
-    strcpy(h->descreveDefense,params.descreveDefense);
-    strcpy(h->descreveIdentificador,params.descreveIdentificador);
-    strcpy(h->descreverFinancialLoss,params.descreverFinancialLoss);
-    strcpy(h->descreveTargetIndustry,params.descreveTargetIndustry);
-    strcpy(h->descreveType,params.descreveType);
-    strcpy(h->descreveYear,params.descreveYear);
 
-    return h;
-}
-
-/*
-Parâmetros:
-    h-> ponteiro para struct header que tem as informações
-    fp-> ponteiro do arquivo binário aberto para escrita.
-Função responsável por escrever o header dentro do arquivo binário */
-bool escrever_header(HEADER* h, FILE* fp){
-    fwrite(&h->status,sizeof(char),1,fp);
-    fwrite(&h->topo,sizeof(long int),1,fp);
-    fwrite(&h->proxByteOffset,sizeof(long int),1,fp);
-    fwrite(&h->nroReqArq,sizeof(int),1,fp);
-    fwrite(&h->nroReqRem,sizeof(int),1,fp);
-    fwrite(h->descreveIdentificador,sizeof(char),23,fp);
-    fwrite(h->descreveYear,sizeof(char),27,fp);
-    fwrite(h->descreverFinancialLoss,sizeof(char),28,fp);
-    fwrite(&h->codDescreveCountry,sizeof(char),1,fp);
-    fwrite(&h->descreveCountry,sizeof(char),26,fp);
-    fwrite(&h->codDescreveType,sizeof(char),1,fp);
-    fwrite(&h->descreveType,sizeof(char),38,fp);
-    fwrite(&h->codDescreveTargetIndustry,sizeof(char),1,fp);
-    fwrite(&h->descreveTargetIndustry,sizeof(char),38,fp);
-    fwrite(&h->codDescreveDefense,sizeof(char),1,fp);
-    fwrite(&h->descreveDefense,sizeof(char),67,fp);
-
-    return true;
+void escrever_cabecalho(FILE* fp, FILE* bin, HEADER* header){//NOVO
+    //ESCREVE LINHA DO CABEÇALHO
+    char linha[256];
+    char * aux;
+    fgets(linha,sizeof(linha),fp);
+    
+    ajuste(linha);
+    aux = strtok(linha,",");
+    strcpy(header->descreveIdentificador,aux);
+    aux = strtok(NULL,",");
+    strcpy(header->descreveYear,aux);
+    aux = strtok(NULL,",");
+    strcpy(header->descreverFinancialLoss,aux);
+    aux = strtok(NULL,",");
+    strcpy(header->descreveCountry,aux);
+    aux = strtok(NULL,",");
+    strcpy(header->descreveType,aux);
+    aux = strtok(NULL,",");
+    strcpy(header->descreveTargetIndustry,aux);
+    aux = strtok(NULL,",");
+    strcpy(header->descreveDefense,aux);
+    
+    fwrite(&header->status,sizeof(char),1,bin);
+    fwrite(&header->topo,sizeof(long int),1,bin);
+    fwrite(&header->proxByteOffset,sizeof(long int),1,bin);
+    fwrite(&header->nroReqArq,sizeof(int),1,bin);
+    fwrite(&header->nroReqRem,sizeof(int),1,bin);
+    fwrite(header->descreveIdentificador,strlen(header->descreveIdentificador),1,bin);
+    fwrite(header->descreveYear,strlen(header->descreveYear),1,bin);
+    fwrite(header->descreverFinancialLoss,strlen(header->descreverFinancialLoss),1,bin);
+    fwrite(&header->codDescreveCountry,sizeof(char),1,bin);
+    fwrite(header->descreveCountry,strlen(header->descreveCountry),1,bin);
+    fwrite(&header->codDescreveType,sizeof(char),1,bin);
+    fwrite(header->descreveType,strlen(header->descreveType),1,bin);
+    fwrite(&header->codDescreveTargetIndustry,sizeof(char),1,bin);
+    fwrite(header->descreveTargetIndustry,strlen(header->descreveTargetIndustry),1,bin);
+    fwrite(&header->codDescreveDefense,sizeof(char),1,bin);
+    fwrite(header->descreveDefense,strlen(header->descreveDefense),1,bin);
 
 }
 
@@ -184,65 +173,169 @@ bool set_descreveDefense(HEADER *h, char* src){
     return true;
 }
 
-
-
-
-
-/*
-Parâmetros:
-    params-> struct REGPARAMS responsável por armazenar os dados que devem ser adicionados na STRUCT
-Função responsável por alocar dinamicamente a struct que representa os registros de dados, 
-além de inicializar os campos da struct com os paramêtros.
-*/
-
-REG_DADOS* criar_regDados(REGPARAMS params){
-    REG_DADOS* reg;
-
-    reg = (REG_DADOS*) malloc(sizeof(REG_DADOS)*1);
-
-    reg->removido = params.removido; 
-    reg->tamanhoRegistro = params.tamanhoRegistro;
-    reg->prox = params.prox;
-    reg->year = params.year;
-    reg->idAttack = params.idAttack;
-    reg->financialLoss = params.financialLoss;
-    strcpy(reg->targetIndustry,params.targetIndustry);
-    strcpy(reg->defenseMechanism,params.defenseMechanism);
-    strcpy(reg->attackType,params.attackType);
-    strcpy(reg->country,params.country);
+REG* criar_reg(){//NOVO
+    REG * reg = (REG*) calloc(sizeof(REG),1);
+    if(reg == NULL){
+        printf("Problema na criação do registro\n");
+        return reg;
+    }
+    reg-> removido = '0';
+    reg->tamanhoRegistro = 20;
+    reg->prox = -1;
+    reg->idAttack = -10;
+    reg->year = -10;
+    reg->financialLoss= -10;
+    strcpy(reg->country,"-1000");
+    strcpy(reg->attackType,"-1000");
+    strcpy(reg->targetIndustry,"-1000");
+    strcpy(reg->defenseMechanism,"-1000");
 
     return reg;
 }
 
-char get_removido(REG_DADOS *r){
+bool ler_linha(FILE* fp, REG *reg){
+    char* aux;
+    char linha [256];
+    reg->tamanhoRegistro = 20;
+    if(fgets(linha,sizeof(linha),fp) == NULL){
+        return false;
+    }
+    ajuste(linha);
+    ajuste_linha(linha);
+    aux = strtok(linha,",");
+    if(aux == NULL){
+        reg->idAttack = -1;
+    }
+    else{
+        reg->idAttack = atoi(aux);
+    }
+    
+    aux = strtok(NULL,",");
+    if(aux == NULL){
+        reg->year = -1;
+    }
+    else{
+        reg->year = atoi(aux);
+    }
+    aux = strtok(NULL,",");
+    if(aux == NULL){
+        reg->financialLoss= -1;
+    }
+    else{
+        reg->financialLoss= atof(aux);
+    }
+    aux = strtok(NULL,",");
+    if(aux == NULL){
+        strcpy(reg->country,"-1");
+    }
+    else{
+        ajuste(aux);
+        strcpy(reg->country,aux);
+    }
+    
+    aux = strtok(NULL,",");
+    if(aux == NULL){
+        strcpy(reg->attackType,"-1");
+    }
+    else{
+        ajuste(aux);
+        strcpy(reg->attackType,aux);
+    }
+    aux = strtok(NULL,",");
+    if(aux == NULL){
+        strcpy(reg->targetIndustry,"-1");
+    }
+    else{
+        ajuste(aux);
+        strcpy(reg->targetIndustry,aux);
+    }
+    aux = strtok(NULL,",\n");
+    if(aux == NULL){
+        strcpy(reg->defenseMechanism,"-1");
+    }
+    else{
+        ajuste(aux);
+        strcpy(reg->defenseMechanism,aux);
+    }
+      
+    if(strcmp(reg->country,"-1")){
+        reg->tamanhoRegistro += (strlen(reg->country)+2);
+    }
+    if(strcmp(reg->attackType,"-1")){
+        reg->tamanhoRegistro += (strlen(reg->attackType)+2);
+    }
+    if(strcmp(reg->targetIndustry,"-1")){
+        reg->tamanhoRegistro += (strlen(reg->targetIndustry)+2);
+    }
+    if(strcmp(reg->defenseMechanism,"-1")){
+        reg->tamanhoRegistro += (strlen(reg->defenseMechanism)+2);
+    }
+
+    return true;
+ 
+}
+
+void escrever_registros(FILE* fp, FILE* bin, REG* reg){
+    while(ler_linha(fp,reg)){
+
+        fwrite(&reg->removido,sizeof(char),1,bin);
+        fwrite(&reg->tamanhoRegistro,sizeof(int),1,bin);
+        fwrite(&reg->prox,sizeof(long int),1,bin);
+        fwrite(&reg->idAttack,sizeof(int),1,bin);
+        fwrite(&reg->year,sizeof(int),1,bin);
+        fwrite(&reg->financialLoss,sizeof(float),1,bin);
+        if(strcmp(reg->country,"-1")){
+            fwrite("1",sizeof(char),1,bin);
+            fwrite(reg->country,strlen(reg->country),1,bin);
+            fwrite("|",sizeof(char),1,bin);
+        }
+        if(strcmp(reg->attackType,"-1")){
+            fwrite("2",sizeof(char),1,bin);
+            fwrite(reg->attackType,strlen(reg->attackType),1,bin);
+            fwrite("|",sizeof(char),1,bin);
+        }
+        if(strcmp(reg->targetIndustry,"-1")){
+            fwrite("3",sizeof(char),1,bin);
+            fwrite(reg->targetIndustry,strlen(reg->targetIndustry),1,bin);
+            fwrite("|",sizeof(char),1,bin);
+        }
+        if(strcmp(reg->defenseMechanism,"-1")){
+            fwrite("4",sizeof(char),1,bin);
+            fwrite(reg->defenseMechanism,strlen(reg->defenseMechanism),1,bin);
+            fwrite("|",sizeof(char),1,bin);
+        }
+    }
+}
+
+char get_removido(REG *r){
     return r->removido;
 }
 
-int get_idAttack(REG_DADOS *r){
+int get_idAttack(REG *r){
     return r->idAttack;
 }
 
-int get_year(REG_DADOS *r){
+int get_year(REG *r){
     return r->year;
 }
 
-float get_financialLoss(REG_DADOS *r){
+float get_financialLoss(REG *r){
     return r->financialLoss;
 }
 
-char* get_country(REG_DADOS *r){
+char* get_country(REG *r){
     return r->country;
 }
 
-char* get_attackType(REG_DADOS *r){
+char* get_attackType(REG *r){
     return r->attackType;
 }
 
-char* get_targetIndustry(REG_DADOS *r){
+char* get_targetIndustry(REG *r){
     return r->targetIndustry;
 }
 
-char* get_defenseMechanism(REG_DADOS *r){
+char* get_defenseMechanism(REG *r){
     return r->defenseMechanism;
 }
 
@@ -252,182 +345,295 @@ void add_lixo(int tam, char *vet){
     }
 }
 
-/* 
-Parâmetros:
-    fp-> ponteiro do arquivo binário aberto para escrita
-    reg-> ponteiro pra a struct registro que será adicionada ao arquivo binário. 
-Responsável por adicionar os códigos dos campos variáveis antes do valor próprio em si
-do dado que deve ser armazenado nesses campos
-*/
-bool escrever_regDados(FILE* fp,REG_DADOS *reg){
-
-    
-    fwrite(&reg->removido,sizeof(char),1,fp);
-    fwrite(&reg->tamanhoRegistro,sizeof(int),1,fp);
-    fwrite(&reg->prox,sizeof(long int),1,fp);
-    fwrite(&reg->idAttack,sizeof(int),1,fp);
-    fwrite(&reg->year,sizeof(int),1,fp);
-    fwrite(&reg->financialLoss,sizeof(float),1,fp);
-    
-    char aux = '|';
-
-    char flag = '1';
-    if(reg->country[0]!='\0'){fwrite(&flag,sizeof(char),1,fp);}
-    for(int i = 0; reg->country[i]!='\0';i++){
-        fwrite(&reg->country[i],sizeof(char),1,fp);
-    }
-    if(reg->country[0]!='\0'){
-        fwrite(&aux,sizeof(char),1,fp);
-    }
-    
-    flag = '2';
-    if(reg->attackType[0]!='\0'){fwrite(&flag,sizeof(char),1,fp);}
-    for(int i = 0; reg->attackType[i]!='\0';i++){
-        fwrite(&reg->attackType[i],sizeof(char),1,fp);
-    }
-    if(reg->attackType[0] != '\0'){
-        fwrite(&aux,sizeof(char),1,fp);
-    }
-    
-    flag = '3';
-    if(reg->targetIndustry[0]!='\0'){fwrite(&flag,sizeof(char),1,fp);}
-    for(int i = 0; reg->targetIndustry[i]!='\0';i++){
-        fwrite(&reg->targetIndustry[i],sizeof(char),1,fp);
-    }
-    if(reg->targetIndustry[0]!= '\0'){
-        fwrite(&aux,sizeof(char),1,fp);
-    }
-   
-    flag = '4';
-    if(reg->defenseMechanism[0]!='\0'){fwrite(&flag,sizeof(char),1,fp);}
-    for(int i = 0; reg->defenseMechanism[i]!='\0';i++){
-        fwrite(&reg->defenseMechanism[i],sizeof(char),1,fp);
-    }
-    if(reg->defenseMechanism[0]!='\0'){
-        fwrite(&aux,sizeof(char),1,fp);
-    }
-
-    fclose(fp);
-    return true;
-    
-}
-
-/*
-Parâmetros:
-    fp-> ponteiro para o arquivo binário aberto para leitura. 
-    reg-> struct que irá armazenar os dados vindos do registro do arquivo binário
-A função serve para auxiliar a função principal a ler os campos variáveis dos registros. O primeiro passo
-ele lê o tamanho que servirá de referencia para ver se leu todos os campos variáveis,
-após isso começa a leitura das keyWords para saber qual campo deve ser armazenado na struct, o porcesso se repete, 
-reduzindo sempre o valor do tamanho do valor do campo lido, pois ao chegar no valor 25,
-sabe-se que todos os campos variáveis foram lidos e não precisa continuar na leitura desse registro 
-*/
-
-void ler_campos_variaveis(FILE *fp,REG_DADOS *reg){
-
-    char aux;
+void aux_ler_registro(FILE* bin, REG * reg, HEADER* h){//NOVO
     int tam = reg->tamanhoRegistro;
-    printf("TAMANHO: %d\n", tam);
-    while(tam > 25){
-        fread(&aux,sizeof(char),1,fp);
-        int i = 0;
-        if(aux == '1'){
-            do{
-                fread(&reg->country[i],sizeof(char),1,fp);
-                i++;
-            }
-            while(reg->country[i-1]!='|');
-            reg->country[i-1] = '\0';
-            tam = tam - strlen(reg->country) - 2; 
-            //printf("%d\n",tam);
-        }
-        
-        i = 0;
-        if(aux == '2'){
-            do{
-                fread(&reg->attackType[i],sizeof(char),1,fp);
-                i++;
-            }
-            while(reg->attackType[i-1]!='|'); 
-            reg->attackType[i-1] = '\0';
-            tam = tam - strlen(reg->attackType) - 2;
-            //printf("%d\n",tam);   
-        }
-        
-        i=0;
-        if(aux == '3'){
-            do{
-                fread(&reg->targetIndustry[i],sizeof(char),1,fp);
-                i++;
-            }
-            while(reg->targetIndustry[i-1]!='|');
-            reg->targetIndustry[i-1] = '\0';
-            tam = tam - strlen(reg->targetIndustry) - 2; 
-            //printf("%d\n",tam);     
-        }
-        
-        i=0;
-        if(aux == '4'){
-            do{
-                fread(&reg->defenseMechanism[i],sizeof(char),1,fp);
-                i++;
-                printf("%c##\n", reg->defenseMechanism[i]);
-            }
-            while(reg->defenseMechanism[i-1]!= '|');
-            reg->defenseMechanism[i-1] = '\0';
-            tam = tam - strlen(reg->defenseMechanism) - 2;
-            //printf("%d\n",tam);    
-        }
-        printf("TAMANHO: %d\n", tam);
-    }
-     
-}
-/*
-Parâmetros: 
-    fp-> ponteiro para o arquivo binário aberto para leitura
-A função é responsável por ler um registro presente no arquivo binário. 
-Aassume-se que o ponteiro já venha posicionado adeuqadamente na posição 
-que se deseja ler no arquivo. A função lê os valores e armazena eles na 
-struct REG_DADOS, o qual pode ser acessada por meio de um ponteiro para ela, 
-que é retornada pela função
- */
+    char auxChar = '\0';
 
-REG_DADOS* ler_regDados(FILE *fp){
-    REGPARAMS params;
-    inicializa_params(&params);
-    REG_DADOS *reg = criar_regDados(params);
-    fread(&reg->removido,sizeof(char),1,fp);
-    fread(&reg->tamanhoRegistro,sizeof(int),1,fp);
-    fread(&reg->prox,sizeof(long int),1,fp);
-    fread(&reg->idAttack,sizeof(int),1,fp);
-    fread(&reg->year,sizeof(int),1,fp);
-    fread(&reg->financialLoss,sizeof(float),1,fp);
-    
-    if(reg->tamanhoRegistro > 25){
-        ler_campos_variaveis(fp, reg);
+    while(tam>20){
+        
+        fread(&auxChar,sizeof(char),1,bin);
+        if(auxChar == h->codDescreveCountry){
+            int i = 0;
+            while(auxChar != '|'){ 
+                fread(&auxChar,sizeof(char),1,bin);
+                reg->country[i] = auxChar;
+                i++;
+            }
+            reg->country[i-1] = '\0';
+            tam -= (strlen(reg->country) +2); 
+        }
+        if(auxChar == h->codDescreveType){
+            int i = 0;
+            while(auxChar != '|'){ 
+                fread(&auxChar,sizeof(char),1,bin);
+                reg->attackType[i] = auxChar;
+                i++;
+            }
+            reg->attackType[i-1] = '\0';
+            tam -= ( strlen(reg->attackType) +2); 
+        }
+        if(auxChar == h->codDescreveTargetIndustry){
+            int i = 0;
+            while(auxChar != '|'){ 
+                fread(&auxChar,sizeof(char),1,bin);
+                reg->targetIndustry[i] = auxChar;
+                i++;
+            }
+            reg->targetIndustry[i-1] = '\0';
+            tam -= ( strlen(reg->targetIndustry) +2);
+        }
+        if(auxChar == h->codDescreveDefense){
+            int i = 0;
+            while(auxChar != '|'){ 
+                fread(&auxChar,sizeof(char),1,bin);
+                reg->defenseMechanism[i] = auxChar;
+                i++;
+            }
+            reg->defenseMechanism[i-1] = '\0';
+            tam -= ( strlen(reg->defenseMechanism) +2);
+        }
     }
-    
-    
-    
+}
+
+REG* ler_registro(FILE* bin,HEADER *h){
+    REG* reg = criar_reg();
+    fread(&reg->removido,sizeof(char),1,bin);
+    fread(&reg->tamanhoRegistro,sizeof(int),1,bin);
+    fread(&reg->prox,sizeof(long int),1,bin);
+    fread(&reg->idAttack,sizeof(int),1,bin);
+    fread(&reg->year,sizeof(int),1,bin);
+    fread(&reg->financialLoss,sizeof(float),1,bin);
+
+
+    aux_ler_registro(bin, reg,h);
 
     return reg;
 }
-/*
-Parâmetros:
-    params-> struct para ter seus campos inicializados pela função
-A função tem como trabalho inicializar os campos de uma struct passada por parâmetro, 
-de tal forma a ter um controle maior dos dados que estão sendo manipulados dentro dela.
 
- */
-void inicializa_params(REGPARAMS *params){
-    strcpy(params->attackType,"\0");
-    strcpy(params->country,"\0");
-    strcpy(params->defenseMechanism,"\0");
-    strcpy(params->targetIndustry,"\0");
-    params->idAttack = 0;
-    params->prox = -1;
-    params->removido = '0';
-    params->tamanhoRegistro = 2;
-    params->year = 0;
+/*-------------------------------- adições novas------------------------------------------*/
 
+
+//FUNÇÕES DE AJUSTE DE LINHA
+void ajuste_linha(char *linha) {
+   char resultado[300]="";
+    int i;
+    int j = 0;
+
+    if(linha[0] == ','){
+        resultado[j] = '-';
+        j++;
+        resultado[j] = '1';
+        j++;
+    }
+    for(i=0;linha[i]!='\0';i++){
+        
+
+        if(linha[i] == linha[i+1] && linha[i] == ','){
+
+            resultado[j] = linha[i];
+            j++;
+            resultado[j] = '-';
+            j++;
+            resultado[j] = '1'; 
+            j++;
+            continue;
+        }
+        resultado[j] = linha[i];
+        j++;
+    }
+
+    if(resultado[j-1] == ','){
+        resultado[j] = '-';
+        j++;
+        resultado[j] = '1';
+        j++;
+    }
+
+    resultado[j] = '\0';
+    strcpy(linha,resultado);
+}
+
+void ajuste(char* palavra){
+    if(palavra == NULL){
+        return;
+    }
+    
+    for(int i = 0;i<2;i++){
+        int tam = strlen(palavra);
+        if(palavra[tam-1] =='\n' || palavra[tam-1] == '\r' || palavra[tam-1] == ' '){
+            palavra[tam-1] = '\0';
+        } 
+    }
+    
+
+}
+
+//criar header
+
+HEADER* criar_header(){
+    HEADER * header =(HEADER*) calloc(sizeof(HEADER),1);
+    if(header == NULL){
+        printf("Erro na alocação de memória");
+        return header;
+    }
+
+    header->status = '1';
+    header->topo = -1;
+    header->proxByteOffset = 0;
+    header->nroReqArq = 0;
+    header->nroReqRem = 0;
+    header->codDescreveCountry = '1';
+    header->codDescreveType = '2';
+    header->codDescreveTargetIndustry = '3';
+    header->codDescreveDefense = '4';
+    strcpy(header->descreveIdentificador,"-1");
+    strcpy(header->descreveYear,"-1");
+    strcpy(header->descreverFinancialLoss,"-1");
+    strcpy(header->descreveCountry,"-1");
+    strcpy(header->descreveType,"-1");
+    strcpy(header->descreveTargetIndustry,"-1");
+    strcpy(header->descreveDefense,"-1");
+
+    return header;
+}
+
+
+//Ler Header
+void ler_header(FILE* bin, HEADER* h){
+    
+    fread(&h->status,sizeof(char),1,bin);
+    fread(&h->topo,sizeof(long int),1,bin);
+    fread(&h->proxByteOffset,sizeof(long int),1,bin);
+    fread(&h->nroReqArq,sizeof(int),1,bin);
+    fread(&h->nroReqRem,sizeof(int),1,bin);
+    fread(h->descreveIdentificador,sizeof(char),23,bin);
+    h->descreveIdentificador[23] = '\0';
+    fread(h->descreveYear,sizeof(char),27,bin);
+    h->descreveYear[27] = '\0';
+    fread(h->descreverFinancialLoss,sizeof(char),28,bin);
+    h->descreverFinancialLoss[28] = '\0';
+    fread(&h->codDescreveCountry,sizeof(char),1,bin);
+    fread(h->descreveCountry,sizeof(char),26,bin);
+    h->descreveCountry[26] = '\0';
+    fread(&h->codDescreveType,sizeof(char),1,bin);
+    fread(h->descreveType,sizeof(char),38,bin);
+    h->descreveType[38] = '\0';
+    fread(&h->codDescreveTargetIndustry,sizeof(char),1,bin);
+    fread(h->descreveTargetIndustry,sizeof(char),38,bin);
+    h->descreveTargetIndustry[38] = '\0';
+    fread(&h->codDescreveDefense,sizeof(char),1,bin);
+    fread(h->descreveDefense,sizeof(char),67,bin);
+    h->descreveDefense[67] = '\0';
+    
+
+}
+
+
+//printa o header
+void printar_header(HEADER* h){
+    printf("Status: %c\n",h->status);
+    printf("Topo: %ld\n",h->topo);
+    printf("ProxByteOffset: %ld\n",h->proxByteOffset);
+    printf("NRORefArq: %d\n",h->nroReqArq);
+    printf("NRORegRem: %d\n",h->nroReqRem);
+    printf("DescreveIdentidicador: %s\n",h->descreveIdentificador);
+    printf("DescreveYear: %s\n",h->descreveYear);
+    printf("DescreveFinancialLoss: %s\n",h->descreverFinancialLoss);
+    printf("CodDescreveCountry: %c\n",h->codDescreveCountry);
+    printf("DescreveCountry: %s\n",h->descreveCountry);
+    printf("CodDescreveType: %c\n",h->codDescreveType);
+    printf("DescreveType: %s\n",h->descreveType);
+    printf("CodDesceveTargetIndustry: %c\n",h->codDescreveTargetIndustry);
+    printf("DescreveTargetIndustry: %s\n",h->descreveTargetIndustry);
+    printf("CodDescreveDefense: %c\n",h->codDescreveDefense);
+    printf("DescreveDefense: %s\n",h->descreveDefense);
+
+
+}
+
+
+//PRINTAR REGISTROS
+
+void printar_registro(REG* reg,HEADER* h){
+    
+    if(reg->idAttack != -1){
+        printf("%s: %d\n",h->descreveIdentificador,reg->idAttack);
+    }
+    else{
+        printf("%s: NADA CONSTA\n",h->descreveIdentificador);
+    }
+    
+
+    if(reg->year != -1){
+        printf("%s: %d\n",h->descreveYear,reg->year);
+    }
+    else{
+        printf("%s: NADA CONSTA\n",h->descreveYear);
+    }
+
+    if(strcmp(reg->country,"-1000")){
+        printf("%s: %s\n",h->descreveCountry,reg->country);
+    }
+    else{
+        printf("%s: NADA CONSTA\n",h->descreveCountry);
+    }
+
+    if(strcmp(reg->targetIndustry,"-1000")){
+        printf("%s: %s\n",h->descreveTargetIndustry,reg->targetIndustry);
+    }
+    else{
+        printf("%s: NADA CONSTA\n",h->descreveTargetIndustry);
+    }
+
+    if(strcmp(reg->attackType,"-1000")){
+        printf("%s: %s\n",h->descreveType,reg->attackType);
+    }
+    else{
+        printf("%s: NADA CONSTA\n",h->descreveType);
+    }
+
+
+    if(reg->financialLoss!=-1){
+        printf("%s: %.2f\n",h->descreverFinancialLoss,reg->financialLoss);
+    }
+    else{
+        printf("%s: NADA CONSTA\n",h->descreverFinancialLoss);
+    }
+
+    if(strcmp(reg->defenseMechanism,"-1000")){
+        printf("%s: %s\n",h->descreveDefense,reg->defenseMechanism);
+    }
+    else{
+        printf("%s: NADA CONSTA\n",h->descreveDefense);
+    }
+
+    printf("\n");
+    
+}
+//printa todos os registros de um arquivo binario
+void printar_binario(char * nome){
+    FILE * bin = fopen(nome,"rb");
+    if(bin == NULL){
+       printf("Falha no processamento do arquivo.\n");
+       return;
+    }
+
+    fseek(bin,0,SEEK_END);
+    int final = ftell(bin);
+    fseek(bin,0,SEEK_SET);
+
+    HEADER* h = criar_header();
+    ler_header(bin,h);
+    printar_header(h);
+    int i = 0;
+   /* while(ftell(bin) != final){
+        REG* reg = ler_registro(bin,h);
+        printar_registro(reg,h);
+        i++;
+        free(reg);
+    }*/
+    
+    
+    free(h);
+    fclose(bin);
 }

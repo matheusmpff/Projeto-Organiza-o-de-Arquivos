@@ -27,7 +27,7 @@ FILTROS *criarFiltro(char *parametro, char *valor) {
 	Funcao que seleciona qual campo o usuario inseriou e faz a comparação de acordo com esse campo no registro
 	Retorna 1 caso seja igual.
 */
-int compararParametros(REG_DADOS *r, FILTROS *filtro) {
+int compararParametros(REG *r, FILTROS *filtro) {
 	if(strcmp(filtro->parametro, "idAttack") == 0) {
 		return atoi(filtro->valor) == get_idAttack(r);
 	} else if(strcmp(filtro->parametro, "year") == 0) {
@@ -67,7 +67,7 @@ void busca_registro(FILE *fp, FILTROS *filtros, int quantidadeFiltros, int quant
         printf("Registro inexistente.\n");
     } else {
 		while(ftell(fp) != fimArquivo) { // Equanto o ponteiro fp não chega no fim do arquivo
-			REG_DADOS *r = ler_regDados(fp); // Le um registro do arquivo
+			REG *r = ler_regDados(fp); // Le um registro do arquivo
 			if(get_removido(r) == '0') {
 				int auxiliar = 1;
 				for(int i = 0; i < quantidadeFiltros; i++) { // Faz a iteração de acordo com a quantidade de filtros

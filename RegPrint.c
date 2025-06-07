@@ -4,7 +4,7 @@
 #include "RegRW.h"
 #include "RegPrint.h"
 
-void imprimir_registros(REG_DADOS *r) {
+void imprimir_registros(REG *r) {
     printf("IDENTIFICADOR DO ATAQUE: %d\n", get_idAttack(r));
     printf("ANO EM QUE O ATAQUE OCORREU: %d\n", get_year(r));
     printf("PAIS ONDE OCORREU O ATAQUE: %s\n", get_country(r));
@@ -47,7 +47,7 @@ void print_registros(FILE *fp) {
         printf("Registro inexistente.\n");
     } else {
         while(ftell(fp) != fimArquivo) { // Verifica se chegou ao fim do arquivo
-            REG_DADOS *r = ler_regDados(fp); // Le, do arquivo binario, um registro e o armazena em r
+            REG *r = ler_regDados(fp); // Le, do arquivo binario, um registro e o armazena em r
             if (get_removido(r) == '0') {
                 imprimir_registros(r); // Caso o registro nao for removido, imprimi-lo
             }

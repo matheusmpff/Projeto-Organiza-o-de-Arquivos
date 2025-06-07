@@ -9,27 +9,24 @@
 
 /* função para executar a funcionalidade 1 */
 bool func1(char* string1, char*string2){
-    if (csv_to_bin(string1,string2)){
+    if (!CSV_to_BIN(string1,string2)){
         printf("Falha no processamento do arquivo.\n");
         return false;
     }
     binarioNaTela(string2);
+    
     return true;
     
 
 }
 /*Funcção responsável para chamar as funções auxiliares que executam o que a funcionalidade 2 exige*/
 bool func2(char * string1){
-    FILE* fp = fopen("arquivoB.bin","rb");
-    if(fp == NULL){
-        printf("Falha no processamento do arquivo.\n");
-        return false;
-    }
-    print_registros(fp);
+    printar_binario(string1);
+    return true;
 }
 
 bool func3(char* string1, int n){
-
+    return true;
 }
 
 /*Função para ler as entradas do programa e identificar qual 
@@ -54,7 +51,7 @@ void ler_entradas(){
         scanf("%d", &n);
         func3(string1,n);
     }
-    if(func2 == 2){
+    if(func == 2){
         func2(string1);
     }
     

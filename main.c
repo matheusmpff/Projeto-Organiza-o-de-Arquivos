@@ -9,6 +9,5 @@
 
 
 int main(){
-
     ler_entradas();
 }
