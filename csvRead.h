@@ -2,7 +2,7 @@
     #define csvRead_H
     #include <stdbool.h>
     
-    bool csv_to_bin(char* arqcsv,char*arqbin);
+    bool CSV_to_BIN(char* nomecsv, char* nomeBin);
 
 
 

@@ -106,8 +106,9 @@ bool set_topo(HEADER *h, int x){
 int get_proxByteOffset(HEADER *h){
     return h->proxByteOffset;
 }
-bool set_proxByteOffset(HEADER *h){
-    return h->proxByteOffset;
+void set_proxByteOffset(HEADER *h, long int x){
+    h->proxByteOffset = x;
+    
 }
 int get_nroReqArq(HEADER *h){
     return h->nroReqArq;
@@ -275,9 +276,9 @@ bool ler_linha(FILE* fp, REG *reg){
  
 }
 
-void escrever_registros(FILE* fp, FILE* bin, REG* reg){
+void escrever_registros(FILE* fp, FILE* bin, REG* reg, HEADER* h){
     while(ler_linha(fp,reg)){
-
+        h->nroReqArq++;
         fwrite(&reg->removido,sizeof(char),1,bin);
         fwrite(&reg->tamanhoRegistro,sizeof(int),1,bin);
         fwrite(&reg->prox,sizeof(long int),1,bin);
@@ -309,6 +310,10 @@ void escrever_registros(FILE* fp, FILE* bin, REG* reg){
 
 char get_removido(REG *r){
     return r->removido;
+}
+
+void set_removido(REG* reg,char valor){
+    reg->removido = valor;
 }
 
 int get_idAttack(REG *r){
@@ -626,12 +631,12 @@ void printar_binario(char * nome){
     ler_header(bin,h);
     printar_header(h);
     int i = 0;
-   /* while(ftell(bin) != final){
+    while(ftell(bin) != final){
         REG* reg = ler_registro(bin,h);
         printar_registro(reg,h);
         i++;
         free(reg);
-    }*/
+    }
     
     
     free(h);

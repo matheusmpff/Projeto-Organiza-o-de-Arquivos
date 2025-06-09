@@ -38,7 +38,7 @@ int verificar_vazio(FILE *fp) {
     Recebe um ponteiro FILE para o arquivo binario,
     pula o cabecario e imprime os registros
 */
-void print_registros(FILE *fp) {
+/*void print_registros(FILE *fp) {
     fseek(fp, 0, SEEK_END);
     long int fimArquivo = ftell(fp); // Armazena a posicao do final do arquivo
     fseek(fp, 276, SEEK_SET); // Pula o cabecalho (276 bytes)
@@ -58,4 +58,4 @@ void print_registros(FILE *fp) {
     if(ferror(fp)) {
         printf("Falha no processamento do arquivo.\n");
     }
-}
+}*/

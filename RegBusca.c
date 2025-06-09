@@ -6,7 +6,7 @@
 #include "RegRW.h"
 #include "RegPrint.h"
 #include "RegBusca.h"
-
+/*
 struct filtros {
 	char parametro[20];
 	char valor[20];
@@ -21,13 +21,13 @@ FILTROS *criarFiltro(char *parametro, char *valor) {
 	strcpy(filtro->valor, valor);
 
 	return filtro;	
-}
+}*/
 
 /*
 	Funcao que seleciona qual campo o usuario inseriou e faz a comparação de acordo com esse campo no registro
 	Retorna 1 caso seja igual.
 */
-int compararParametros(REG *r, FILTROS *filtro) {
+/*int compararParametros(REG *r, FILTROS *filtro) {
 	if(strcmp(filtro->parametro, "idAttack") == 0) {
 		return atoi(filtro->valor) == get_idAttack(r);
 	} else if(strcmp(filtro->parametro, "year") == 0) {
@@ -45,7 +45,7 @@ int compararParametros(REG *r, FILTROS *filtro) {
 	}
 
 	return 0;
-}
+}*/
 
 /*
 	Funcao de busca sequencial de um registro de acordo com n filtros
@@ -55,7 +55,7 @@ int compararParametros(REG *r, FILTROS *filtro) {
 
 	Essa busca reprete n vezes.
 */
-void busca_registro(FILE *fp, FILTROS *filtros, int quantidadeFiltros, int quantidadeBuscas) {
+/*void busca_registro(FILE *fp, FILTROS *filtros, int quantidadeFiltros, int quantidadeBuscas) {
 	char buffer;
 	int registrosEncontrados = 0;
 	rewind(fp);
@@ -96,12 +96,12 @@ void busca_registro(FILE *fp, FILTROS *filtros, int quantidadeFiltros, int quant
 		}
     }
 
-}
+}*/
 
 /*
 	Funcao incabada
 */
-void ler_linha_busca(FILE *fp) {
+//void ler_linha_busca(FILE *fp) {
 	/*int quantidadeBuscas = 0;
 	char *nomeDoCampo = null;
 	while(1) {
@@ -109,10 +109,10 @@ void ler_linha_busca(FILE *fp) {
 		scanf(" %s", nomeDoCampo);
 
 	}*/
-	FILTROS *filtros = criarFiltro("country", "BRAZIL");
+	/*FILTROS *filtros = criarFiltro("country", "BRAZIL");
 	printf("FILTRO: %s\n", filtros->parametro);
 	printf("VALOR: %s\n", filtros->valor);
 	busca_registro(fp, filtros, 1, 1);
 	free(filtros);
 	
-}
+}*/

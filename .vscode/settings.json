@@ -3,6 +3,7 @@
         "RegRW.C": "cpp",
         "RegPrint.C": "cpp",
         "regbusca.h": "c",
-        "type_traits": "c"
+        "type_traits": "c",
+        "regrw.h": "c"
     }
 }

@@ -1,4 +1,4 @@
 all:
-	gcc -o main *.c -lmd
+	gcc -o main *.c
 run:
 	./main
