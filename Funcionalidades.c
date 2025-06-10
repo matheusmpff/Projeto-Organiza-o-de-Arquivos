@@ -4,6 +4,7 @@
 #include "csvRead.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "remocao.h"
 
 /*--------------------------------Funcção fornecida--------------------------*/
 #include <ctype.h>
@@ -121,6 +122,7 @@ logo usa-se condicionais para tratar essa situação
 */
 
 
+
 void func4(char* nomebin){
 	int n;
 	scanf("%d",&n);
@@ -138,13 +140,17 @@ void func4(char* nomebin){
 
 		for(int i = 0;i<tamanho;i++){
 			campos[i] = strtok(NULL, " ");
-			valores[i] = strtok(NULL," ");
-		}
-		char *valor = strtok(NULL, " ");
-		remover_registro(nomebin, campos,valores,tamanho);
-		while(ler_campoValor());
+			if(strcmp(campos[i],"idAttack") == 0){
+				valores[i] = strtok(NULL," ");
+			}
+			else{
+				valores[i] = strtok(NULL,"\"");
+			}
 
-		
+			printf("%s -> %s",campos[i],valores[i]);
+		}
+		remover_registros(nomebin, campos,valores,tamanho);
+		binarioNaTela(nomebin);
 	}
 
 }

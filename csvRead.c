@@ -18,7 +18,7 @@ bool CSV_to_BIN(char* nomecsv, char* nomeBin){
     HEADER* h = criar_header();
     
     
-    escrever_registros(fp,bin,reg,h);
+    escrever_registrosCSV(fp,bin,reg,h);
 
     set_proxByteOffset(h,ftell(bin));
     fseek(bin,0,SEEK_SET);

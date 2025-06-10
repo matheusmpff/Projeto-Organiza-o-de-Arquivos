@@ -96,7 +96,7 @@ bool set_status(HEADER * h,int x){
     h->status = x;
     return true;
 }
-int get_topo(HEADER *h){
+long int get_topo(HEADER *h){
     return h->topo;
 }
 bool set_topo(HEADER *h, int x){
@@ -276,10 +276,9 @@ bool ler_linha(FILE* fp, REG *reg){
  
 }
 
-void escrever_registros(FILE* fp, FILE* bin, REG* reg, HEADER* h){
-    while(ler_linha(fp,reg)){
-        h->nroReqArq++;
-        fwrite(&reg->removido,sizeof(char),1,bin);
+void escrever_registro(FILE* bin, REG* reg, HEADER* h){
+
+    fwrite(&reg->removido,sizeof(char),1,bin);
         fwrite(&reg->tamanhoRegistro,sizeof(int),1,bin);
         fwrite(&reg->prox,sizeof(long int),1,bin);
         fwrite(&reg->idAttack,sizeof(int),1,bin);
@@ -305,6 +304,13 @@ void escrever_registros(FILE* fp, FILE* bin, REG* reg, HEADER* h){
             fwrite(reg->defenseMechanism,strlen(reg->defenseMechanism),1,bin);
             fwrite("|",sizeof(char),1,bin);
         }
+
+}
+
+void escrever_registrosCSV(FILE* fp, FILE* bin, REG* reg, HEADER* h){
+    while(ler_linha(fp,reg)){
+        h->nroReqArq++;
+        escrever_registro(bin,reg,h);
     }
 }
 
@@ -343,6 +349,15 @@ char* get_targetIndustry(REG *r){
 char* get_defenseMechanism(REG *r){
     return r->defenseMechanism;
 }
+
+long int get_prox(REG* reg){
+    return reg->prox;
+}
+
+void set_prox(REG* reg,long int prox){
+    reg->prox = prox;
+}
+
 
 void add_lixo(int tam, char *vet){
     for(int i = 0;i<tam;i++){
@@ -629,7 +644,6 @@ void printar_binario(char * nome){
 
     HEADER* h = criar_header();
     ler_header(bin,h);
-    printar_header(h);
     int i = 0;
     while(ftell(bin) != final){
         REG* reg = ler_registro(bin,h);
