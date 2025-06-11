@@ -111,7 +111,36 @@ bool func2(char * string1){
     return true;
 }
 
-bool func3(char* string1, int n){
+bool func3(char* nomeArquivo){
+	int numerodeBuscas;
+	scanf("%d", &numerodeBuscas);
+	getchar();
+	char linha[300];
+	for(int i = 0; i < numerodeBuscas; i++) {
+		fgets(linha,sizeof(linha),stdin);
+		int quantidadeRegistroBuscado = linha[0] - '0';
+		
+		if(linha[strlen(linha)-1] == '\n'|| linha[strlen(linha)-1] == '\r'){
+			linha[strlen(linha)-1] = '\0'; 
+		}
+
+		int tamanho = atoi(strtok(linha," "));
+		char* campos[tamanho];
+		char* valores[tamanho];
+
+		for(int i = 0;i<tamanho;i++){
+			campos[i] = strtok(NULL, " ");
+			if(strcmp(campos[i],"idAttack") == 0){
+				valores[i] = strtok(NULL," ");
+			}
+			else{
+				valores[i] = strtok(NULL,"\"");
+			}
+		}
+
+		busca_registro(nomeArquivo, campos, valores, tamanho, quantidadeRegistroBuscado);
+		printf("**********\n");
+	}
     return true;
 }
 
@@ -171,8 +200,8 @@ void ler_entradas(){
         func2(string1);
     }
     if(func == 3){
-        scanf("%d", &n);
-        func3(string1,n);
+        func3(string1);
+
     }
 	if(func == 4){
 		func4(string1);

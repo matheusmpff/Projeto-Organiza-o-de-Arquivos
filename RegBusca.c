@@ -4,48 +4,27 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "RegRW.h"
-#include "RegPrint.h"
 #include "RegBusca.h"
-/*
-struct filtros {
-	char parametro[20];
-	char valor[20];
-};
-
-
-
-FILTROS *criarFiltro(char *parametro, char *valor) {
-	FILTROS *filtro = (FILTROS*) malloc(sizeof(FILTROS) * 1);
-
-	strcpy(filtro->parametro, parametro);
-	strcpy(filtro->valor, valor);
-
-	return filtro;	
-}*/
+#include "remocao.h"
 
 /*
-	Funcao que seleciona qual campo o usuario inseriou e faz a comparação de acordo com esse campo no registro
-	Retorna 1 caso seja igual.
+    Funcao que verifica se o ponteiro para o arquivo fp aponta para o final do arquivo.
+    Para isso, ele subtrai o valor da posicao final pela atual e retorna este valor
 */
-/*int compararParametros(REG *r, FILTROS *filtro) {
-	if(strcmp(filtro->parametro, "idAttack") == 0) {
-		return atoi(filtro->valor) == get_idAttack(r);
-	} else if(strcmp(filtro->parametro, "year") == 0) {
-		return atoi(filtro->valor) == get_year(r);
-	} else if(strcmp(filtro->parametro, "financialLoss") == 0) {
-		return atof(filtro->valor) == get_financialLoss(r);
-	} else if(strcmp(filtro->parametro, "country") == 0) {
-		return strcmp(filtro->valor, get_country(r)) == 0;
-	} else if(strcmp(filtro->parametro, "attacktype") == 0) {
-		return strcmp(filtro->valor, get_attackType(r)) == 0;
-	} else if(strcmp(filtro->parametro, "targetIndustry") == 0) {
-		return strcmp(filtro->valor, get_targetIndustry(r)) == 0;
-	} else if(strcmp(filtro->parametro, "defenseMechanism") == 0) {
-		return strcmp(filtro->valor, get_defenseMechanism(r)) == 0;
-	}
+int verificar_vazio(FILE *fp) {
+    int tamanho = 0;
+    int pos_atual = ftell(fp);
 
-	return 0;
-}*/
+    //Vai para o final
+    fseek(fp, 0, SEEK_END);
+    tamanho = ftell(fp) - pos_atual;
+
+    //Volta a posicao original
+    fseek(fp, pos_atual, SEEK_SET);
+
+    return tamanho;
+    
+}
 
 /*
 	Funcao de busca sequencial de um registro de acordo com n filtros
@@ -55,48 +34,42 @@ FILTROS *criarFiltro(char *parametro, char *valor) {
 
 	Essa busca reprete n vezes.
 */
-/*void busca_registro(FILE *fp, FILTROS *filtros, int quantidadeFiltros, int quantidadeBuscas) {
-	char buffer;
+void busca_registro(char* nomeArquivo, char* campos[], char* valores[], int quantidadeCampos, int quantidadeBuscas) {
+	FILE* fp = fopen(nomeArquivo, "rb");
+	if (fp == NULL) {
+		printf("Erro no processamento de arquivo\n");
+		return;
+	}
+
 	int registrosEncontrados = 0;
-	rewind(fp);
-	fseek(fp, 0, SEEK_END);
-    long int fimArquivo = ftell(fp);
-    fseek(fp, 276, SEEK_SET); // Posiciona o ponteiro apos o cabecalho
+	long int fimArquivo = fseek(fp, 0, SEEK_END);
+	fseek(fp, 0, SEEK_SET);
+	HEADER * h = criar_header();
+	ler_header(fp,h);
 
-    if(verificar_vazio(fp) == 0) { // Verifica se ha registros no arquivo
-        printf("Registro inexistente.\n");
-    } else {
-		while(ftell(fp) != fimArquivo) { // Equanto o ponteiro fp não chega no fim do arquivo
-			REG *r = ler_regDados(fp); // Le um registro do arquivo
-			if(get_removido(r) == '0') {
-				int auxiliar = 1;
-				for(int i = 0; i < quantidadeFiltros; i++) { // Faz a iteração de acordo com a quantidade de filtros
-					if(!compararParametros(r, &filtros[i])) {
-						auxiliar = 0; // Variavel auxiliar, caso seja 0, nao imprime o registro
-						free(r);
-						break;
-					}
+	while(ftell(fp) != fimArquivo) { // Equanto o ponteiro fp não chega no fim do arquivo
+		REG *r = ler_registro(fp, h); // Le um registro do arquivo
+		if(get_removido(r) == '0') {
+			if(compara_campos(r, campos, valores, quantidadeCampos)) {
+				printar_registro(r, h); // Imprime o registro
+				registrosEncontrados++; // Aumenta o contador de registro encontrado
 
-				}
-				if(auxiliar) { // Se os dois parametros forem iguais aos do registro
-					imprimir_registros(r); // Imprime o registro
-					registrosEncontrados++; // Aumenta o contador de registro encontrado
-	
-					if(registrosEncontrados > quantidadeBuscas) { // Verifica se ja encontramos o numero desejado pelo usuario
-						free(r);
-						break; // Sai do loop
-					}
+				if(registrosEncontrados >= quantidadeBuscas) { // Verifica se ja encontramos o numero desejado pelo usuario
+					free(r);
+					break; // Sai do loop
 				}
 			}
-
-			free(r);
 		}
-		if(registrosEncontrados == 0) {
-			printf("NADA CONSTA\n");
-		}
-    }
 
-}*/
+		free(r);
+	}
+	if(registrosEncontrados == 0) {
+		printf("NADA CONSTA\n");
+	}
+	free(h);
+
+	fclose(fp);
+}
 
 /*
 	Funcao incabada
