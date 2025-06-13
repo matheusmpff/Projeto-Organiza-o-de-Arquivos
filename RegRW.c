@@ -89,6 +89,18 @@ void escrever_cabecalho(FILE* fp, FILE* bin, HEADER* header){//NOVO
 
 }
 
+char get_codDescreveCountry(HEADER *h){
+    return h->codDescreveCountry;
+}
+char get_codDescreveType(HEADER *h){
+    return h->codDescreveType;
+}
+char get_codDescreveTargetIndustry(HEADER *h){
+    return h->codDescreveTargetIndustry;
+}
+char get_codDescreveDefense(HEADER *h){
+    return h->codDescreveDefense;
+}
 int get_status(HEADER * h){
     return h->status;
 }
@@ -358,6 +370,37 @@ void set_prox(REG* reg,long int prox){
     reg->prox = prox;
 }
 
+int get_tamanhoRegistro(REG *r){
+    return r->tamanhoRegistro;
+}
+
+void set_idAttack(REG *r, int idAttack){
+    r->idAttack = idAttack;
+}
+
+void set_year(REG *r, int year){
+    r->year = year;
+}
+
+void set_financialLoss(REG *r, float financialLoss){
+    r->financialLoss = financialLoss;
+}
+
+void set_country(REG *r, char *country){
+    strcpy(r->country, country);
+}
+
+void set_attackType(REG *r, char *attacktype){
+    strcpy(r->attackType, attacktype);
+}
+
+void set_targetIndustry(REG *r, char *targetIndustry){
+    strcpy(r->targetIndustry, targetIndustry);
+}
+
+void set_defenseMechanism(REG *r, char *defenseMechanism){
+    strcpy(r->defenseMechanism, defenseMechanism);
+}
 
 void add_lixo(int tam, char *vet){
     for(int i = 0;i<tam;i++){

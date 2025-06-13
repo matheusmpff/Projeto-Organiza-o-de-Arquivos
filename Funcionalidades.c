@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "remocao.h"
-
+#include "insertInto.h"
 /*--------------------------------Funcção fornecida--------------------------*/
 #include <ctype.h>
 #include <string.h>
@@ -183,6 +183,14 @@ void func4(char* nomebin){
 	}
 
 }
+
+void func5(char* nomebin) {
+	int numeroInsercoes;
+	scanf("%d", &numeroInsercoes);
+
+	insertInto(nomebin, numeroInsercoes);
+}
+
 void ler_entradas(){
     int func;
     char string1[20];
@@ -192,7 +200,27 @@ void ler_entradas(){
     scanf("%d",&func);
     scanf("%s",string1);
     
-    if(func == 1){
+	switch(func) {
+		case 1:
+			scanf("%s",string2);
+			func1(string1,string2);
+			break;
+		case 2:
+			func2(string1);
+			break;
+		case 3:
+			func3(string1);
+			break;
+		case 4:
+			func4(string1);
+			break;
+		case 5:
+			func5(string1);
+			break;
+		default:
+	}
+
+    /*if(func == 1){
         scanf("%s",string2);
         func1(string1,string2);
     }
@@ -206,6 +234,7 @@ void ler_entradas(){
 	if(func == 4){
 		func4(string1);
 	}
+	if*/
     
 
     

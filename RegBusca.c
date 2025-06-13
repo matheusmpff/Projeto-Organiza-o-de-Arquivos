@@ -8,25 +8,6 @@
 #include "remocao.h"
 
 /*
-    Funcao que verifica se o ponteiro para o arquivo fp aponta para o final do arquivo.
-    Para isso, ele subtrai o valor da posicao final pela atual e retorna este valor
-*/
-int verificar_vazio(FILE *fp) {
-    int tamanho = 0;
-    int pos_atual = ftell(fp);
-
-    //Vai para o final
-    fseek(fp, 0, SEEK_END);
-    tamanho = ftell(fp) - pos_atual;
-
-    //Volta a posicao original
-    fseek(fp, pos_atual, SEEK_SET);
-
-    return tamanho;
-    
-}
-
-/*
 	Funcao de busca sequencial de um registro de acordo com n filtros
 	A funcao percorre o arquivo fp e le os registro um a um. 
 	Compara-se o filtro com o valor do registro, caso todos sejam iguais,
@@ -70,22 +51,3 @@ void busca_registro(char* nomeArquivo, char* campos[], char* valores[], int quan
 
 	fclose(fp);
 }
-
-/*
-	Funcao incabada
-*/
-//void ler_linha_busca(FILE *fp) {
-	/*int quantidadeBuscas = 0;
-	char *nomeDoCampo = null;
-	while(1) {
-		scanf("%d", &quantidadeBuscas);
-		scanf(" %s", nomeDoCampo);
-
-	}*/
-	/*FILTROS *filtros = criarFiltro("country", "BRAZIL");
-	printf("FILTRO: %s\n", filtros->parametro);
-	printf("VALOR: %s\n", filtros->valor);
-	busca_registro(fp, filtros, 1, 1);
-	free(filtros);
-	
-}*/

@@ -27,6 +27,14 @@
     char* get_attackType(REG *r);
     char* get_targetIndustry(REG *r);
     char* get_defenseMechanism(REG *r);
+    int get_tamanhoRegistro(REG *r);
+    void set_idAttack(REG *r, int idAttack);
+    void set_year(REG *r, int year);
+    void set_financialLoss(REG *r, float financialLoss);
+    void set_country(REG *r, char *country);
+    void set_attackType(REG *r, char *attacktype);
+    void set_targetIndustry(REG *r, char *targetIndustry);
+    void set_defenseMechanism(REG *r, char *defenseMechanism);
 
 
     long int get_topo(HEADER *h);
@@ -37,5 +45,24 @@
     int get_nroReqArq(HEADER *h);
     int get_proxByteOffset(HEADER *h);
     void set_proxByteOffset(HEADER *h, long int x);
-
+    char get_codDescreveCountry(HEADER *h);
+    char get_codDescreveType(HEADER *h);
+    char get_codDescreveTargetIndustry(HEADER *h);
+    char get_codDescreveDefense(HEADER *h);
+    int get_status(HEADER * h);
+    bool set_status(HEADER * h,int x);
+    char * get_descreveident(HEADER *h);
+    bool set_descreveident(HEADER *h,char * src);
+    char * get_descreveYear(HEADER *h);
+    bool set_descreveYear(HEADER *h, char*src);
+    char * get_descreveFl(HEADER * h);
+    bool set_descreveFl(HEADER *h, char * src);
+    char *get_descreveCountry(HEADER *h);
+    bool set_descreveCountry(HEADER * h,char * src);
+    char *get_descreveType(HEADER *h);
+    bool set_descreveType(HEADER *h, char* src);
+    char * get_descreveTarget(HEADER *h);
+    bool set_descreveTarget(HEADER *h, char* src);
+    char * get_descreveDefense(HEADER *h);
+    bool set_descreveDefense(HEADER *h, char* src);
 #endif

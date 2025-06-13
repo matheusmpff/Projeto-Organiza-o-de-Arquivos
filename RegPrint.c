@@ -17,21 +17,7 @@ void imprimir_registros(REG *r) {
 /*
     Funcao que verifica se o ponteiro para o arquivo fp aponta para o final do arquivo.
     Para isso, ele subtrai o valor da posicao final pela atual e retorna este valor
-*/
-int verificar_vazio(FILE *fp) {
-    int tamanho = 0;
-    int pos_atual = ftell(fp);
 
-    //Vai para o final
-    fseek(fp, 0, SEEK_END);
-    tamanho = ftell(fp) - pos_atual;
-
-    //Volta a posicao original
-    fseek(fp, pos_atual, SEEK_SET);
-
-    return tamanho;
-    
-}
 
 /*
     Função de imprimir todos os registros do arquivo binario.
