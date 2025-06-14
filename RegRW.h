@@ -4,6 +4,7 @@
     typedef struct header HEADER;
     typedef struct reg REG;
 
+    void escrever_header(FILE* bin, HEADER* header);
     void escrever_cabecalho(FILE* fp, FILE* bin, HEADER* header);
     void escrever_registro(FILE* bin, REG* reg, HEADER* h);
     void escrever_registrosCSV(FILE* fp, FILE* bin, REG* reg, HEADER* h);
@@ -15,7 +16,9 @@
     void printar_registro(REG* reg,HEADER* h);
     void printar_header(HEADER* h);
     void printar_binario(char * nome);
+    void adicionar_lixo(FILE* bin, int tamanho);
 
+    int get_tamanho_reg(REG* reg);
     long int get_prox(REG* reg);
     void set_prox(REG* reg,long int prox);
     char get_removido(REG *r);

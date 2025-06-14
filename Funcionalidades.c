@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include "remocao.h"
 #include "insertInto.h"
+#include "update.h"
 /*--------------------------------Funcção fornecida--------------------------*/
 #include <ctype.h>
 #include <string.h>
@@ -93,6 +94,25 @@ scanf("%*c") --> lê um char e não guarda em nenhuma variável, como se tivesse
 /*---------------------------------------------------------------------------*/
 
 
+void ler_campos_valores(int tamanho, char *campos[], char* valores[]){
+	
+		for(int i = 0;i<tamanho;i++){
+			campos[i] = malloc(sizeof(char)*50);
+			valores[i] = malloc(sizeof(char)*50);
+
+			scanf(" %s",campos[i]);
+			if(strcmp(campos[i],"idAttack") == 0 || strcmp(campos[i],"financialLoss") == 0 || strcmp(campos[i],"year") == 0){
+				scanf("%s",valores[i]);
+			}
+			else{
+				scan_quote_string(valores[i]);
+			}
+
+		}
+
+}
+
+
 /* função para executar a funcionalidade 1 */
 bool func1(char* string1, char*string2){
     if (!CSV_to_BIN(string1,string2)){
@@ -144,43 +164,93 @@ bool func3(char* nomeArquivo){
     return true;
 }
 
-/*Função para ler as entradas do programa e identificar qual 
-funcionalidade deve ser chamada por meio da análise da primeira entrada.
- AS funcionalidades 1 e 3 precisam ler entradas a mais que a funcionalidade 2
-logo usa-se condicionais para tratar essa situação
-*/
-
-
-
 void func4(char* nomebin){
 	int n;
-	scanf("%d",&n);
-	getchar();
-	char linha[300];
-	for(int i = 0;i<n;i++){
-		fgets(linha,sizeof(linha),stdin);
-		if(linha[strlen(linha)-1] == '\n'|| linha[strlen(linha)-1] == '\r'){
-			linha[strlen(linha)-1] = '\0'; 
-		}
+	char nchar[20];
+	int tamanho;
+	char tamchar[20];
 
-		int tamanho = atoi(strtok(linha," "));
+	scanf("%s",nchar);
+	n = atoi(nchar);
+	
+	for(int i = 0;i<n;i++){
+		
+
+		scanf("%s",tamchar);
+
+		tamanho = atoi(tamchar);
 		char* campos[tamanho];
 		char * valores[tamanho];
-
 		for(int i = 0;i<tamanho;i++){
-			campos[i] = strtok(NULL, " ");
-			if(strcmp(campos[i],"idAttack") == 0){
-				valores[i] = strtok(NULL," ");
+			campos[i] = malloc(sizeof(char)*50);
+			valores[i] = malloc(sizeof(char)*50);
+
+			scanf(" %s",campos[i]);
+			if(strcmp(campos[i],"idAttack") == 0 || strcmp(campos[i],"financialLoss") == 0 || strcmp(campos[i],"year") == 0){
+				scanf("%s",valores[i]);
 			}
 			else{
-				valores[i] = strtok(NULL,"\"");
+				scan_quote_string(valores[i]);
 			}
 
-			printf("%s -> %s",campos[i],valores[i]);
 		}
+		
+		
 		remover_registros(nomebin, campos,valores,tamanho);
-		binarioNaTela(nomebin);
+		
+		for(int j = 0;j<tamanho;j++){
+			free(campos[j]);
+			free(valores[j]);
+		}
+		
+		
 	}
+	
+	binarioNaTela(nomebin);
+
+}
+
+void func6(char* nomebin){
+	int n = -1;
+	char tamcharFiltro[50];
+	int tamanhoFiltro;
+	char tamcharCampos[50];
+	int tamanhoCampos;
+	scanf("%d",&n);
+
+	for(int i = 0;i<n;i++){
+	
+		scanf("%s",tamcharFiltro);
+		tamanhoFiltro = atoi(tamcharFiltro);
+
+		char* camposF[tamanhoFiltro];
+		char* valoresF[tamanhoFiltro];
+		ler_campos_valores(tamanhoFiltro,camposF,valoresF);
+
+
+		scanf("%s",tamcharCampos);
+		tamanhoCampos = atoi(tamcharCampos);
+
+		char* campos[tamanhoCampos];
+		char * valores[tamanhoCampos];
+		ler_campos_valores(tamanhoCampos,campos,valores);
+		
+		
+		
+		atualizar_reg(nomebin, tamanhoFiltro,camposF,valoresF,tamanhoCampos,campos,valores);
+
+		for(int j = 0;j<tamanhoFiltro;j++){
+			free(camposF[j]);
+			free(valoresF[j]);
+		}
+		for(int j = 0;j<tamanhoCampos;j++){
+			free(campos[j]);
+			free(valores[j]);
+		}
+		
+
+	}
+	binarioNaTela(nomebin);
 
 }
 
@@ -197,7 +267,6 @@ void ler_entradas(){
     int func;
     char string1[20];
     char string2[20];
-    int n;
 
     scanf("%d",&func);
     scanf("%s",string1);
@@ -219,6 +288,9 @@ void ler_entradas(){
 		case 5:
 			func5(string1);
 			break;
+		case 6:
+			func6(string1);
+			break;
 		default:
 		break;
 	}
@@ -236,6 +308,10 @@ void ler_entradas(){
     }
 	if(func == 4){
 		func4(string1);
+	}
+
+	if(func == 6){
+		func6(string1);
 	}
 	if*/
     

@@ -18,7 +18,7 @@ void imprimir_registros(REG *r) {
     Funcao que verifica se o ponteiro para o arquivo fp aponta para o final do arquivo.
     Para isso, ele subtrai o valor da posicao final pela atual e retorna este valor
 
-
+*/
 /*
     Função de imprimir todos os registros do arquivo binario.
     Recebe um ponteiro FILE para o arquivo binario,

@@ -46,7 +46,24 @@ struct reg{
     char defenseMechanism[20];//keyword igual a 4
 };
 
-
+void escrever_header(FILE* bin, HEADER* header){
+    fwrite(&header->status,sizeof(char),1,bin);
+    fwrite(&header->topo,sizeof(long int),1,bin);
+    fwrite(&header->proxByteOffset,sizeof(long int),1,bin);
+    fwrite(&header->nroReqArq,sizeof(int),1,bin);
+    fwrite(&header->nroReqRem,sizeof(int),1,bin);
+    fwrite(header->descreveIdentificador,strlen(header->descreveIdentificador),1,bin);
+    fwrite(header->descreveYear,strlen(header->descreveYear),1,bin);
+    fwrite(header->descreverFinancialLoss,strlen(header->descreverFinancialLoss),1,bin);
+    fwrite(&header->codDescreveCountry,sizeof(char),1,bin);
+    fwrite(header->descreveCountry,strlen(header->descreveCountry),1,bin);
+    fwrite(&header->codDescreveType,sizeof(char),1,bin);
+    fwrite(header->descreveType,strlen(header->descreveType),1,bin);
+    fwrite(&header->codDescreveTargetIndustry,sizeof(char),1,bin);
+    fwrite(header->descreveTargetIndustry,strlen(header->descreveTargetIndustry),1,bin);
+    fwrite(&header->codDescreveDefense,sizeof(char),1,bin);
+    fwrite(header->descreveDefense,strlen(header->descreveDefense),1,bin);
+}
 
 void escrever_cabecalho(FILE* fp, FILE* bin, HEADER* header){//NOVO
     //ESCREVE LINHA DO CABEÇALHO
@@ -70,22 +87,7 @@ void escrever_cabecalho(FILE* fp, FILE* bin, HEADER* header){//NOVO
     aux = strtok(NULL,",");
     strcpy(header->descreveDefense,aux);
     
-    fwrite(&header->status,sizeof(char),1,bin);
-    fwrite(&header->topo,sizeof(long int),1,bin);
-    fwrite(&header->proxByteOffset,sizeof(long int),1,bin);
-    fwrite(&header->nroReqArq,sizeof(int),1,bin);
-    fwrite(&header->nroReqRem,sizeof(int),1,bin);
-    fwrite(header->descreveIdentificador,strlen(header->descreveIdentificador),1,bin);
-    fwrite(header->descreveYear,strlen(header->descreveYear),1,bin);
-    fwrite(header->descreverFinancialLoss,strlen(header->descreverFinancialLoss),1,bin);
-    fwrite(&header->codDescreveCountry,sizeof(char),1,bin);
-    fwrite(header->descreveCountry,strlen(header->descreveCountry),1,bin);
-    fwrite(&header->codDescreveType,sizeof(char),1,bin);
-    fwrite(header->descreveType,strlen(header->descreveType),1,bin);
-    fwrite(&header->codDescreveTargetIndustry,sizeof(char),1,bin);
-    fwrite(header->descreveTargetIndustry,strlen(header->descreveTargetIndustry),1,bin);
-    fwrite(&header->codDescreveDefense,sizeof(char),1,bin);
-    fwrite(header->descreveDefense,strlen(header->descreveDefense),1,bin);
+    escrever_header(bin, header);
 
 }
 
@@ -296,22 +298,22 @@ void escrever_registro(FILE* bin, REG* reg, HEADER* h){
         fwrite(&reg->idAttack,sizeof(int),1,bin);
         fwrite(&reg->year,sizeof(int),1,bin);
         fwrite(&reg->financialLoss,sizeof(float),1,bin);
-        if(strcmp(reg->country,"-1")){
+        if(strcmp(reg->country,"-1000")){
             fwrite("1",sizeof(char),1,bin);
             fwrite(reg->country,strlen(reg->country),1,bin);
             fwrite("|",sizeof(char),1,bin);
         }
-        if(strcmp(reg->attackType,"-1")){
+        if(strcmp(reg->attackType,"-1000")){
             fwrite("2",sizeof(char),1,bin);
             fwrite(reg->attackType,strlen(reg->attackType),1,bin);
             fwrite("|",sizeof(char),1,bin);
         }
-        if(strcmp(reg->targetIndustry,"-1")){
+        if(strcmp(reg->targetIndustry,"-1000")){
             fwrite("3",sizeof(char),1,bin);
             fwrite(reg->targetIndustry,strlen(reg->targetIndustry),1,bin);
             fwrite("|",sizeof(char),1,bin);
         }
-        if(strcmp(reg->defenseMechanism,"-1")){
+        if(strcmp(reg->defenseMechanism,"-1000")){
             fwrite("4",sizeof(char),1,bin);
             fwrite(reg->defenseMechanism,strlen(reg->defenseMechanism),1,bin);
             fwrite("|",sizeof(char),1,bin);
@@ -328,6 +330,10 @@ void escrever_registrosCSV(FILE* fp, FILE* bin, REG* reg, HEADER* h){
 
 char get_removido(REG *r){
     return r->removido;
+}
+
+int get_tamanho_reg(REG* reg){
+    return reg->tamanhoRegistro;
 }
 
 void set_removido(REG* reg,char valor){
@@ -419,6 +425,10 @@ void aux_ler_registro(FILE* bin, REG * reg, HEADER* h){//NOVO
     while(tam>20){
         
         fread(&auxChar,sizeof(char),1,bin);
+        if(auxChar == '$'){
+            tam--;
+            break;
+        }
         if(auxChar == h->codDescreveCountry){
             int i = 0;
             while(auxChar != '|'){ 
@@ -459,6 +469,10 @@ void aux_ler_registro(FILE* bin, REG * reg, HEADER* h){//NOVO
             reg->defenseMechanism[i-1] = '\0';
             tam -= ( strlen(reg->defenseMechanism) +2);
         }
+    }
+
+    if(tam-20>0){
+        fseek(bin,tam-20,SEEK_CUR);
     }
 }
 
@@ -677,6 +691,22 @@ void printar_registro(REG* reg,HEADER* h){
     printf("\n");
     
 }
+
+void printar_registro2(REG* reg){
+    
+    printf("Removido: %c\n",reg->removido);
+    printf("TamRegistro: %d\n",reg->tamanhoRegistro);
+    printf("Próximo: %ld\n",reg->prox);
+    printf("IdAttack: %d\n",reg->idAttack);
+    printf("Year: %d\n",reg->year);
+    printf("FinancialLoss: %.2f\n",reg->financialLoss);
+    printf("Country: %s\n",reg->country);
+    printf("AttackType: %s\n",reg->attackType);
+    printf("TargetIndustry: %s\n",reg->targetIndustry);
+    printf("DefenseMechanism: %s\n\n",reg->defenseMechanism);
+    
+    
+}
 //printa todos os registros de um arquivo binario
 void printar_binario(char * nome){
     FILE * bin = fopen(nome,"rb");
@@ -688,12 +718,14 @@ void printar_binario(char * nome){
     fseek(bin,0,SEEK_END);
     int final = ftell(bin);
     fseek(bin,0,SEEK_SET);
-
+    
     HEADER* h = criar_header();
     ler_header(bin,h);
+    //printar_header(h);
     int i = 0;
     while(ftell(bin) != final){
         REG* reg = ler_registro(bin,h);
+        
         printar_registro(reg,h);
         i++;
         free(reg);
@@ -702,4 +734,11 @@ void printar_binario(char * nome){
     
     free(h);
     fclose(bin);
+}
+
+void adicionar_lixo(FILE* bin, int tamanho){
+    char lixo = '$';
+    for(int i = 0; i<tamanho;i++){
+        fwrite(&lixo,sizeof(char),1,bin);
+    }
 }

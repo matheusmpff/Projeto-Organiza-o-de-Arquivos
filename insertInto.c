@@ -7,7 +7,7 @@
 
 void escreverCabecalho(FILE *arquivo, HEADER *h) {
     fseek(arquivo, 0, SEEK_SET);
-    char status = '0' + get_status(h);
+    char status = get_status(h);
     long int topo = get_topo(h);
     long int proxByteOffset = get_proxByteOffset(h);
     int nroReqArq = get_nroReqArq(h);
@@ -29,17 +29,17 @@ void escreverCabecalho(FILE *arquivo, HEADER *h) {
     fwrite(&proxByteOffset, sizeof(long int), 1, arquivo);
     fwrite(&nroReqArq, sizeof(int), 1, arquivo);
     fwrite(&nroReqRem, sizeof(int), 1, arquivo);
-    fwrite(descreveident, sizeof(char), 24, arquivo);
-    fwrite(descreveYear, sizeof(char), 28, arquivo);
-    fwrite(descreveFl, sizeof(char), 29, arquivo);
+    fwrite(descreveident, sizeof(char), 23, arquivo);
+    fwrite(descreveYear, sizeof(char), 27, arquivo);
+    fwrite(descreveFl, sizeof(char), 28, arquivo);
     fwrite(&codDescreveCountry, sizeof(char), 1, arquivo);
-    fwrite(descreveCountry, sizeof(char), 27, arquivo);
+    fwrite(descreveCountry, sizeof(char), 26, arquivo);
     fwrite(&codDescreveType, sizeof(char), 1, arquivo);
-    fwrite(descreveType, sizeof(char), 39, arquivo);
+    fwrite(descreveType, sizeof(char), 38, arquivo);
     fwrite(&codDescreveTargetIndustry, sizeof(char), 1, arquivo);
-    fwrite(descreveTarget, sizeof(char), 39, arquivo);
+    fwrite(descreveTarget, sizeof(char), 38, arquivo);
     fwrite(&codDescreveDefense, sizeof(char), 1, arquivo);
-    fwrite(descreveDefense, sizeof(char), 68, arquivo);
+    fwrite(descreveDefense, sizeof(char), 67, arquivo);
 }
 
 long int encontrarEspacoFirstFit(FILE *arquivo, int tamanhoNecessario, HEADER *header) {
@@ -123,7 +123,7 @@ void lerDadosEntrada(REG *registro) {
     // country
     scan_quote_string(buffer);
     if(strlen(buffer) == 0) {
-        set_country(registro, "-1");
+        set_country(registro, "-1000");
     } else {
         set_country(registro, buffer);
     }
@@ -131,7 +131,7 @@ void lerDadosEntrada(REG *registro) {
     // attackType
     scan_quote_string(buffer);
     if(strlen(buffer) == 0) {
-        set_attackType(registro, "-1");
+        set_attackType(registro, "-1000");
     } else {
         set_attackType(registro, buffer);
     }
@@ -139,7 +139,7 @@ void lerDadosEntrada(REG *registro) {
     // targetIndustry
     scan_quote_string(buffer);
     if(strlen(buffer) == 0) {
-        set_targetIndustry(registro, "-1");
+        set_targetIndustry(registro, "-1000");
     } else {
         set_targetIndustry(registro, buffer);
     }
@@ -147,7 +147,7 @@ void lerDadosEntrada(REG *registro) {
     // defenseMechanism
     scan_quote_string(buffer);
     if(strlen(buffer) == 0) {
-        set_defenseMechanism(registro, "-1");
+        set_defenseMechanism(registro, "-1000");
     } else {
         set_defenseMechanism(registro, buffer);
     }
@@ -157,8 +157,8 @@ int calcularTamanhoRegistro(REG *registro) {
     int tamanho = 0;
     
     // Campos fixos do registro
-    tamanho += sizeof(char);     // removido
-    tamanho += sizeof(int);      // tamanhoRegistro
+    // tamanho += sizeof(char);     // removido
+    // tamanho += sizeof(int);      // tamanhoRegistro
     tamanho += sizeof(long int); // proximo  
     tamanho += sizeof(int);      // idAttack
     tamanho += sizeof(int);      // year
@@ -167,34 +167,85 @@ int calcularTamanhoRegistro(REG *registro) {
     // Campos de string variáveis - seguindo o formato da escrever_registro
     
     // country: se não for nulo, escreve "1" + string + "|"
-    if(get_country(registro) != NULL && strcmp(get_country(registro), "-1") != 0) {
+    if(get_country(registro) != NULL && strcmp(get_country(registro), "-1000") != 0) {
         tamanho += sizeof(char);                    // código "1"
         tamanho += strlen(get_country(registro));   // string
         tamanho += sizeof(char);                    // separador "|"
     }
 
     // attackType: se não for nulo, escreve "2" + string + "|"
-    if(get_attackType(registro) != NULL && strcmp(get_attackType(registro), "-1") != 0) {
+    if(get_attackType(registro) != NULL && strcmp(get_attackType(registro), "-1000") != 0) {
         tamanho += sizeof(char);                      // código "2"
         tamanho += strlen(get_attackType(registro));  // string
         tamanho += sizeof(char);                      // separador "|"
     }
 
     // targetIndustry: se não for nulo, escreve "3" + string + "|"
-    if(get_targetIndustry(registro) != NULL && strcmp(get_targetIndustry(registro), "-1") != 0) {
+    if(get_targetIndustry(registro) != NULL && strcmp(get_targetIndustry(registro), "-1000") != 0) {
         tamanho += sizeof(char);                          // código "3"
         tamanho += strlen(get_targetIndustry(registro));  // string
         tamanho += sizeof(char);                          // separador "|"
     }
 
     // defenseMechanism: se não for nulo, escreve "4" + string + "|"
-    if(get_defenseMechanism(registro) != NULL && strcmp(get_defenseMechanism(registro), "-1") != 0) {
+    if(get_defenseMechanism(registro) != NULL && strcmp(get_defenseMechanism(registro), "-1000") != 0) {
         tamanho += sizeof(char);                             // código "4"
         tamanho += strlen(get_defenseMechanism(registro));   // string
         tamanho += sizeof(char);                             // separador "|"
     }
     
     return tamanho;
+}
+
+
+void inserir_registro(FILE* fp,REG* registro,HEADER* header, int tamanhoNecessario){
+    long int posicaoInsercao = encontrarEspacoFirstFit(fp, tamanhoNecessario,header);
+        
+        if(posicaoInsercao != -1) {
+            // Reutiliza espaço de registro removido
+            fseek(fp, posicaoInsercao, SEEK_SET);
+            
+            // Lê o tamanho do espaço disponível para calcular o lixo
+            char removidoAntigo;
+            int tamanhoDisponivel;
+            fread(&removidoAntigo, sizeof(char), 1, fp);
+            fread(&tamanhoDisponivel, sizeof(int), 1, fp);
+            set_tamanhoRegistro(registro, tamanhoDisponivel);
+            // Volta para o início do registro para escrever
+            fseek(fp, posicaoInsercao, SEEK_SET);
+            
+            // Escreve o registro usando a função corrigida
+            escrever_registro(fp, registro, header);
+            
+            long int posicaoAtual = ftell(fp);
+            long int espacoUsado = posicaoAtual - posicaoInsercao;
+            long int espacoRestante = tamanhoDisponivel - espacoUsado;
+            
+            // Garante que preenche exatamente o espaço que sobrou
+            if(espacoRestante > 0) {
+                char lixo = '$';
+                for(long int j = 0; j < espacoRestante+5; j++) {
+                    fwrite(&lixo, sizeof(char), 1, fp);
+                }
+            }
+        } else {
+            // Insere no final do arquivo
+            long int posicaoFinal = get_proxByteOffset(header);
+            fseek(fp, posicaoFinal, SEEK_SET);
+            
+            // Usa a função corrigida
+            escrever_registro(fp, registro, header);
+            
+            set_proxByteOffset(header, ftell(fp));
+        }
+
+        set_nroReqArq(header, get_nroReqArq(header) + 1);
+        free(registro);
+
+        int posFinal = ftell(fp);
+        escreverCabecalho(fp,header);
+        fseek(fp,posFinal,SEEK_SET);
+        fflush(fp);
 }
 
 void insertInto(char* arquivoBin, int numeroInsercoes) {
@@ -209,7 +260,7 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
 
     // Seta arquivo como inconsistente
     set_status(header, '0');
-    escreverCabecalho(fp, header);
+    escreverCabecalho(fp,header);
 
     for(int i = 0; i < numeroInsercoes; i++) {
         REG *registro = criar_reg();
@@ -217,7 +268,7 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
 
         // Calcular tamanho e setar ANTES de procurar espaço
         int tamanhoCalculado = calcularTamanhoRegistro(registro);
-        set_tamanhoRegistro(registro, tamanhoCalculado);
+        // set_tamanhoRegistro(registro, tamanhoCalculado);
         set_removido(registro, '0');
         set_prox(registro, -1);
         
@@ -233,7 +284,7 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
             int tamanhoDisponivel;
             fread(&removidoAntigo, sizeof(char), 1, fp);
             fread(&tamanhoDisponivel, sizeof(int), 1, fp);
-            
+            set_tamanhoRegistro(registro, tamanhoDisponivel);
             // Volta para o início do registro para escrever
             fseek(fp, posicaoInsercao, SEEK_SET);
             
@@ -247,7 +298,7 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
             // Garante que preenche exatamente o espaço que sobrou
             if(espacoRestante > 0) {
                 char lixo = '$';
-                for(long int j = 0; j < espacoRestante; j++) {
+                for(long int j = 0; j < espacoRestante+5; j++) {
                     fwrite(&lixo, sizeof(char), 1, fp);
                 }
             }
