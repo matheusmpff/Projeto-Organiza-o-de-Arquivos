@@ -101,10 +101,10 @@ char get_codDescreveTargetIndustry(HEADER *h){
 char get_codDescreveDefense(HEADER *h){
     return h->codDescreveDefense;
 }
-int get_status(HEADER * h){
+char get_status(HEADER * h){
     return h->status;
 }
-bool set_status(HEADER * h,int x){
+bool set_status(HEADER * h,char x){
     h->status = x;
     return true;
 }
@@ -368,6 +368,10 @@ long int get_prox(REG* reg){
 
 void set_prox(REG* reg,long int prox){
     reg->prox = prox;
+}
+
+void set_tamanhoRegistro(REG *r, int x){
+    r->tamanhoRegistro = x;
 }
 
 int get_tamanhoRegistro(REG *r){

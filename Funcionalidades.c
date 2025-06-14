@@ -189,6 +189,8 @@ void func5(char* nomebin) {
 	scanf("%d", &numeroInsercoes);
 
 	insertInto(nomebin, numeroInsercoes);
+
+	binarioNaTela(nomebin);
 }
 
 void ler_entradas(){
@@ -218,6 +220,7 @@ void ler_entradas(){
 			func5(string1);
 			break;
 		default:
+		break;
 	}
 
     /*if(func == 1){

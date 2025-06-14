@@ -28,6 +28,7 @@
     char* get_targetIndustry(REG *r);
     char* get_defenseMechanism(REG *r);
     int get_tamanhoRegistro(REG *r);
+    void set_tamanhoRegistro(REG *r, int x);
     void set_idAttack(REG *r, int idAttack);
     void set_year(REG *r, int year);
     void set_financialLoss(REG *r, float financialLoss);
@@ -49,8 +50,8 @@
     char get_codDescreveType(HEADER *h);
     char get_codDescreveTargetIndustry(HEADER *h);
     char get_codDescreveDefense(HEADER *h);
-    int get_status(HEADER * h);
-    bool set_status(HEADER * h,int x);
+    char get_status(HEADER * h);
+    bool set_status(HEADER * h,char x);
     char * get_descreveident(HEADER *h);
     bool set_descreveident(HEADER *h,char * src);
     char * get_descreveYear(HEADER *h);
