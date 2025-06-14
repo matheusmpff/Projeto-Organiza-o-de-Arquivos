@@ -42,50 +42,6 @@ void escreverCabecalho(FILE *arquivo, HEADER *h) {
     fwrite(descreveDefense, sizeof(char), 68, arquivo);
 }
 
-void escrever_registro_corrigido(FILE* bin, REG* reg, HEADER* h) {
-    char removido = get_removido(reg);
-    int tamanho = get_tamanhoRegistro(reg);
-    long int prox = get_prox(reg);
-    int idAttack = get_idAttack(reg);
-    int year = get_year(reg);
-    float financialLoss = get_financialLoss(reg);
-    
-    fwrite(&removido, sizeof(char), 1, bin);
-    fwrite(&tamanho, sizeof(int), 1, bin);
-    fwrite(&prox, sizeof(long int), 1, bin);
-    fwrite(&idAttack, sizeof(int), 1, bin);
-    fwrite(&year, sizeof(int), 1, bin);
-    fwrite(&financialLoss, sizeof(float), 1, bin);
-    
-    char* country = get_country(reg);
-    if(strcmp(country, "-1") != 0) {
-        fwrite("1", sizeof(char), 1, bin);
-        fwrite(country, strlen(country), 1, bin);
-        fwrite("|", sizeof(char), 1, bin);
-    }
-    
-    char* attackType = get_attackType(reg);
-    if(strcmp(attackType, "-1") != 0) {
-        fwrite("2", sizeof(char), 1, bin);
-        fwrite(attackType, strlen(attackType), 1, bin);
-        fwrite("|", sizeof(char), 1, bin);
-    }
-    
-    char* targetIndustry = get_targetIndustry(reg);
-    if(strcmp(targetIndustry, "-1") != 0) {
-        fwrite("3", sizeof(char), 1, bin);
-        fwrite(targetIndustry, strlen(targetIndustry), 1, bin);
-        fwrite("|", sizeof(char), 1, bin);
-    }
-    
-    char* defenseMechanism = get_defenseMechanism(reg);
-    if(strcmp(defenseMechanism, "-1") != 0) {
-        fwrite("4", sizeof(char), 1, bin);
-        fwrite(defenseMechanism, strlen(defenseMechanism), 1, bin);
-        fwrite("|", sizeof(char), 1, bin);
-    }
-}
-
 long int encontrarEspacoFirstFit(FILE *arquivo, int tamanhoNecessario, HEADER *header) {
     if(get_topo(header) == -1)
         return -1; // Lista vazia
@@ -282,7 +238,7 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
             fseek(fp, posicaoInsercao, SEEK_SET);
             
             // Escreve o registro usando a função corrigida
-            escrever_registro_corrigido(fp, registro, header);
+            escrever_registro(fp, registro, header);
             
             long int posicaoAtual = ftell(fp);
             long int espacoUsado = posicaoAtual - posicaoInsercao;
@@ -301,7 +257,7 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
             fseek(fp, posicaoFinal, SEEK_SET);
             
             // Usa a função corrigida
-            escrever_registro_corrigido(fp, registro, header);
+            escrever_registro(fp, registro, header);
             
             set_proxByteOffset(header, ftell(fp));
         }
