@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 #include "RegRW.h"
 
 bool compara_campos(REG* reg, char* campos[], char* valores[], int tamanho){

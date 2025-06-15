@@ -19,7 +19,10 @@
 	@param tamanho Numero de pares de filtros a serem buscados
 */
 bool comparCampos(REG* reg, char* campos[], char* valores[], int tamanho){
-    for(int i = 0 ;i < tamanho + 1; i++){
+	if(get_removido(reg) == '1'){
+        return false;
+    }
+    for(int i = 0 ;i <= tamanho; i++){
         if(strcmp(campos[i],"country") == 0){ 
             if(strcmp(valores[i], get_country(reg)) != 0){
                 return false;
@@ -102,12 +105,8 @@ void busca_registro(char* nomeArquivo, char* campos[], char* valores[], int quan
 	while(ftell(fp) < fimArquivo) { // Equanto o ponteiro fp não chega no fim do arquivo
 		REG *r = ler_registro(fp, h); // Le um registro do arquivo
 		if(comparCampos(r, campos, valores, quantidade - 1)) {
-			if(get_removido(r)) {
 				printar_registro(r, h); // Imprime o registro
 				registrosEncontrados++; // Aumenta o contador de registro encontrado
-
-				 
-			}
 		}
 
 		free(r);
@@ -115,7 +114,7 @@ void busca_registro(char* nomeArquivo, char* campos[], char* valores[], int quan
 	
 	printf("**********\n");
 	// Caso a busca nao retorne nenhum registro
-	if(registrosEncontrados != 0) {
+	if(registrosEncontrados == 0) {
 		printf("Registro inexistente.\n");
 	}
 
