@@ -32,7 +32,7 @@ bool comparCampos(REG* reg, char* campos[], char* valores[], int tamanho){
             continue;
         }
         if(strcmp(campos[i],"financialLoss") == 0){
-            if(atoi(valores[i]) != get_financialLoss(reg)){
+            if(atof(valores[i]) != get_financialLoss(reg)){
                 return false;
                 
             }
@@ -50,13 +50,18 @@ bool comparCampos(REG* reg, char* campos[], char* valores[], int tamanho){
             }
             continue;
         }
-        if(strcmp(campos[i],"") == 0){}
+        if(strcmp(campos[i],"year") == 0){
+			if(atoi(valores[i]) != get_year(reg)) {
+				return false;
+			}
+			continue;
+		}
         if(strcmp(campos[i],"idAttack") == 0){
             if(atoi(valores[i]) != get_idAttack(reg)){
                 return false;
             }
+			continue;
         }
-        continue;
     }
 
     return true;
@@ -104,12 +109,11 @@ void busca_registro(char* nomeArquivo, char* campos[], char* valores[], int quan
 
 		free(r);
 	}
-
-	// Caso a busca nao retorne nenhum registro
-	if(registrosEncontrados == 0) {
-		printf("Registro inexistente.\n\n");
-	}
+	
 	printf("**********\n");
+	// Caso a busca nao retorne nenhum registro
+	if(registrosEncontrados != 0) {
+	}
 
 	free(h);
 
