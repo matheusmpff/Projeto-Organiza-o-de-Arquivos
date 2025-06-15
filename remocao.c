@@ -28,7 +28,7 @@ bool compara_campos(REG* reg, char* campos[], char* valores[], int tamanho){
             continue;
         }
         if(strcmp(campos[i],"financialLoss") == 0){
-            if(atoi(valores[i]) != get_financialLoss(reg)){
+            if(atof(valores[i]) != get_financialLoss(reg)){
                 return false;
                 
             }
