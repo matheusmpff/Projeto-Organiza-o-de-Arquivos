@@ -151,11 +151,26 @@ bool func3(char* nomeArquivo){
 			valores[i] = malloc(sizeof(char)*50);
 
 			scanf(" %s",campos[i]);
-			if(strcmp(campos[i],"idAttack") == 0 || strcmp(campos[i],"financialLoss") == 0 || strcmp(campos[i],"year") == 0){
+			if(strcmp(campos[i],"idAttack") == 0){
 				scanf("%s",valores[i]);
+			}
+			else if(strcmp(campos[i],"year") == 0) {
+				scanf("%s",valores[i]);
+				if(strcmp(valores[i], "NULO") == 0){
+					strcpy(valores[i], "-1");
+				}
+			}
+			else if(strcmp(campos[i],"financialLoss") == 0) {
+				scanf("%s",valores[i]);
+				if(strcmp(valores[i], "NULO") == 0){
+					strcpy(valores[i], "-1.0");
+				}
 			}
 			else{
 				scan_quote_string(valores[i]);
+				if(strcmp(valores[i], "NULO") == 0){
+					strcpy(valores[i], "-1000");
+				}
 			}
 
 		}
