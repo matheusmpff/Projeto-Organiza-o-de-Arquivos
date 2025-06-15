@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include "RegRW.h"
 #include "RegBusca.h"
-#include "remocao.h"
 
 bool comparCampos(REG* reg, char* campos[], char* valores[], int tamanho){
     for(int i = 0 ;i < tamanho; i++){
