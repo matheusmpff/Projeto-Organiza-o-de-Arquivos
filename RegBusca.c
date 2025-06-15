@@ -111,12 +111,14 @@ void busca_registro(char* nomeArquivo, char* campos[], char* valores[], int quan
 
 		free(r);
 	}
-	
-	printf("**********\n");
 	// Caso a busca nao retorne nenhum registro
 	if(registrosEncontrados == 0) {
-		printf("Registro inexistente.\n");
+		printf("Registro inexistente.\n\n");
 	}
+	
+	printf("**********\n");
+	
+	
 
 	free(h);
 
