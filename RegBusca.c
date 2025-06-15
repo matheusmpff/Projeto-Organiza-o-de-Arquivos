@@ -69,7 +69,6 @@ void busca_registro(char* nomeArquivo, char* campos[], char* valores[], int quan
 	int registrosEncontrados = 0;
 	fseek(fp, 0, SEEK_END);
 	long int fimArquivo = ftell(fp);
-	printf("FIM ARQUIVO: %ld\n", fimArquivo);
 	fseek(fp, 0, SEEK_SET);
 	HEADER * h = criar_header();
 	ler_header(fp,h);
