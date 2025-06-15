@@ -62,7 +62,7 @@ bool comparCampos(REG* reg, char* campos[], char* valores[], int tamanho){
 void busca_registro(char* nomeArquivo, char* campos[], char* valores[], int quantidade) {
 	FILE* fp = fopen(nomeArquivo, "rb");
 	if (fp == NULL) {
-		printf("Falha no processamento de arquivo.");
+		printf("Falha no processamento de arquivo.\n");
 		return;
 	}
 
@@ -85,7 +85,7 @@ void busca_registro(char* nomeArquivo, char* campos[], char* valores[], int quan
 		free(r);
 	}
 	if(registrosEncontrados == 0) {
-		printf("Registro inexistente.");
+		printf("Registro inexistente.\n");
 	}
 	printf("**********\n");
 
