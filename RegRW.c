@@ -818,7 +818,7 @@ void printar_binario(char * nome){
     
     HEADER* h = criar_header();
     ler_header(bin,h);//lê o header do arquivo
-    // printar_header(h);
+    
     while(ftell(bin) != final){
         REG* reg = ler_registro(bin,h);// le um registro do arquivo binário
         
