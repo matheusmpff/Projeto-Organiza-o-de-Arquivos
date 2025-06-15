@@ -97,6 +97,8 @@ void busca_registro(char* nomeArquivo, char* campos[], char* valores[], int quan
 			if(get_removido(r)) {
 				printar_registro(r, h); // Imprime o registro
 				registrosEncontrados++; // Aumenta o contador de registro encontrado
+
+				 
 			}
 		}
 

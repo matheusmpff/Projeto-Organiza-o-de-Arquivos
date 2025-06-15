@@ -93,7 +93,11 @@ scanf("%*c") --> lê um char e não guarda em nenhuma variável, como se tivesse
 
 /*---------------------------------------------------------------------------*/
 
-
+/*
+Parâmetros:
+	tamanho -> quantidade de pares campo-valor que serão lidos
+	campos,valores -> arrays que irão armazenar os campos e os valores deles para utilização nas funcionalidades
+*/
 void ler_campos_valores(int tamanho, char *campos[], char* valores[]){
 	
 		for(int i = 0;i<tamanho;i++){
@@ -113,7 +117,13 @@ void ler_campos_valores(int tamanho, char *campos[], char* valores[]){
 }
 
 
-/* função para executar a funcionalidade 1 */
+/* Parâmetros:
+	string1 -> nome do arquivo CSV que deve ser lido
+	string2 -< nome do arquivo binário que deve ser criado
+A função cria um arquivo binário a partir dos dados do arquivo CSV. A função auxiliar CSV_to_BIN
+será responsável por manipular os arquivos e criar o binário. Caso não seja possível criá-lo ele retorna falso
+e é mostrado na tela a mensagem de erro, caso contrário executa a função fornecida binarioNaTela 	
+*/
 bool func1(char* string1, char*string2){
     if (!CSV_to_BIN(string1,string2)){
         printf("Falha no processamento do arquivo.\n");

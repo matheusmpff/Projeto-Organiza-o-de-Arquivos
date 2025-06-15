@@ -45,7 +45,13 @@ struct reg{
     char targetIndustry[20];//keyword igual a 3
     char defenseMechanism[20];//keyword igual a 4
 };
+/*
+Parâmetros:
+    bin -> ponteiro para o arquivo binário
+    header -> struct header que tem os dados do cabecalho
 
+Escrever os dados da struct header no arquivo binário. 
+*/
 void escrever_header(FILE* bin, HEADER* header){
     fwrite(&header->status,sizeof(char),1,bin);
     fwrite(&header->topo,sizeof(long int),1,bin);
@@ -65,6 +71,15 @@ void escrever_header(FILE* bin, HEADER* header){
     fwrite(header->descreveDefense,strlen(header->descreveDefense),1,bin);
 }
 
+/*
+Parâmetros:
+    fp -> ponteiro para para o arquivo csv 
+    bin -> ponteiro para arquivo binário
+    header -> struct header que irá guardar os dados do header
+
+Função para ler os dados do arquivo CSV e ler os dados que serão usados para formar o header. Chama a
+função de escrever o header.
+*/
 void escrever_cabecalho(FILE* fp, FILE* bin, HEADER* header){//NOVO
     //ESCREVE LINHA DO CABEÇALHO
     char linha[256];
@@ -187,7 +202,9 @@ bool set_descreveDefense(HEADER *h, char* src){
     strcpy(h->descreveDefense,src);
     return true;
 }
-
+/*
+Cria a struct registro e inicializa os campos então retorna a struct de registro
+*/
 REG* criar_reg(){//NOVO
     REG * reg = (REG*) calloc(sizeof(REG),1);
     if(reg == NULL){
@@ -207,16 +224,24 @@ REG* criar_reg(){//NOVO
 
     return reg;
 }
+/*Parâmetros:
+    fp -> ponteiro para o arquvio CSV
+    reg -> ponteiro para o arquivo Binário
+    reg-> struct registro que irá armazenar os valores
 
+Lê uma linha do arquivo CSV e preenche a struct registro com os dados lidos dessa linha
+*/
 bool ler_linha(FILE* fp, REG *reg){
     char* aux;
     char linha [256];
-    reg->tamanhoRegistro = 20;
+    reg->tamanhoRegistro = 20; //inicializa com 20 que é o tamanho dos campos fixos juntos
+
+    //Se chegar no fim do arquivo retorna falso 
     if(fgets(linha,sizeof(linha),fp) == NULL){
         return false;
     }
-    ajuste(linha);
-    ajuste_linha(linha);
+    ajuste(linha);// 
+    ajuste_linha(linha);//
     aux = strtok(linha,",");
     if(aux == NULL){
         reg->idAttack = -1;
@@ -290,6 +315,14 @@ bool ler_linha(FILE* fp, REG *reg){
  
 }
 
+/*Parâmetros: 
+    bin -> ponteiro para o arquivo binário
+    reg -> struct registro que contém todos os dados que devem ser inseridos
+    h -> struct header com os dados do header
+
+Executa os comandos de escrita no arquivo binário dos valores dentro da struct registro, são inseridos os
+valores dos codigos para os campos variáveis e também os delimitadores.
+*/
 void escrever_registro(FILE* bin, REG* reg, HEADER* h){
 
     fwrite(&reg->removido,sizeof(char),1,bin);
@@ -321,6 +354,12 @@ void escrever_registro(FILE* bin, REG* reg, HEADER* h){
 
 }
 
+/*Paraâmetros:
+    fp -> ponteiro para o arquivo CSV
+    bin -> arquivo para o arquivo binário
+    reg -> struct registro que armazena os dados do CSV e depois é escrito no binário
+Função responsável por escrever os registros criados a partir do arquivo csv
+*/
 void escrever_registrosCSV(FILE* fp, FILE* bin, REG* reg, HEADER* h){
     
     fseek(bin,276,SEEK_SET);
@@ -439,26 +478,33 @@ void set_defenseMechanism(REG *r, char *defenseMechanism){
     strcpy(r->defenseMechanism, defenseMechanism);
 }
 
-void add_lixo(int tam, char *vet){
-    for(int i = 0;i<tam;i++){
-        vet[i] = '$';
-    }
-}
+/*
 
+Função auxiliar para ler os registros de campos variáveis continos no arquivo binário. A cada leitura 
+dos campos variáveis analisa se o byte lido é o símbolo $ que indica lixo, se sim é porque já foi lido 
+todos os campos variáveis.
+O tamanho registro tem o tamanho dos dados fixos(que é 20) e o tamanho dos campos variáveis e possiveis
+bytes de lixo. Caso a leitura não seja um lixo ela irá encontrar algum dos códigos 1 2 3 ou 4 que indicam
+um dos campos variáveis. Assim segue-se a leitura até o | que indica a parada do campo. Em cada iteração
+o valor do campo lido é reduzido do tamanho total do registro. Caso o tamanho chegue a 20 é porque o registro
+já foi todo lido.
+Caso encontre um $ é porque tem uma região com lixo que deve ser pulada para chegar no proximo registro.
+A função já realiza o deslocamento do ponteiro para o inicio do próximo registro
+*/
 void aux_ler_registro(FILE* bin, REG * reg, HEADER* h){//NOVO
     int tam = reg->tamanhoRegistro;
     char auxChar = '\0';
 
     while(tam>20){
-        
+    //loop para a leitura dos campos variáveis        
         fread(&auxChar,sizeof(char),1,bin);
-        if(auxChar == '$'){
+        if(auxChar == '$'){// se enontra lixo ele sai do loop pois ja leu todos os campos variáveis
             tam--;
             break;
         }
-        if(auxChar == h->codDescreveCountry){
+        if(auxChar == h->codDescreveCountry){//leitura caso tenha lido o caracter 1
             int i = 0;
-            while(auxChar != '|'){ 
+            while(auxChar != '|'){ //lê até econtrar o delimitador
                 fread(&auxChar,sizeof(char),1,bin);
                 reg->country[i] = auxChar;
                 i++;
@@ -466,9 +512,9 @@ void aux_ler_registro(FILE* bin, REG * reg, HEADER* h){//NOVO
             reg->country[i-1] = '\0';
             tam -= (strlen(reg->country) +2); 
         }
-        if(auxChar == h->codDescreveType){
+        if(auxChar == h->codDescreveType){//leitura caso tenha lido o caracter 2
             int i = 0;
-            while(auxChar != '|'){ 
+            while(auxChar != '|'){ //lê até econtrar o delimitador
                 fread(&auxChar,sizeof(char),1,bin);
                 reg->attackType[i] = auxChar;
                 i++;
@@ -476,9 +522,9 @@ void aux_ler_registro(FILE* bin, REG * reg, HEADER* h){//NOVO
             reg->attackType[i-1] = '\0';
             tam -= ( strlen(reg->attackType) +2); 
         }
-        if(auxChar == h->codDescreveTargetIndustry){
+        if(auxChar == h->codDescreveTargetIndustry){//leitura caso tenha lido o caracter 3
             int i = 0;
-            while(auxChar != '|'){ 
+            while(auxChar != '|'){ //lê até econtrar o delimitador
                 fread(&auxChar,sizeof(char),1,bin);
                 reg->targetIndustry[i] = auxChar;
                 i++;
@@ -486,9 +532,9 @@ void aux_ler_registro(FILE* bin, REG * reg, HEADER* h){//NOVO
             reg->targetIndustry[i-1] = '\0';
             tam -= ( strlen(reg->targetIndustry) +2);
         }
-        if(auxChar == h->codDescreveDefense){
+        if(auxChar == h->codDescreveDefense){//leitura caso tenha lido o caracter 4
             int i = 0;
-            while(auxChar != '|'){ 
+            while(auxChar != '|'){ //lê até econtrar o delimitador
                 fread(&auxChar,sizeof(char),1,bin);
                 reg->defenseMechanism[i] = auxChar;
                 i++;
@@ -498,13 +544,20 @@ void aux_ler_registro(FILE* bin, REG * reg, HEADER* h){//NOVO
         }
     }
 
-    if(tam-20>0){
+    if(tam-20>0){// faz o ajuste do ponteiro para que ele fique no início do próximo registro
         fseek(bin,tam-20,SEEK_CUR);
     }
 }
 
+/*Parâmetros:
+    bin -> ponteiro para o arquivo binário 
+    h -> struct header que guarda as informações do header
+A função executa a leitura de um registro do arquivo binário e armazena na struct registro. A struct criada
+é retornada pela funcão. Chama a função auxiliar que lê os registros variáveis e coloca na struct regitro
+*/
 REG* ler_registro(FILE* bin,HEADER *h){
-    REG* reg = criar_reg();
+    REG* reg = criar_reg();//aloca dinamicamente o espaço da struct e inicializa
+    //lê os campos fixos
     fread(&reg->removido,sizeof(char),1,bin);
     fread(&reg->tamanhoRegistro,sizeof(int),1,bin);
     fread(&reg->prox,sizeof(long int),1,bin);
@@ -521,12 +574,18 @@ REG* ler_registro(FILE* bin,HEADER *h){
 /*-------------------------------- adições novas------------------------------------------*/
 
 
-//FUNÇÕES DE AJUSTE DE LINHA
+/*
+Parâmetros:
+    char* linha -> string que contém uma linha do arquivo CSV
+As linhas do arquivo CSV que contém os dados para o registro pode ser que não tenham valores para todos
+os campos, assim coloca-se nesses lugares o valor -1 para que se possa ler de forma padrão todos os campos
+*/
 void ajuste_linha(char *linha) {
-   char resultado[300]="";
+   char resultado[300]="";//string auxiliar para formar a linha nova com os campos nulos com -1
     int i;
     int j = 0;
 
+    //adiciona -1 se o primeiro campo da string não tiver valor 
     if(linha[0] == ','){
         resultado[j] = '-';
         j++;
@@ -535,7 +594,7 @@ void ajuste_linha(char *linha) {
     }
     for(i=0;linha[i]!='\0';i++){
         
-
+        //verifica se há duas virgulas consecutivas o que indica que o campo está vazio e insere -1
         if(linha[i] == linha[i+1] && linha[i] == ','){
 
             resultado[j] = linha[i];
@@ -549,7 +608,7 @@ void ajuste_linha(char *linha) {
         resultado[j] = linha[i];
         j++;
     }
-
+    //verifica se o ultimo campo é vazio se sim adiciona -1
     if(resultado[j-1] == ','){
         resultado[j] = '-';
         j++;
@@ -561,6 +620,11 @@ void ajuste_linha(char *linha) {
     strcpy(linha,resultado);
 }
 
+/*
+Parâmetros:
+    char* palavra -> string que contem a linha do CSV 
+retira possíveis espaços, \n \r do final da linha
+*/
 void ajuste(char* palavra){
     if(palavra == NULL){
         return;
@@ -576,8 +640,9 @@ void ajuste(char* palavra){
 
 }
 
-//criar header
-
+/*
+Função que aloca dinamicamente a struct header e inicializa o seus campos.
+*/
 HEADER* criar_header(){
     HEADER * header =(HEADER*) calloc(sizeof(HEADER),1);
     if(header == NULL){
@@ -606,7 +671,14 @@ HEADER* criar_header(){
 }
 
 
-//Ler Header
+/*
+Parâmetros:
+    bin -> ponteiro para o arquivo binário
+    h -> struct header que irá conter os dados do cabecalho do arquivo binário
+
+A função executa comandos de leitura dos campos do cabechalho do arquivo binário e coloca os valores dentro
+da struct header. Os dados de string no arquivo binário não tem o \0 logo são adicionados após a leitura.
+*/
 void ler_header(FILE* bin, HEADER* h){
     
     fread(&h->status,sizeof(char),1,bin);
@@ -637,7 +709,11 @@ void ler_header(FILE* bin, HEADER* h){
 }
 
 
-//printa o header
+/*
+Parâmetros:
+    h-> struct que contém os dados do header que foi lido anteriormente
+Função auxiliar caso haja a necessidade de visualizar em tela os dados armazenado dentro do header.
+*/
 void printar_header(HEADER* h){
     printf("Status: %c\n",h->status);
     printf("Topo: %ld\n",h->topo);
@@ -660,7 +736,13 @@ void printar_header(HEADER* h){
 }
 
 
-//PRINTAR REGISTROS
+/*Parãmetros:
+    reg -> struct registro que contém os dados do registro do arquvo binário
+    h->struct header que contém os dados do arquivo binário
+Função para mostrar os dados presentes dentro de um registro do arquivo binário. Cada campo é seguido de
+uma verificação de valor para ver se há valores válidos armazenados nos campos das structs.
+Se não houver valor válido retorna-se NADA CONSTA para esse campo
+*/
 
 void printar_registro(REG* reg,HEADER* h){
     
@@ -719,22 +801,10 @@ void printar_registro(REG* reg,HEADER* h){
     
 }
 
-void printar_registro2(REG* reg){
-    
-    printf("Removido: %c\n",reg->removido);
-    printf("TamRegistro: %d\n",reg->tamanhoRegistro);
-    printf("Próximo: %ld\n",reg->prox);
-    printf("IdAttack: %d\n",reg->idAttack);
-    printf("Year: %d\n",reg->year);
-    printf("FinancialLoss: %.2f\n",reg->financialLoss);
-    printf("Country: %s\n",reg->country);
-    printf("AttackType: %s\n",reg->attackType);
-    printf("TargetIndustry: %s\n",reg->targetIndustry);
-    printf("DefenseMechanism: %s\n\n",reg->defenseMechanism);
-    
-    
-}
-//printa todos os registros de um arquivo binario
+/*Parâmetros:
+    nome-> string que contém o nome do arquivo binário que deve ser mostrado na tela
+A função abre o arquivo e percorre ele mostrando na tela cada registro presente dentro do arquivo    
+*/
 void printar_binario(char * nome){
     FILE * bin = fopen(nome,"rb");
     if(bin == NULL){
@@ -742,27 +812,30 @@ void printar_binario(char * nome){
        return;
     }
 
-    fseek(bin,0,SEEK_END);
-    int final = ftell(bin);
-    fseek(bin,0,SEEK_SET);
+    fseek(bin,0,SEEK_END);//vai para o final do arquivo
+    int final = ftell(bin);//guarda a posição final do arquivo
+    fseek(bin,0,SEEK_SET);//volta para o inicio do arquivo
     
     HEADER* h = criar_header();
-    ler_header(bin,h);
-    //printar_header(h);
-    int i = 0;
+    ler_header(bin,h);//lê o header do arquivo
+    // printar_header(h);
     while(ftell(bin) != final){
-        REG* reg = ler_registro(bin,h);
+        REG* reg = ler_registro(bin,h);// le um registro do arquivo binário
         
-        printar_registro(reg,h);
-        i++;
-        free(reg);
+        printar_registro(reg,h);//função responsável por mostrar na tela os dados do registro
+        free(reg);//libera o espaço alocado na memória para esse registro
     }
     
     
-    free(h);
-    fclose(bin);
+    free(h);//libera o espaço da memória do header
+    fclose(bin);//fecha o arquivo binário
 }
 
+/*
+Parâmetros:
+    bin -> ponteiro para a posição que queremos adicionar o lixo
+    tamanho -> quantidade de lixo que quer colocar a partir da posição inicial
+Função que adiciona lixo na posição que desejarmos no arquivo.*/
 void adicionar_lixo(FILE* bin, int tamanho){
     char lixo = '$';
     for(int i = 0; i<tamanho;i++){
