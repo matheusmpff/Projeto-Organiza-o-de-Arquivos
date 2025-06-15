@@ -6,28 +6,28 @@
 #include "Funcionalidades.h"
 
 /*
-    Implementação da funcionalidade 5, INSERT INTO, utilizando a estrategia First Fit
+    Implementação da funcionalidade 5, INSERT INTO, utilizando a estrategia First Fit 
 */
 
 /*
-    Escreve o cabeçalho do arquivo binário na posição inicial (offset 0)
+    Escreve o cabeçalho do arquivo binario na posição inicial (offset 0)
  
-    O cabeçalho contém:
+    O cabeçalho contem:
     - status: '0' = inconsistente, '1' = consistente
     - topo: ponteiro para o primeiro registro removido (-1 se lista vazia)
     - proxByteOffset: proxima posicao livre no arquivo
     - nroReqArq: numero de registros ativos no arquivo
     - nroReqRem: numero de registros removidos
-    - campos de descrição: strings fixas que descrevem os campos dos registros
+    - campos de descricao: strings fixas que descrevem os campos dos registros
 
-    @param arquivo Ponteiro para o arquivo binário aberto
-    @param h Ponteiro para a estrutura HEADER com os dados do cabeçalho
+    @param arquivo Ponteiro para o arquivo binario aberto
+    @param h Ponteiro para a estrutura HEADER com os dados do cabecalho
 */
 void escreverCabecalho(FILE *arquivo, HEADER *h) {
-    // Posiciona no início do arquivo para escrever o cabeçalho
+    // Posiciona no inicio do arquivo para escrever o cabecalho
     fseek(arquivo, 0, SEEK_SET);
     
-    // Extrai todos os campos da estrutura HEADER usando funções getter
+    // Extrai todos os campos da estrutura HEADER usando funcoes get
     char status = get_status(h);
     long int topo = get_topo(h);
     long int proxByteOffset = get_proxByteOffset(h);
@@ -45,7 +45,7 @@ void escreverCabecalho(FILE *arquivo, HEADER *h) {
     char codDescreveDefense = get_codDescreveDefense(h);
     char *descreveDefense = get_descreveDefense(h);
 
-    // Escreve cada campo no arquivo binário com seu tamanho específico
+    // Escreve cada campo no arquivo binario com seu tamanho especifico
     fwrite(&status, sizeof(char), 1, arquivo);                    // 1 byte
     fwrite(&topo, sizeof(long int), 1, arquivo);                  // 8 bytes
     fwrite(&proxByteOffset, sizeof(long int), 1, arquivo);        // 8 bytes
@@ -65,37 +65,37 @@ void escreverCabecalho(FILE *arquivo, HEADER *h) {
 }
 
 /*
-    Implementa o algoritmo First Fit para encontrar o primeiro espaço adequado
+    Implementa o algoritmo First Fit para encontrar o primeiro espaco adequado
     de um registro removido no arquivo binario que possa acomodar um novo registro.
  
     ALGORITMO FIRST FIT:
     1. Percorre o arquivo binario
     2. Para cada registro removido, verifica se o tamanho é suficiente
-    3. Se encontrar um espaço adequado, remove-o da lista por meio de
-        a. seta o topo para o registro seguinte
-    4. Se não encontrar, retorna -1 (inserir no final do arquivo)
+    3. Se encontrar um espaco adequado, remove-o da lista e retorna sua posicao
+    4. Se nao encontrar, retorna -1 (inserir no final do arquivo)
 
-    @param arquivo Ponteiro para o arquivo binário
-    @param tamanhoNecessario Tamanho em bytes necessário para o novo registro
+    @param arquivo Ponteiro para o arquivo binario
+    @param tamanhoNecessario Tamanho em bytes necessario para o novo registro
     @param header Ponteiro para a estrutura HEADER
-    @return Posição no arquivo onde inserir (-1 se não encontrou espaço adequado)
+    @return Posicao no arquivo onde inserir (-1 se nao encontrou espaco adequado)
  */
 long int encontrarEspacoFirstFit(FILE *arquivo, int tamanhoNecessario, HEADER *header) {
     if(get_topo(header) == -1)
-        return -1; // Lista vazia
+        return -1; // arquivo vazio, nao ha espaco para reutilizar
 
-    long int atual = get_topo(header);
-    long int anterior = -1;
+    long int atual = get_topo(header); // posicao do primeiro registro do arquivo
+    long int anterior = -1; // posicao do registro anterior (usada na hora da remocao do registro)
 
+    // Percorre o arquivo binario enquanto houver registros
     while(atual != -1) {
         fseek(arquivo, atual, SEEK_SET);
         
-        // Le registro removido
+        // Le o registro da posicao atual
         REG *registro = ler_registro(arquivo, header);
         
-        // Verifica se registro está realmente removido
+        // Verifica se registro está realmente marcado com removido
         if(get_removido(registro) != '1') {
-            // Se não estiver removido, há um erro na lista
+            // Se não estiver removido, pula para o proximo do arquivo binario
             long int prox = get_prox(registro);
             free(registro);
             anterior = atual;
@@ -103,14 +103,14 @@ long int encontrarEspacoFirstFit(FILE *arquivo, int tamanhoNecessario, HEADER *h
             continue;
         }
 
-        // First Fit: primeiro espaço que couber
+        // First Fit: verifica se o espaco é suficiente para o novo registro
         if(get_tamanhoRegistro(registro) >= tamanhoNecessario) {
-            // Remove nó da lista
+            // Remove o registro do arquivo
             if(anterior == -1) {
-                // É o primeiro nó
+                // É o primeiro registro, atualiza o topo do cabecalho
                 set_topo(header, get_prox(registro));
             } else {
-                // Atualiza o nó anterior para pular este
+                // Caso nao seja o primeiro do arquivo, atualiza o paramento long in prox, do registro anterior
                 fseek(arquivo, anterior + sizeof(char) + sizeof(int), SEEK_SET);
                 long int prox = get_prox(registro);
                 fwrite(&prox, sizeof(long int), 1, arquivo);
@@ -121,9 +121,10 @@ long int encontrarEspacoFirstFit(FILE *arquivo, int tamanhoNecessario, HEADER *h
             
             long int posicaoRetorno = atual;
             free(registro);
-            return posicaoRetorno;
+            return posicaoRetorno; // retorna a posicao encontrada
         }
 
+        // Se o espaco nao for suciente, continua a percorrer o arquivo binario
         anterior = atual;
         atual = get_prox(registro);
         free(registro);
@@ -132,6 +133,28 @@ long int encontrarEspacoFirstFit(FILE *arquivo, int tamanhoNecessario, HEADER *h
     return -1; // Não encontrou espaço adequado
 }
 
+/*
+    Le os dados de entrada do usuario (stdin) e preenche uma estrutura REG
+ 
+    FORMATO DE ENTRADA ESPERADO:
+    - idAttack: inteiro
+    - year: inteiro ou "NULO"
+    - financialLoss: float ou "NULO" 
+    - country: string entre aspas ou "NULO"
+    - attackType: string entre aspas ou "NULO"
+    - targetIndustry: string entre aspas ou "NULO"
+    - defenseMechanism: string entre aspas ou "NULO"
+ 
+    TRATAMENTO DE VALORES NULOS:
+    - Inteiros nulos: -1
+    - Float nulo: -1.0
+    - Strings nulas: "-1000"
+
+    LEITURA DE STRINGS ENTRE ASPAS:
+    - Utiliza a funcao fornecida pela professora void scan_quote_string(char *str)
+  
+    @param registro Ponteiro para a estrutura REG a ser preenchida
+ */
 void lerDadosEntrada(REG *registro) {
     char buffer[100];
     int bufferInt;
@@ -143,7 +166,7 @@ void lerDadosEntrada(REG *registro) {
     // year
     scanf("%s", buffer);
     if(strcmp(buffer, "NULO") == 0) {
-        set_year(registro, -1);
+        set_year(registro, -1); // valor padrao para NULO
     } else {
         set_year(registro, atoi(buffer));
     }
@@ -151,7 +174,7 @@ void lerDadosEntrada(REG *registro) {
     // financialLoss
     scanf("%s", buffer);
     if(strcmp(buffer, "NULO") == 0) {
-        set_financialLoss(registro, -1.0);
+        set_financialLoss(registro, -1.0); // valor padrao para NULO
     } else {
         float valor;
         sscanf(buffer, "%f", &valor);
@@ -161,7 +184,7 @@ void lerDadosEntrada(REG *registro) {
     // country
     scan_quote_string(buffer);
     if(strlen(buffer) == 0) {
-        set_country(registro, "-1000");
+        set_country(registro, "-1000"); // valor padrao para NULO
     } else {
         set_country(registro, buffer);
     }
@@ -169,7 +192,7 @@ void lerDadosEntrada(REG *registro) {
     // attackType
     scan_quote_string(buffer);
     if(strlen(buffer) == 0) {
-        set_attackType(registro, "-1000");
+        set_attackType(registro, "-1000"); // valor padrao para NULO
     } else {
         set_attackType(registro, buffer);
     }
@@ -177,7 +200,7 @@ void lerDadosEntrada(REG *registro) {
     // targetIndustry
     scan_quote_string(buffer);
     if(strlen(buffer) == 0) {
-        set_targetIndustry(registro, "-1000");
+        set_targetIndustry(registro, "-1000"); // valor padrao para NULO
     } else {
         set_targetIndustry(registro, buffer);
     }
@@ -185,12 +208,29 @@ void lerDadosEntrada(REG *registro) {
     // defenseMechanism
     scan_quote_string(buffer);
     if(strlen(buffer) == 0) {
-        set_defenseMechanism(registro, "-1000");
+        set_defenseMechanism(registro, "-1000"); // valor padrao para NULO
     } else {
         set_defenseMechanism(registro, buffer);
     }
 }
 
+/*
+    Calcula o tamanho total em bytes que um registro ocupara no arquivo
+
+    ESTRUTURA DO REGISTRO NO ARQUIVO:
+    - Campos fixos: proximo (8), idAttack (4), year (4), financialLoss (4) = 20 bytes
+    - Campos variaveis: cada string nao-nula é armazenada como:
+       [código_campo (1 byte)] + [conteúdo_string] + [separador '|' (1 byte)]
+
+    CÓDIGOS DOS CAMPOS:
+    - '1': country
+    - '2': attackType  
+    - '3': targetIndustry
+    - '4': defenseMechanism
+ 
+    @param ponterio para registro a ser calculado
+    @return Tamanho total em bytes que o registro ocupara
+ */
 int calcularTamanhoRegistro(REG *registro) {
     int tamanho = 0;
     
@@ -200,7 +240,7 @@ int calcularTamanhoRegistro(REG *registro) {
     tamanho += sizeof(int);      // year
     tamanho += sizeof(float);    // financialLoss
     
-    // Campos de string variáveis - seguindo o formato da escrever_registro
+    // Campos de string variáveis - so ocupam espaco caso nao sejam nulos
     
     // country: se não for nulo, escreve "1" + string + "|"
     if(get_country(registro) != NULL && strcmp(get_country(registro), "-1000") != 0) {
@@ -233,31 +273,49 @@ int calcularTamanhoRegistro(REG *registro) {
     return tamanho;
 }
 
+/*
+    Insere um registro no arquivo usando estrategia de reutilizacao de espaco
 
+    ESTRATEGIA DE INSERCAO:
+    1. Tenta encontrar espaco adequado na lista de registros removidos (First Fit)
+    2. Se encontrar: reutiliza o espaco, preenchendo o restante com lixo ('$')
+    3. Se nao encontrar: insere no final do arquivo
+  
+    GERENCIAMENTO DE ESPACO:
+    - Quando reutiliza espaco, pode sobrar bytes nao utilizados
+    - Esses bytes sao preenchidos com caractere '$' (lixo)
+    - Isso mantem a integridade da estrutura do arquivo
+  
+    @param fp Ponteiro para o arquivo binario
+    @param registro Ponteiro para a estrutura REG a ser inserida
+    @param header Ponteiro para a estrutura HEADER
+    @param tamanhoNecessario Tamanho em bytes necessario para o registro
+ */
 void inserir_registro(FILE* fp,REG* registro,HEADER* header, int tamanhoNecessario){
     long int posicaoInsercao = encontrarEspacoFirstFit(fp, tamanhoNecessario,header);
         
         if(posicaoInsercao != -1) {
-            // Reutiliza espaço de registro removido
+            // Reutiliza espaco de registro removido
             fseek(fp, posicaoInsercao, SEEK_SET);
             
-            // Lê o tamanho do espaço disponível para calcular o lixo
+            // Le o tamanho do espaco disponivel para calcular o lixo
             char removidoAntigo;
             int tamanhoDisponivel;
             fread(&removidoAntigo, sizeof(char), 1, fp);
             fread(&tamanhoDisponivel, sizeof(int), 1, fp);
             set_tamanhoRegistro(registro, tamanhoDisponivel);
-            // Volta para o início do registro para escrever
+            // Volta para o inicio do registro para escrever
             fseek(fp, posicaoInsercao, SEEK_SET);
             
-            // Escreve o registro usando a função corrigida
+            // Escreve o novo registro
             escrever_registro(fp, registro, header);
             
+            // Calculo para o preenchimento do lixo
             long int posicaoAtual = ftell(fp);
             long int espacoUsado = posicaoAtual - posicaoInsercao;
             long int espacoRestante = tamanhoDisponivel + sizeof(char) /*char removido*/ + sizeof(int) /*int tamanho registro*/ - espacoUsado;
             
-            // Garante que preenche exatamente o espaço que sobrou
+            // Garante que preenche exatamente o espaço que sobrou com $
             if(espacoRestante > 0) {
                 char lixo = '$';
                 for(long int j = 0; j < espacoRestante; j++) {
@@ -269,12 +327,14 @@ void inserir_registro(FILE* fp,REG* registro,HEADER* header, int tamanhoNecessar
             long int posicaoFinal = get_proxByteOffset(header);
             fseek(fp, posicaoFinal, SEEK_SET);
             
-            // Usa a função corrigida
+            // Escreve registro no final
             escrever_registro(fp, registro, header);
             
+            // Atualiza o parametro proximo byte offset do header para o proximo byte livre
             set_proxByteOffset(header, ftell(fp));
         }
 
+        // Incremente contador de registro ativos
         set_nroReqArq(header, get_nroReqArq(header) + 1);
         free(registro);
 
@@ -284,6 +344,27 @@ void inserir_registro(FILE* fp,REG* registro,HEADER* header, int tamanhoNecessar
         fflush(fp);
 }
 
+/*
+    Funcao principal para insercao de multiplos registros no arquivo
+ 
+    PROCESSO DE INSERCAO:
+    1. Abre o arquivo em modo leitura/escrita binaria ("rb+")
+    2. Le o cabecalho existente
+    3. Marca arquivo como inconsistente durante a operacao
+    4. Para cada registro a inserir:
+      - Lê dados da entrada
+      - Calcula tamanho necessario
+      - Procura espaco reutilizavel ou insere no final
+   5. Marca arquivo como consistente ao final
+   
+   CONTROLE DE CONSISTENCIA:
+   - Status '0': arquivo inconsistente (operacao em andamento)
+   - Status '1': arquivo consistente (operacao concluída com sucesso)
+   - Isso protege contra corrupcao em caso de interrupcao da operacao
+   
+   @param arquivoBin Nome do arquivo binario
+   @param numeroInsercoes Quantidade de registros a serem inseridos
+ */
 void insertInto(char* arquivoBin, int numeroInsercoes) {
     FILE *fp = fopen(arquivoBin, "rb+");
     if(fp == NULL) {
@@ -291,6 +372,7 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
         return;
     }
     
+    // Carrega o cabecalho
     HEADER* header = criar_header();
     ler_header(fp, header);
 
@@ -298,20 +380,22 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
     set_status(header, '0');
     escreverCabecalho(fp,header);
 
+    // Loop de insercao de registros de acordo com o numero de insercoes a serem feitas
     for(int i = 0; i < numeroInsercoes; i++) {
+        // Cria novo registro para armazenar dados da entrada
         REG *registro = criar_reg();
         lerDadosEntrada(registro);
 
-        // Calcular tamanho e setar ANTES de procurar espaço
+        // COnfigura campos de controle do registro
         int tamanhoCalculado = calcularTamanhoRegistro(registro);
-        set_removido(registro, '0');
-        set_prox(registro, -1);
+        set_removido(registro, '0');    // Marca como nao removido
+        set_prox(registro, -1);         // Nao aponta para proximo (nao esta na lista)
         
-        // Procura espaço disponível na lista de removidos
+        // Procura espaço reutilizavel no arquivo binario
         long int posicaoInsercao = encontrarEspacoFirstFit(fp, tamanhoCalculado, header);
         
+        // Caso tenha encontrado um espaco
         if(posicaoInsercao != -1) {
-            // Reutiliza espaço de registro removido
             fseek(fp, posicaoInsercao, SEEK_SET);
             
             // Lê o tamanho do espaço disponível para calcular o lixo
@@ -320,11 +404,13 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
             fread(&removidoAntigo, sizeof(char), 1, fp);
             fread(&tamanhoDisponivel, sizeof(int), 1, fp);
             set_tamanhoRegistro(registro, tamanhoDisponivel);
-            // Volta para o início do registro para escrever
+
+            // Reposiciona para o espaco encontrado e escreve o novo registro
             fseek(fp, posicaoInsercao, SEEK_SET);
             
             escrever_registro(fp, registro, header);
             
+            // Calcula o preenchimento de lixo
             long int posicaoAtual = ftell(fp);
             long int espacoUsado = posicaoAtual - posicaoInsercao;
             long int espacoRestante = tamanhoDisponivel + sizeof(char) /*char removido*/ + sizeof(int) /*int tamanho registro*/ - espacoUsado;
@@ -341,12 +427,12 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
             long int posicaoFinal = get_proxByteOffset(header);
             fseek(fp, posicaoFinal, SEEK_SET);
             
-            // Usa a função corrigida
             escrever_registro(fp, registro, header);
             
             set_proxByteOffset(header, ftell(fp));
         }
 
+        // Incremente o contador de registros ativos
         set_nroReqArq(header, get_nroReqArq(header) + 1);
         free(registro);
     }

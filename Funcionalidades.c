@@ -302,27 +302,5 @@ void ler_entradas(){
 		default:
 		break;
 	}
-
-    /*if(func == 1){
-        scanf("%s",string2);
-        func1(string1,string2);
-    }
-	if(func == 2){
-        func2(string1);
-    }
-    if(func == 3){
-        func3(string1);
-
-    }
-	if(func == 4){
-		func4(string1);
-	}
-
-	if(func == 6){
-		func6(string1);
-	}
-	if*/
-    
-
     
 }
