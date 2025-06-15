@@ -322,9 +322,36 @@ void escrever_registro(FILE* bin, REG* reg, HEADER* h){
 }
 
 void escrever_registrosCSV(FILE* fp, FILE* bin, REG* reg, HEADER* h){
+    
+    fseek(bin,276,SEEK_SET);
     while(ler_linha(fp,reg)){
         h->nroReqArq++;
-        escrever_registro(bin,reg,h);
+        fwrite(&reg->removido,sizeof(char),1,bin);
+        fwrite(&reg->tamanhoRegistro,sizeof(int),1,bin);
+        fwrite(&reg->prox,sizeof(long int),1,bin);
+        fwrite(&reg->idAttack,sizeof(int),1,bin);
+        fwrite(&reg->year,sizeof(int),1,bin);
+        fwrite(&reg->financialLoss,sizeof(float),1,bin);
+        if(strcmp(reg->country,"-1")){
+            fwrite("1",sizeof(char),1,bin);
+            fwrite(reg->country,strlen(reg->country),1,bin);
+            fwrite("|",sizeof(char),1,bin);
+        }
+        if(strcmp(reg->attackType,"-1")){
+            fwrite("2",sizeof(char),1,bin);
+            fwrite(reg->attackType,strlen(reg->attackType),1,bin);
+            fwrite("|",sizeof(char),1,bin);
+        }
+        if(strcmp(reg->targetIndustry,"-1")){
+            fwrite("3",sizeof(char),1,bin);
+            fwrite(reg->targetIndustry,strlen(reg->targetIndustry),1,bin);
+            fwrite("|",sizeof(char),1,bin);
+        }
+        if(strcmp(reg->defenseMechanism,"-1")){
+            fwrite("4",sizeof(char),1,bin);
+            fwrite(reg->defenseMechanism,strlen(reg->defenseMechanism),1,bin);
+            fwrite("|",sizeof(char),1,bin);
+        }
     }
 }
 
