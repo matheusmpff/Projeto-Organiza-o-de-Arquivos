@@ -132,34 +132,42 @@ bool func2(char * string1){
 }
 
 bool func3(char* nomeArquivo){
-	int numerodeBuscas;
-	scanf("%d", &numerodeBuscas);
-	getchar();
-	char linha[300];
-	for(int i = 0; i < numerodeBuscas; i++) {
-		fgets(linha,sizeof(linha),stdin);
-		int quantidadeRegistroBuscado = linha[0] - '0';
-		
-		if(linha[strlen(linha)-1] == '\n'|| linha[strlen(linha)-1] == '\r'){
-			linha[strlen(linha)-1] = '\0'; 
-		}
+	int n;
+	char nchar[20];
+	int tamanho = 0;
+	char tamchar[20];
 
-		int tamanho = atoi(strtok(linha," "));
+	scanf("%s",nchar);
+	n = atoi(nchar);
+	
+	for(int i = 0;i<n;i++){
+		scanf("%s",tamchar);
+
+		tamanho = atoi(tamchar);
 		char* campos[tamanho];
-		char* valores[tamanho];
-
+		char * valores[tamanho];
 		for(int i = 0;i<tamanho;i++){
-			campos[i] = strtok(NULL, " ");
-			if(strcmp(campos[i],"idAttack") == 0){
-				valores[i] = strtok(NULL," ");
+			campos[i] = malloc(sizeof(char)*50);
+			valores[i] = malloc(sizeof(char)*50);
+
+			scanf(" %s",campos[i]);
+			if(strcmp(campos[i],"idAttack") == 0 || strcmp(campos[i],"financialLoss") == 0 || strcmp(campos[i],"year") == 0){
+				scanf("%s",valores[i]);
 			}
 			else{
-				valores[i] = strtok(NULL,"\"");
+				scan_quote_string(valores[i]);
 			}
-		}
 
-		busca_registro(nomeArquivo, campos, valores, tamanho, quantidadeRegistroBuscado);
-		printf("**********\n");
+		}
+	
+		busca_registro(nomeArquivo, campos, valores, tamanho);
+		
+		for(int j = 0;j<tamanho;j++){
+			free(campos[j]);
+			free(valores[j]);
+		}
+		
+		
 	}
     return true;
 }

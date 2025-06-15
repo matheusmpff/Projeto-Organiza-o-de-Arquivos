@@ -7,7 +7,7 @@
 #include "RegBusca.h"
 
 bool comparCampos(REG* reg, char* campos[], char* valores[], int tamanho){
-    for(int i = 0 ;i < tamanho; i++){
+    for(int i = 0 ;i < tamanho + 1; i++){
         if(strcmp(campos[i],"country") == 0){
             if(strcmp(valores[i], get_country(reg)) != 0){
                 return false;
@@ -59,38 +59,37 @@ bool comparCampos(REG* reg, char* campos[], char* valores[], int tamanho){
 
 	Essa busca reprete n vezes.
 */
-void busca_registro(char* nomeArquivo, char* campos[], char* valores[], int quantidadeCampos, int quantidadeBuscas) {
+void busca_registro(char* nomeArquivo, char* campos[], char* valores[], int quantidade) {
 	FILE* fp = fopen(nomeArquivo, "rb");
 	if (fp == NULL) {
-		printf("Erro no processamento de arquivo\n");
+		printf("Falha no processamento de arquivo.");
 		return;
 	}
 
 	int registrosEncontrados = 0;
-	long int fimArquivo = fseek(fp, 0, SEEK_END);
+	fseek(fp, 0, SEEK_END);
+	long int fimArquivo = ftell(fp);
+	printf("FIM ARQUIVO: %ld\n", fimArquivo);
 	fseek(fp, 0, SEEK_SET);
 	HEADER * h = criar_header();
 	ler_header(fp,h);
 
-	while(ftell(fp) != fimArquivo) { // Equanto o ponteiro fp não chega no fim do arquivo
+	while(ftell(fp) < fimArquivo) { // Equanto o ponteiro fp não chega no fim do arquivo
 		REG *r = ler_registro(fp, h); // Le um registro do arquivo
-		if(get_removido(r) == '0') {
-			if(comparCampos(r, campos, valores, quantidadeCampos)) {
+		if(comparCampos(r, campos, valores, quantidade - 1)) {
+			if(get_removido(r)) {
 				printar_registro(r, h); // Imprime o registro
 				registrosEncontrados++; // Aumenta o contador de registro encontrado
-
-				if(registrosEncontrados >= quantidadeBuscas) { // Verifica se ja encontramos o numero desejado pelo usuario
-					free(r);
-					break; // Sai do loop
-				}
 			}
 		}
 
 		free(r);
 	}
 	if(registrosEncontrados == 0) {
-		printf("NADA CONSTA\n");
+		printf("Registro inexistente.");
 	}
+	printf("**********\n");
+
 	free(h);
 
 	fclose(fp);
