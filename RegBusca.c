@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 #include "RegRW.h"
 #include "RegBusca.h"
 
@@ -32,7 +33,9 @@ bool comparCampos(REG* reg, char* campos[], char* valores[], int tamanho){
             continue;
         }
         if(strcmp(campos[i],"financialLoss") == 0){
-            if(atof(valores[i]) != get_financialLoss(reg)){
+			float financialLoss = atof(valores[i]);
+			float arredondado = roundf(get_financialLoss(reg) *100.0f) / 100.0f;
+            if(financialLoss != arredondado){
                 return false;
                 
             }
