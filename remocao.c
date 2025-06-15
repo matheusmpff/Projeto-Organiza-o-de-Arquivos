@@ -3,9 +3,10 @@
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
+#include "RegBusca.h"
 #include "RegRW.h"
 
-bool compara_campos(REG* reg, char* campos[], char* valores[], int tamanho){
+/*bool compara_campos(REG* reg, char* campos[], char* valores[], int tamanho){
     if(get_removido(reg) == '1'){
         return false;
     }
@@ -68,7 +69,7 @@ bool compara_campos(REG* reg, char* campos[], char* valores[], int tamanho){
     }
 
     return true;
-}
+}*/
 
 void remover_registro(FILE* bin,REG * reg, HEADER* h, int posReg){
     set_removido(reg,'1');
@@ -116,7 +117,7 @@ void remover_registros(char * nomebin, char* campos[], char* valores[], int tama
         
         
         reg = ler_registro(bin,h);
-        if(compara_campos(reg,campos,valores,tamanho)){
+        if(comparCampos(reg,campos,valores,tamanho)){
             remover_registro(bin,reg,h,posReg);
         }
         
