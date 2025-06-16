@@ -8,6 +8,3 @@
 #include "Funcionalidades.h"
 
 
-int main(){
-    ler_entradas();
-}

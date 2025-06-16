@@ -4,6 +4,66 @@
 #include <stdbool.h>
 #include "RegRW.h"
 #include "Funcionalidades.h"
+
+/*
+    Implementação da funcionalidade 5, INSERT INTO, utilizando a estrategia First Fit 
+*/
+
+/*
+    Escreve o cabeçalho do arquivo binario na posição inicial (offset 0)
+ 
+    O cabeçalho contem:
+    - status: '0' = inconsistente, '1' = consistente
+    - topo: ponteiro para o primeiro registro removido (-1 se lista vazia)
+    - proxByteOffset: proxima posicao livre no arquivo
+    - nroReqArq: numero de registros ativos no arquivo
+    - nroReqRem: numero de registros removidos
+    - campos de descricao: strings fixas que descrevem os campos dos registros
+
+    @param arquivo Ponteiro para o arquivo binario aberto
+    @param h Ponteiro para a estrutura HEADER com os dados do cabecalho
+*/
+void escreverCabecalho(FILE *arquivo, HEADER *h) {
+    // Posiciona no inicio do arquivo para escrever o cabecalho
+    fseek(arquivo, 0, SEEK_SET);
+    
+    // Extrai todos os campos da estrutura HEADER usando funcoes get
+    char status = get_status(h);
+    long int topo = get_topo(h);
+    long int proxByteOffset = get_proxByteOffset(h);
+    int nroReqArq = get_nroReqArq(h);
+    int nroReqRem = get_nroReqRem(h);
+    char *descreveident = get_descreveident(h);
+    char *descreveYear = get_descreveYear(h);
+    char *descreveFl = get_descreveFl(h);
+    char codDescreveCountry = get_codDescreveCountry(h);
+    char *descreveCountry = get_descreveCountry(h);
+    char codDescreveType = get_codDescreveType(h);
+    char *descreveType = get_descreveType(h);
+    char codDescreveTargetIndustry = get_codDescreveTargetIndustry(h);
+    char *descreveTarget = get_descreveTarget(h);
+    char codDescreveDefense = get_codDescreveDefense(h);
+    char *descreveDefense = get_descreveDefense(h);
+
+    // Escreve cada campo no arquivo binario com seu tamanho especifico
+    fwrite(&status, sizeof(char), 1, arquivo);                    // 1 byte
+    fwrite(&topo, sizeof(long int), 1, arquivo);                  // 8 bytes
+    fwrite(&proxByteOffset, sizeof(long int), 1, arquivo);        // 8 bytes
+    fwrite(&nroReqArq, sizeof(int), 1, arquivo);                  // 4 bytes
+    fwrite(&nroReqRem, sizeof(int), 1, arquivo);                  // 4 bytes
+    fwrite(descreveident, sizeof(char), 23, arquivo);             // 23 bytes
+    fwrite(descreveYear, sizeof(char), 27, arquivo);              // 27 bytes
+    fwrite(descreveFl, sizeof(char), 28, arquivo);                // 28 bytes
+    fwrite(&codDescreveCountry, sizeof(char), 1, arquivo);        // 1 byte
+    fwrite(descreveCountry, sizeof(char), 26, arquivo);           // 26 bytes
+    fwrite(&codDescreveType, sizeof(char), 1, arquivo);           // 1 byte
+    fwrite(descreveType, sizeof(char), 38, arquivo);              // 38 bytes
+    fwrite(&codDescreveTargetIndustry, sizeof(char), 1, arquivo); // 1 byte
+    fwrite(descreveTarget, sizeof(char), 38, arquivo);            // 38 bytes
+    fwrite(&codDescreveDefense, sizeof(char), 1, arquivo);        // 1 byte
+    fwrite(descreveDefense, sizeof(char), 67, arquivo);           // 67 bytes
+}
+
 /*
     Implementa o algoritmo First Fit para encontrar o primeiro espaco adequado
     de um registro removido no arquivo binario que possa acomodar um novo registro.
@@ -77,7 +137,7 @@ long int encontrarEspacoFirstFit(FILE *arquivo, int tamanhoNecessario, HEADER *h
     Le os dados de entrada do usuario (stdin) e preenche uma estrutura REG
  
     FORMATO DE ENTRADA ESPERADO:
-    - idAttack: inteiro    escreverCabecalho(fp,header);
+    - idAttack: inteiro
     - year: inteiro ou "NULO"
     - financialLoss: float ou "NULO" 
     - country: string entre aspas ou "NULO"
@@ -279,7 +339,7 @@ void inserir_registro(FILE* fp,REG* registro,HEADER* header, int tamanhoNecessar
         free(registro);
 
         int posFinal = ftell(fp);
-        escrever_header(fp,header);
+        escreverCabecalho(fp,header);
         fseek(fp,posFinal,SEEK_SET);
         fflush(fp);
 }
@@ -318,8 +378,7 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
 
     // Seta arquivo como inconsistente
     set_status(header, '0');
-    fseek(fp, 0, SEEK_SET);
-    escrever_header(fp, header);
+    escreverCabecalho(fp,header);
 
     // Loop de insercao de registros de acordo com o numero de insercoes a serem feitas
     for(int i = 0; i < numeroInsercoes; i++) {
@@ -380,7 +439,7 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
 
     // Marca arquivo como consistente
     set_status(header, '1');
-    escrever_header(fp, header);
+    escreverCabecalho(fp, header);
 
     free(header);
     fclose(fp);

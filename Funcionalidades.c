@@ -296,7 +296,7 @@ void func5(char* nomebin) {
 	binarioNaTela(nomebin);
 }
 
-void ler_entradas(){
+int main(){
     int func;
     char string1[20];
     char string2[20];
