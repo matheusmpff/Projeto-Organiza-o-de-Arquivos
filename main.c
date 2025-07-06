@@ -7,6 +7,7 @@
 #include "remocao.h"
 #include "insertInto.h"
 #include "update.h"
+#include "arvoreB.h"
 /*--------------------------------Funcção fornecida--------------------------*/
 #include <ctype.h>
 #include <string.h>
@@ -296,6 +297,17 @@ void func5(char* nomebin) {
 	binarioNaTela(nomebin);
 }
 
+void func7(char * nomebin){
+	char nomeindice[20];
+	scanf("%s",nomeindice);
+	if(criar_indice(nomebin,nomeindice)){
+		binarioNaTela(nomeindice);
+	}
+	else{
+		printf("Erro na criação do indice\n");
+	}
+}
+
 int main(){
     int func;
     char string1[20];
@@ -323,6 +335,9 @@ int main(){
 			break;
 		case 6:
 			func6(string1);
+			break;
+		case 7:
+			func7(string1);
 			break;
 		default:
 		break;
