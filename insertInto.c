@@ -405,7 +405,6 @@ long int* insertInto(char* arquivoBin, int numeroInsercoes) {
       
         // Caso tenha encontrado um espaco
         if(posicaoInsercao != -1) {
-            printf("oieee\n");
             fseek(fp, posicaoInsercao, SEEK_SET);
             // Lê o tamanho do espaço disponível para calcular o lixo
             char removidoAntigo;
@@ -435,9 +434,7 @@ long int* insertInto(char* arquivoBin, int numeroInsercoes) {
             long int posicaoFinal = get_proxByteOffset(header);
             fseek(fp, posicaoFinal, SEEK_SET);
             posParaindice[i] = posicaoFinal;
-            // printar_registro(registro,header);
-            // escrever_registro(fp, registro, header);
-            
+            escrever_registro(fp, registro, header);
             set_proxByteOffset(header, ftell(fp));
         }
 

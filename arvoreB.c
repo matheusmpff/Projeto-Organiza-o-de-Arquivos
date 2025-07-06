@@ -574,15 +574,14 @@ void ajuste_indice_inserInto(char* nomebin,char* nomeindice,long int *valores,in
     for(int i = 0;i<tamanho;i++){
 
         fseek(bin,valores[i],SEEK_SET);
-        // REG* reg = ler_registro(bin,binHeader);
-        // printar_registro(reg,binHeader);
-        // CHAVE_VALOR * novaChave = criar_dados();
-        // novaChave->chave = get_idAttack(reg);
-        // novaChave->valor = valores[i];
+        REG* reg = ler_registro(bin,binHeader);
+        CHAVE_VALOR * novaChave = criar_dados();
+        novaChave->chave = get_idAttack(reg);
+        novaChave->valor = valores[i];
 
-        // ler_no_indice(indice,raiz,indiceHeader->noRaiz);
-        // insercao(indice,novaChave,raiz,indiceHeader,indiceHeader->noRaiz,0,0,0);
-        //free(reg);
+        ler_no_indice(indice,raiz,indiceHeader->noRaiz);
+        insercao(indice,novaChave,raiz,indiceHeader,indiceHeader->noRaiz,0,0,0);
+        free(reg);
     }
 
     escrever_arvB_header(indice,indiceHeader);

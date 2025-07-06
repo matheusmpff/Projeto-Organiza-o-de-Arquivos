@@ -352,7 +352,7 @@ void func8(char * nomebin){
 			}
 			else{
 				scan_quote_string(valores[i]);
-				if(strcmp(valores[i], "NULO") == 0){
+				if(strcmp(valores[i], "") == 0){
 					strcpy(valores[i], "-1000");
 				}
 			}
@@ -376,7 +376,6 @@ void func8(char * nomebin){
 void func10(char* nomebin){
 	char nomeindice[20];
 	scanf("%s",nomeindice);
-	binarioNaTela(nomebin);
 	long int* valores = func5(nomebin);
 
 	int tamanho = 0;

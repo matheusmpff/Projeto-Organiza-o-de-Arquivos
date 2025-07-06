@@ -6,6 +6,7 @@
 #include <math.h>
 #include "RegRW.h"
 #include "RegBusca.h"
+#include "remocao.h"
 
 /*
 	Funcao que realiza a comparacao dos filtros desejados pelo usuario com um registro
@@ -101,7 +102,7 @@ void busca_registro(char* nomeArquivo, char* campos[], char* valores[], int quan
 	// Loop de buscas
 	while(ftell(fp) < fimArquivo) { // Equanto o ponteiro fp não chega no fim do arquivo
 		REG *r = ler_registro(fp, h); // Le um registro do arquivo
-		if(comparCampos(r, campos, valores, quantidade - 1)) {
+		if(compara_campos(r, campos, valores, quantidade)) {
 			if(get_removido(r)) {
 				printar_registro(r, h); // Imprime o registro
 				registrosEncontrados++; // Aumenta o contador de registro encontrado
