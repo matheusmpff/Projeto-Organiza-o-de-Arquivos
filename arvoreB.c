@@ -8,10 +8,7 @@
 #include <math.h>
 #include "insertInto.h"
 
-#define TamMax 1000
-
-#define TamNo 44
-
+/*Struct pra representar o header ddo arquivo da árvore b*/
 typedef struct arvbheader{
     char status;
     int noRaiz;
@@ -19,6 +16,7 @@ typedef struct arvbheader{
     int nroNos;
 }ArvBHeader;
 
+/*Struct para representar o nó da árvore b*/
 typedef struct arvBNo{
     int chaves[2];
     long int registros[2];

@@ -430,6 +430,7 @@ long int* insertInto(char* arquivoBin, int numeroInsercoes) {
                 }
             }
         } else {
+            set_tamanhoRegistro(registro,tamanhoCalculado);
             // Insere no final do arquivo
             long int posicaoFinal = get_proxByteOffset(header);
             fseek(fp, posicaoFinal, SEEK_SET);
