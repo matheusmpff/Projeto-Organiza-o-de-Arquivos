@@ -174,7 +174,7 @@ bool func3(char* nomeArquivo){
 			else if(strcmp(campos[i],"financialLoss") == 0) {
 				scanf("%s",valores[i]);
 				if(strcmp(valores[i], "NULO") == 0){
-					strcpy(valores[i], "-1.0");
+					strcpy(valores[i], "-1");
 				}
 			}
 			else{
@@ -288,13 +288,15 @@ void func6(char* nomebin){
 
 }
 
-void func5(char* nomebin) {
+long int* func5(char* nomebin) {
 	int numeroInsercoes;
 	scanf("%d", &numeroInsercoes);
 
-	insertInto(nomebin, numeroInsercoes);
+	long int* valores = insertInto(nomebin, numeroInsercoes);
 
 	binarioNaTela(nomebin);
+
+	return valores;
 }
 
 void func7(char * nomebin){
@@ -306,6 +308,86 @@ void func7(char * nomebin){
 	else{
 		printf("Erro na criação do indice\n");
 	}
+}
+
+void func8(char * nomebin){
+	char nomeindice[20];
+	scanf("%s",nomeindice);
+
+	int n;
+	char nchar[20];
+	int tamanho = 0;
+	char tamchar[20];
+
+	scanf("%s",nchar);
+	n = atoi(nchar);
+	
+	int flagId = 0;
+	for(int i = 0;i<n;i++){
+		scanf("%s",tamchar);
+		flagId = 0;
+		tamanho = atoi(tamchar);
+		char* campos[tamanho];
+		char * valores[tamanho];
+		for(int i = 0;i<tamanho;i++){
+			campos[i] = malloc(sizeof(char)*50);
+			valores[i] = malloc(sizeof(char)*50);
+
+			scanf(" %s",campos[i]);
+			if(strcmp(campos[i],"idAttack") == 0){
+				scanf("%s",valores[i]);
+				flagId = atoi(valores[i]);
+			}
+			else if(strcmp(campos[i],"year") == 0) {
+				scanf("%s",valores[i]);
+				if(strcmp(valores[i], "NULO") == 0){
+					strcpy(valores[i], "-1");
+				}
+			}
+			else if(strcmp(campos[i],"financialLoss") == 0) {
+				scanf("%s",valores[i]);
+				if(strcmp(valores[i], "NULO") == 0){
+					strcpy(valores[i], "-1.0");
+				}
+			}
+			else{
+				scan_quote_string(valores[i]);
+				if(strcmp(valores[i], "NULO") == 0){
+					strcpy(valores[i], "-1000");
+				}
+			}
+
+		}
+		if(flagId == 0){
+			busca_registro(nomebin, campos, valores, tamanho);
+		}
+		else{
+			busca_arvore(nomebin,nomeindice,campos,valores,tamanho,flagId);
+		}
+		for(int j = 0;j<tamanho;j++){
+			free(campos[j]);
+			free(valores[j]);
+		}
+	}
+	
+
+}
+
+void func10(char* nomebin){
+	char nomeindice[20];
+	scanf("%s",nomeindice);
+	binarioNaTela(nomebin);
+	long int* valores = func5(nomebin);
+
+	int tamanho = 0;
+	for(int i = 0;valores[i]!=-1;i++){
+		tamanho++;
+	}
+	ajuste_indice_inserInto(nomebin,nomeindice,valores,tamanho);
+
+	binarioNaTela(nomeindice);
+
+	free(valores);
 }
 
 int main(){
@@ -339,6 +421,11 @@ int main(){
 		case 7:
 			func7(string1);
 			break;
+		case 8:
+			func8(string1);
+			break;
+		case 10:
+			func10(string1);
 		default:
 		break;
 	}

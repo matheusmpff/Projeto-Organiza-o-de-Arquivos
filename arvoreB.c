@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "RegRW.h"
 #include "remocao.h"
+#include <math.h>
 #include "insertInto.h"
 
 #define TamMax 1000
@@ -478,5 +479,116 @@ CHAVE_VALOR* aux_insercao_promocao(NO* no, ArvBHeader* h, FILE* indice, int RRN,
     return NULL;
 }
 
+/*-------------------------------------------------SELECT ----------------------------------------------------------------------*/
+long int busca_id_arvB(FILE* indice,int id,NO* no);
+void busca_arvore(char* nomebin, char* nomeindice,char* campos[],char*valores[],int tamanho,int id){
+    FILE* bin = fopen(nomebin,"rb+");
+    FILE* indice = fopen(nomeindice,"rb+");
 
+    if(bin == NULL || indice == NULL ){
+        printf("Falha no processamento do arquivo.\n");
+        return;
+    }
+    ArvBHeader* h = criar_arvB_header();
+    ler_arvB_header(indice,h);
+    NO* raiz = criar_no();
+    ler_no_indice(indice,raiz,h->noRaiz);
+    long int posicaoReg = busca_id_arvB(indice,id,raiz);
 
+    HEADER* headerReg = criar_header();
+    ler_header(bin,headerReg);
+    if(posicaoReg != -1){
+        fseek(bin,posicaoReg,SEEK_SET);
+        REG* reg = ler_registro(bin,headerReg);
+        printar_registro(reg,headerReg);
+        free(reg);
+    }
+    else{
+		printf("Registro inexistente.\n\n");
+	}
+	printf("**********\n");
+    fclose(bin);
+    fclose(indice);
+    free(headerReg);
+    free(raiz);
+    free(h);
+}
+
+long int busca_id_arvB(FILE* indice,int id,NO* no){
+    if(no->tipoNo == -1 && no->chaves[0] != id && no->chaves[1] != id){
+        return -1;
+    }
+
+    if(no->chaves[0] == id){
+        return no->registros[0];
+    }
+
+    if(no->chaves[1] == id){
+        return no->registros[1];
+    }
+
+    NO* descendente = criar_no();
+    long int resultado = -1;
+    if(no->descendentes[0] != -1 && id<no->chaves[0]){
+
+        ler_no_indice(indice,descendente,no->descendentes[0]);
+        resultado = busca_id_arvB(indice,id,descendente);
+        free(descendente);
+        return(resultado);
+    }
+    if(no->descendentes[1] != -1 && id>no->chaves[0] && (id<no->chaves[1] || no->chaves[1] == -1)){
+        ler_no_indice(indice,descendente,no->descendentes[1]);
+        resultado = busca_id_arvB(indice,id,descendente);
+        free(descendente);
+        return(resultado);
+    }
+    if(no->descendentes[2] != -1 && id> no->chaves[1]){
+        ler_no_indice(indice,descendente,no->descendentes[2]);
+        resultado = busca_id_arvB(indice,id,descendente);
+        free(descendente);
+        return(resultado);
+    }
+    
+    free(descendente);
+    return -1;
+
+}
+
+void ajuste_indice_inserInto(char* nomebin,char* nomeindice,long int *valores,int tamanho){
+    FILE* bin = fopen(nomebin,"rb+");
+    FILE* indice = fopen(nomeindice,"rb+");
+
+    if(bin == NULL || indice == NULL){
+        printf("Falha no processamento do arquivo.\n");
+        return;
+    }
+    HEADER* binHeader = criar_header();
+    ler_header(bin, binHeader);
+
+    ArvBHeader * indiceHeader = criar_arvB_header();
+    ler_arvB_header(indice,indiceHeader);
+    
+
+    NO* raiz = criar_no();
+
+    for(int i = 0;i<tamanho;i++){
+
+        fseek(bin,valores[i],SEEK_SET);
+        // REG* reg = ler_registro(bin,binHeader);
+        // printar_registro(reg,binHeader);
+        // CHAVE_VALOR * novaChave = criar_dados();
+        // novaChave->chave = get_idAttack(reg);
+        // novaChave->valor = valores[i];
+
+        // ler_no_indice(indice,raiz,indiceHeader->noRaiz);
+        // insercao(indice,novaChave,raiz,indiceHeader,indiceHeader->noRaiz,0,0,0);
+        //free(reg);
+    }
+
+    escrever_arvB_header(indice,indiceHeader);
+    free(raiz);
+    free(indiceHeader);
+    free(binHeader);
+    fclose(bin);
+    fclose(indice);
+}

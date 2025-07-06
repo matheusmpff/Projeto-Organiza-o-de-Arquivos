@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include "RegRW.h"
 #include "Funcionalidades.h"
+#include "arvoreB.h"
+#include "remocao.h"
 
 /*
     Implementação da funcionalidade 5, INSERT INTO, utilizando a estrategia First Fit 
@@ -365,11 +367,19 @@ void inserir_registro(FILE* fp,REG* registro,HEADER* header, int tamanhoNecessar
    @param arquivoBin Nome do arquivo binario
    @param numeroInsercoes Quantidade de registros a serem inseridos
  */
-void insertInto(char* arquivoBin, int numeroInsercoes) {
+long int* insertInto(char* arquivoBin, int numeroInsercoes) {   
+    long int* posParaindice = malloc(sizeof(long int)*(numeroInsercoes+1));
+    if(posParaindice == NULL){
+        printf("Erro na alocação de memória\n");
+        return NULL;
+    }
+    for(int i = 0;i<numeroInsercoes+1;i++){
+        posParaindice[i] = -1;
+    }
     FILE *fp = fopen(arquivoBin, "rb+");
     if(fp == NULL) {
         printf("Falha no processamento do arquivo.\n");
-        return;
+        return NULL;
     }
     
     // Carrega o cabecalho
@@ -379,13 +389,12 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
     // Seta arquivo como inconsistente
     set_status(header, '0');
     escreverCabecalho(fp,header);
-
     // Loop de insercao de registros de acordo com o numero de insercoes a serem feitas
     for(int i = 0; i < numeroInsercoes; i++) {
         // Cria novo registro para armazenar dados da entrada
         REG *registro = criar_reg();
         lerDadosEntrada(registro);
-
+        
         // COnfigura campos de controle do registro
         int tamanhoCalculado = calcularTamanhoRegistro(registro);
         set_removido(registro, '0');    // Marca como nao removido
@@ -393,21 +402,20 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
         
         // Procura espaço reutilizavel no arquivo binario
         long int posicaoInsercao = encontrarEspacoFirstFit(fp, tamanhoCalculado, header);
-        
+      
         // Caso tenha encontrado um espaco
         if(posicaoInsercao != -1) {
+            printf("oieee\n");
             fseek(fp, posicaoInsercao, SEEK_SET);
-            
             // Lê o tamanho do espaço disponível para calcular o lixo
             char removidoAntigo;
             int tamanhoDisponivel;
             fread(&removidoAntigo, sizeof(char), 1, fp);
             fread(&tamanhoDisponivel, sizeof(int), 1, fp);
             set_tamanhoRegistro(registro, tamanhoDisponivel);
-
             // Reposiciona para o espaco encontrado e escreve o novo registro
             fseek(fp, posicaoInsercao, SEEK_SET);
-            
+            posParaindice[i] = posicaoInsercao;
             escrever_registro(fp, registro, header);
             
             // Calcula o preenchimento de lixo
@@ -426,8 +434,9 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
             // Insere no final do arquivo
             long int posicaoFinal = get_proxByteOffset(header);
             fseek(fp, posicaoFinal, SEEK_SET);
-            
-            escrever_registro(fp, registro, header);
+            posParaindice[i] = posicaoFinal;
+            // printar_registro(registro,header);
+            // escrever_registro(fp, registro, header);
             
             set_proxByteOffset(header, ftell(fp));
         }
@@ -443,4 +452,6 @@ void insertInto(char* arquivoBin, int numeroInsercoes) {
 
     free(header);
     fclose(fp);
+
+    return posParaindice;
 }
