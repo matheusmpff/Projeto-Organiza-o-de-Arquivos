@@ -141,7 +141,9 @@ bool func2(char * string1){
     printar_binario(string1);
     return true;
 }
-
+/*Tratamento das entradas para a funcionalidade 3 em que busca-se um registro a partir de certos campos e valores de filtro
+cada registro que cumprir com o filtro será escrito na tela seus dados
+*/
 bool func3(char* nomeArquivo){
 	int n;
 	char nchar[20];
@@ -154,10 +156,10 @@ bool func3(char* nomeArquivo){
 	for(int i = 0;i<n;i++){
 		scanf("%s",tamchar);
 
-		tamanho = atoi(tamchar);
+		tamanho = atoi(tamchar);//quantidade de pares campo-valor que serão usados para o filtro
 		char* campos[tamanho];
 		char * valores[tamanho];
-		for(int i = 0;i<tamanho;i++){
+		for(int i = 0;i<tamanho;i++){//leitura dos campos que serão guardados em arrays
 			campos[i] = malloc(sizeof(char)*50);
 			valores[i] = malloc(sizeof(char)*50);
 
@@ -185,7 +187,7 @@ bool func3(char* nomeArquivo){
 			}
 
 		}
-	
+		//função que irá manipular o aqruivo e mostrar na tela os registros
 		busca_registro(nomeArquivo, campos, valores, tamanho);
 		
 		for(int j = 0;j<tamanho;j++){
@@ -197,7 +199,7 @@ bool func3(char* nomeArquivo){
 	}
     return true;
 }
-
+/*Leitura dos dados de entrada para a remocao no arquivo de dados*/
 void func4(char* nomebin){
 	int n;
 	char nchar[20];
@@ -205,14 +207,14 @@ void func4(char* nomebin){
 	char tamchar[20];
 
 	scanf("%s",nchar);
-	n = atoi(nchar);
+	n = atoi(nchar);//quantidade de remocoes
 	
 	for(int i = 0;i<n;i++){
 		
 
 		scanf("%s",tamchar);
 
-		tamanho = atoi(tamchar);
+		tamanho = atoi(tamchar);//quantos pares campo-valor serão usados como filtro para remocao
 		char* campos[tamanho];
 		char * valores[tamanho];
 		for(int i = 0;i<tamanho;i++){
@@ -243,7 +245,9 @@ void func4(char* nomebin){
 	binarioNaTela(nomebin);
 
 }
-
+/*Leitura das entradas para a funcionalidade 6 em que dado campos e valores de filtro todos os registros que passarem por ele
+Terão seus dados atualizados com o novos campos valores de mudança
+*/
 void func6(char* nomebin){
 	int n = -1;
 	char tamcharFiltro[50];
@@ -256,7 +260,7 @@ void func6(char* nomebin){
 	
 		scanf("%s",tamcharFiltro);
 		tamanhoFiltro = atoi(tamcharFiltro);
-
+		//leitura dos campos valores de filtro
 		char* camposF[tamanhoFiltro];
 		char* valoresF[tamanhoFiltro];
 		ler_campos_valores(tamanhoFiltro,camposF,valoresF);
@@ -264,13 +268,13 @@ void func6(char* nomebin){
 
 		scanf("%s",tamcharCampos);
 		tamanhoCampos = atoi(tamcharCampos);
-
+		//leitura dos campos e valores de mudança
 		char* campos[tamanhoCampos];
 		char * valores[tamanhoCampos];
 		ler_campos_valores(tamanhoCampos,campos,valores);
 		
 		
-		
+		//Função de atualização dos registros
 		atualizar_reg(nomebin, tamanhoFiltro,camposF,valoresF,tamanhoCampos,campos,valores);
 
 		for(int j = 0;j<tamanhoFiltro;j++){
@@ -287,7 +291,9 @@ void func6(char* nomebin){
 	binarioNaTela(nomebin);
 
 }
-
+/*Leitura dos dados e chamada da função insertInto que irá inserir no arquivo de dados por meio dos registros removidos logicamente
+seguindo a logica de firstFit.
+*/
 long int* func5(char* nomebin) {
 	int numeroInsercoes;
 	scanf("%d", &numeroInsercoes);
@@ -298,7 +304,10 @@ long int* func5(char* nomebin) {
 
 	return valores;
 }
-
+/*
+Tratamento das entradas da funcionalidade 7, em que chama-se a função criar_indice do arquivo arvoreB.c para gerar o arquivo de
+indice desejado.
+*/
 void func7(char * nomebin){
 	char nomeindice[20];
 	scanf("%s",nomeindice);
@@ -306,13 +315,15 @@ void func7(char * nomebin){
 		binarioNaTela(nomeindice);
 	}
 	else{
-		printf("Erro na criação do indice\n");
+		printf("Erro no processamento do arquivo.\n");
 	}
 }
-
+/*Tratamento das entradas da funcionalidade de 8, guarda os campos e valores em arrays e passa para as funções. Caso a busca seja
+feita pelo id a busca é feita pelo arquivo de indice, caso contrário é feita pelo próprio arquivo de dados
+*/
 void func8(char * nomebin){
 	char nomeindice[20];
-	scanf("%s",nomeindice);
+	scanf("%s",nomeindice);//nome do arquivo indice
 
 	int n;
 	char nchar[20];
@@ -320,16 +331,16 @@ void func8(char * nomebin){
 	char tamchar[20];
 
 	scanf("%s",nchar);
-	n = atoi(nchar);
+	n = atoi(nchar);//quantidade de buscas que serão feitas
 	
 	int flagId = 0;
 	for(int i = 0;i<n;i++){
 		scanf("%s",tamchar);
-		flagId = 0;
-		tamanho = atoi(tamchar);
+		flagId = 0;//flag para verificar se vai ter id nos campos 
+		tamanho = atoi(tamchar);// quantidade de par campo-valor que serão usados como filtro
 		char* campos[tamanho];
 		char * valores[tamanho];
-		for(int i = 0;i<tamanho;i++){
+		for(int i = 0;i<tamanho;i++){//leitura dos campos e valores
 			campos[i] = malloc(sizeof(char)*50);
 			valores[i] = malloc(sizeof(char)*50);
 
@@ -358,10 +369,10 @@ void func8(char * nomebin){
 			}
 
 		}
-		if(flagId == 0){
+		if(flagId == 0){//se não tem busca por id busca normal no arquivo de dados
 			busca_registro(nomebin, campos, valores, tamanho);
 		}
-		else{
+		else{//se tem id na busca usa-se o arquivo de indice
 			busca_arvore(nomebin,nomeindice,campos,valores,tamanho,flagId);
 		}
 		for(int j = 0;j<tamanho;j++){
@@ -372,11 +383,15 @@ void func8(char * nomebin){
 	
 
 }
-
+/*Tratamento das entradas da funcionalidade 10, após a inserção no arquivo de dados por meio da funcionalidade 5 foi feito a altera
+çã de func5 retornar os byteoffsets dos registros inseridos. Assim esse array com byteoffsets é passado para função 
+ajuste_indice_isertInto para que as chaves e byteoffsets sejam inseridos no arquivo de indices também. O array tras os byteoffsets
+em ordem de insercao ou seja valores[0] foi inserido primeiro que valores[1] e assim por diante.
+*/
 void func10(char* nomebin){
 	char nomeindice[20];
 	scanf("%s",nomeindice);
-	long int* valores = func5(nomebin);
+	long int* valores = func5(nomebin);//chamada da funcionalidade 5
 
 	int tamanho = 0;
 	for(int i = 0;valores[i]!=-1;i++){

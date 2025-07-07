@@ -10,10 +10,7 @@
 #include "main.h"
 #include "RegBusca.h"
 
-#define TamMax 1000
-
-#define TamNo 44
-
+/*Struct pra representar o header ddo arquivo da árvore b*/
 typedef struct arvbheader{
     char status;
     int noRaiz;
@@ -21,6 +18,11 @@ typedef struct arvbheader{
     int nroNos;
 }ArvBHeader;
 
+/*Struct para representar o nó da árvore b
+    chaves-> serão os ids lidos do arquivo de dados
+    registros-> serão os byteoffsets desses arquivos 
+    tipoNo-> indica se o nó é raiz(0) , intermediário(1) ou folha(-1)
+*/
 typedef struct arvBNo{
     int chaves[2];
     long int registros[2];
@@ -30,6 +32,7 @@ typedef struct arvBNo{
     
 }NO;
 
+/*Struct para auxiliar na passagem dos dados quando a uma promoção de chave após um split do nó folha*/
 typedef struct chave_valor{
     int chave;
     int valor;
@@ -39,6 +42,9 @@ typedef struct chave_valor{
 
 }CHAVE_VALOR;
 
+/*
+Função que inicializa os campos da struct CHAVE_VALOR. Todos os campos são inicializados com -1
+*/
 CHAVE_VALOR* criar_dados(){
     CHAVE_VALOR* dados = malloc(sizeof(CHAVE_VALOR));
 
@@ -55,6 +61,10 @@ CHAVE_VALOR* criar_dados(){
     return dados;
 }
 
+/*
+    Função para incialiar o campos da Struct header do arquivo de índice. Os campos status(1),noRaiz(-1),proxRRN(0) e nroNOs(0)
+    são inicializados com os valores entre parênteses
+ */
 ArvBHeader* criar_arvB_header(){
     ArvBHeader* header = malloc(sizeof(ArvBHeader));
 
@@ -72,7 +82,10 @@ ArvBHeader* criar_arvB_header(){
 }
 
 
-
+/*
+    Função para criar um nó e inicializar os campos. Todos os campos são inciializados com -1 menos o nroChaves que é inicia
+    lizado om 0
+*/
 NO * criar_no(){
     NO* no = malloc(sizeof(NO));
 
@@ -93,7 +106,11 @@ NO * criar_no(){
 
     return no;
 }
-
+/*Parâmetros:
+    @params bin-> ponteiro para o arquivo de indice
+    @params header -> ponteiro pra struct header que armazenas os dados do header a ser escrito
+    A função desloca o ponteiro para o inicio do arquivo e escreve os valores da struct no arquivo de indice
+*/
 void escrever_arvB_header(FILE* bin,ArvBHeader* header){
     fseek(bin,0,SEEK_SET);
 
@@ -107,7 +124,12 @@ void escrever_arvB_header(FILE* bin,ArvBHeader* header){
         fwrite("$",sizeof(char),1,bin);
     }
 }
-
+/*Parâmetros:
+    @params indice -> ponteiro para o arquivo de índice
+    @params header -> ponteiro para struct que irá armazenar os dados do header
+    A função lê os dados do header no início do arquivo e armazena os dados dentro da struct header passada como parâmetro
+    Ao final pula-se a região do header que tem lixo e já deixa o ponteiro no inicio da parte dos dados da árvore
+*/
 void ler_arvB_header(FILE *indice,ArvBHeader * header){
     fseek(indice,0,SEEK_SET);
     fread(&header->status,sizeof(char),1,indice);
@@ -116,6 +138,12 @@ void ler_arvB_header(FILE *indice,ArvBHeader * header){
     fread(&header->nroNos,sizeof(int),1,indice);
     fseek(indice,32,SEEK_CUR);
 }
+/*Parâmetros:
+    @params indice -> ponteiro para o arquivo de indice
+    @params no -> ponteiro para struct NO que irá conter os dados do nó lidos no arquivo de índice
+    @params RRN -> RRN do No que deseja-se ler
+    A função faz o deslocamento do ponteiro para a região do arquivo onde está o nó, lê os dados e armazena na struct NO
+*/
 void ler_no_indice(FILE* indice,NO* no, int RRN){
     int tamanho = RRN*44+44;
     fseek(indice,tamanho,SEEK_SET);
@@ -130,7 +158,12 @@ void ler_no_indice(FILE* indice,NO* no, int RRN){
     fread(&no->descendentes[2],sizeof(int),1,indice);
 
 }
-
+/*Parâmetros:
+    @params indice -> ponteiro para o arquivo de indice
+    @params no -> ponteiro para a struct que guarda os dados a serem escritos
+    @params RRN -> RRN do nó em que as informações serão escritas
+    Desloca o ponteiro para a região do nó em que deseja escrever os dados, escreve os dados presentes dentro da struct NO
+*/
 void escrever_no_indice(FILE* indice,NO* no,int RRN){
     int tamanho = RRN*44+44;
     fseek(indice,tamanho,SEEK_SET);
@@ -148,27 +181,33 @@ void escrever_no_indice(FILE* indice,NO* no,int RRN){
 }
 
 
-CHAVE_VALOR* insercao(FILE* indice,CHAVE_VALOR* dados, NO* no,ArvBHeader* h, int RRN,int contador1,int contador2,int contador3);
+
+CHAVE_VALOR* insercao(FILE* indice,CHAVE_VALOR* dados, NO* no,ArvBHeader* h, int RRN);
 void inserir_chave(CHAVE_VALOR* dados, NO* no);
 CHAVE_VALOR* split(CHAVE_VALOR* dados, NO* noesq,int RRNesq, ArvBHeader* h, FILE* indice);
-CHAVE_VALOR* aux_insercao_promocao(NO* no, ArvBHeader* h, FILE* indice, int RRN,CHAVE_VALOR* dados, int index,int c1, int c2, int c3);
-
+CHAVE_VALOR* aux_insercao_promocao(NO* no, ArvBHeader* h, FILE* indice, int RRN,CHAVE_VALOR* dados, int index);
+/* Parâmetros:
+    @params nomeBin -> string com o nome do arquivo binário com os registros
+    @params nomeIndice -> string com o nome do arquivo binário que irá guardar a árvore B 
+    Função que irá executar a funcionalidade de criar um arquivo de índice usando como chave o idAttack e como valores os byteoffsets
+    dos registros
+*/
 bool criar_indice(char* nomeBin, char* nomeIndice){
-
+    //Abertura dos ponteiros para os arquivos
     FILE* bin = fopen(nomeBin,"rb+");
-    FILE * indice = fopen(nomeIndice,"wb");
+    FILE * indice = fopen(nomeIndice,"wb");//Abre para criar o arquivo
 
     if(indice == NULL){
         printf("Falha no processamento do arquivo\n");
     }
     fclose(indice);
 
-    indice = fopen(nomeIndice,"rb+");
+    indice = fopen(nomeIndice,"rb+");//abre para leitura e escrita
     if(bin == NULL || indice == NULL){
         printf("Falha no processamento do arquivo.\n");
         return false;
     }
-
+    //Verifica se é um arquivo com dados consistentes
     char status;
     fread(&status,sizeof(char),1,bin);
 
@@ -176,45 +215,46 @@ bool criar_indice(char* nomeBin, char* nomeIndice){
         printf("Arquivo inconsistente\n");
         return false;
     }
+    //Busca o final do arquivo com os registros
     fseek(bin,0,SEEK_END);
     long int final = ftell(bin);
     fseek(bin,0,SEEK_SET);
 
+    //Leitura do header do arquivo com os registros
     HEADER* h = criar_header();
     ler_header(bin,h);
 
-    ArvBHeader* Bheader = criar_arvB_header();
-    NO* raiz = criar_no();
+    //Marca o arquivo de indice como inconsistente pois está escrevendo
+    fwrite("1",sizeof(char),1,indice);
+    fseek(indice,0,SEEK_SET);
     
+    //Cria a struct que irá armazenar os dados do header
+    ArvBHeader* Bheader = criar_arvB_header();
+    //Aloca dinamicamente a struct que irá guardar os dados da raiz
+    NO* raiz = criar_no();
+    //Inicializa os dados do header
     Bheader->noRaiz = 0;
     Bheader->nroNos++;
     Bheader->proxRRN++;
-
+    //Escreve o nó raiz no arquivo de indice
     escrever_no_indice(indice,raiz,Bheader->noRaiz);
-    int contador1 = 0;
-    int contador2 = 0;
-    int contador3 = 0;
-    int i = 0;
+    //loop para percorrer todo o arquivo com os registros
     while(ftell(bin)!=final){
-        i++;
         REG* reg = ler_registro(bin,h);
-        
+        //Verifica se o registro é removido
         if(get_removido(reg) == '0'){
+            //Criação da chave que será inserida
             CHAVE_VALOR* dados = criar_dados();
             dados->chave = get_idAttack(reg);
             dados->valor = ftell(bin) - get_tamanhoRegistro(reg) -5;
-            // printf("Inserindo ID %d - raiz: %d, proxRRN: %d\n", dados->chave, Bheader->noRaiz, Bheader->proxRRN);
+            //Lê o nó raiz e chama a função de insercao
             ler_no_indice(indice,raiz,Bheader->noRaiz);
-            // printf("Raiz: %d ----- %d\n",raiz->chaves[0],raiz->chaves[1]);
-            // printf("%d\n",raiz->tipoNo);
-            // printf("%d\n",Bheader->noRaiz);
-            // printf("%d\n",Bheader->proxRRN);
-            
-            insercao(indice,dados,raiz,Bheader,Bheader->noRaiz, contador1,contador2,contador3);
+            insercao(indice,dados,raiz,Bheader,Bheader->noRaiz);
             
         }
         free(reg);
     }
+    //Finaliza escrevendo o header e liberando a memória alocada dinâmicamente
     escrever_arvB_header(indice,Bheader);
     free(raiz);
     free(h);
@@ -223,26 +263,31 @@ bool criar_indice(char* nomeBin, char* nomeIndice){
     fclose(indice);
     return true;
 }
-
-CHAVE_VALOR* insercao(FILE* indice,CHAVE_VALOR* dados, NO* no,ArvBHeader* h, int RRN, int contador1, int contador2, int contador3){
+/*Parâmetros:
+    @params indice -> ponteiro para o arquivo de índice
+    @params dados -> valores que devem ser inseridos
+    @params no -> no que será analisado se pode ocorrer a inserção
+    @params RRN -> RRN do no que está sendo analisado se pode ocorrer a inserção
+    A função irá verificar se é possível fazer a insercao no nó fornecido. Se não verifica nos nós descendentes, além de
+    fazer os splits e reajustes durante as promoções
+*/
+CHAVE_VALOR* insercao(FILE* indice,CHAVE_VALOR* dados, NO* no,ArvBHeader* h, int RRN){
+    //Verifica se é um nó folha para poder inserir
     if(no->tipoNo == -1 && no->nroChaves<2){
-        inserir_chave(dados,no);
-        escrever_no_indice(indice,no,RRN);
-        return NULL;
+        inserir_chave(dados,no);//insere a chave no nó
+        escrever_no_indice(indice,no,RRN);//escreve o nó no arquivo
+        return NULL;//como não há promoção retorna nulo
     }
 
     if(no->tipoNo == -1 && no->nroChaves == 2){
-        if(RRN == h->noRaiz){
+        if(RRN == h->noRaiz){//verifica se o nó folha é igual ao nó raiz
             //Realiza o split e adiciona os ponteiros do item que está sendo promovido
             CHAVE_VALOR* promocao = split(dados,no,RRN,h,indice);
-            
-            // printf("oiee\n");
+    
             //Cria o novo no raiz
             NO* novaRaiz = criar_no();
             novaRaiz->tipoNo = 0;
             inserir_chave(promocao,novaRaiz);
-            
-            // printf("aqui tem que ser >%d\n",novaRaiz->tipoNo);
 
             //Atualiza os valores do header para o no raiz e o proxRRN
             h->noRaiz = h->proxRRN;
@@ -252,53 +297,46 @@ CHAVE_VALOR* insercao(FILE* indice,CHAVE_VALOR* dados, NO* no,ArvBHeader* h, int
             NO* oie = criar_no();
 
             ler_no_indice(indice,oie,h->noRaiz);
-            // printf("leitura dps de escrever: %d\n",oie->tipoNo);
-            // printf("sfaf     %d",oie->chaves[0]);
-            
-            
-
             return NULL;
         }
-        return split(dados,no,RRN,h,indice);
+        return split(dados,no,RRN,h,indice);// retorna a chave promovida após o split
     }
     
+    //Verifica se é nó raiz e chama a função que irá tratar da recursão e a manipulação da promoção na volta da recusão
     if(no->tipoNo == 0){
-        // printf("Eu entrei aqui\n");
          if(no->chaves[0]> dados->chave){
-            // printf("Entrei aqui1");
-            return aux_insercao_promocao(no,h,indice,RRN,dados,0,contador1,contador2,contador3);
+            return aux_insercao_promocao(no,h,indice,RRN,dados,0);
             
         }
         else if(no->chaves[1]>dados->chave || no->chaves[1] == -1){
-            // printf("Entrei aqui2");
-            return aux_insercao_promocao(no,h,indice,RRN,dados,1,contador1,contador2,contador3);
+            return aux_insercao_promocao(no,h,indice,RRN,dados,1);
             
         }
         else{
-            // printf("Entrei aqui");
-            return aux_insercao_promocao(no,h,indice,RRN,dados,2,contador1,contador2,contador3);
+            return aux_insercao_promocao(no,h,indice,RRN,dados,2);
         }
     }
-
+    //Verifica se é o nó folha e chama a função auxiliar para a recursão
     if(no->tipoNo == 1){
         if(no->chaves[0]> dados->chave){
-            return aux_insercao_promocao(no,h,indice,RRN,dados,0,contador1,contador2,contador3);
+            return aux_insercao_promocao(no,h,indice,RRN,dados,0);
         }
         else if(no->chaves[1]>dados->chave || no->chaves[1] == -1){
-            return aux_insercao_promocao(no,h,indice,RRN,dados,1,contador1,contador2,contador3);
+            return aux_insercao_promocao(no,h,indice,RRN,dados,1);
         }
         else{
-            return aux_insercao_promocao(no,h,indice,RRN,dados,2,contador1,contador2,contador3);
+            return aux_insercao_promocao(no,h,indice,RRN,dados,2);
         }
 
     }
     
     return NULL;
 }
-
-
-
-
+/*Parâmetros:
+    @params dados -> chave e valor a serem inseridos 
+    @params no -> nó em que deve ocorrer a inserção
+    Executa a insercao e ajustes dos ponteiros do nó em que ocorre a insercao
+*/
 void inserir_chave(CHAVE_VALOR* dados, NO* no){
     if(no->nroChaves == 0){
         no->chaves[0] = dados->chave;
@@ -325,6 +363,15 @@ void inserir_chave(CHAVE_VALOR* dados, NO* no){
     }
     no->nroChaves++;
 }
+/*Parâmetros:
+    @params dados -> dados a serem inseridos
+    @params noesq -> nó cheio em que o dado quer ser inserido
+    @params RRNesq-> RRN no nó cheio
+    @params h -> ponteiro pra o header do arquivo de indice
+    @prams indice -> ponteiro para o arquivo de indice
+    Função que faz a criação de um novo nó e distribuir de os dados do nó antigo entre eles e retorna a chave promovida no
+    processo de split.
+*/
 CHAVE_VALOR* split(CHAVE_VALOR* dados, NO* noesq, int RRNesq, ArvBHeader* h, FILE* indice){
     //Cria o nó da direita e a struct que passa os dados da promoção
     NO* nodir = criar_no();
@@ -354,9 +401,10 @@ CHAVE_VALOR* split(CHAVE_VALOR* dados, NO* noesq, int RRNesq, ArvBHeader* h, FIL
         //Escrever os nós novamente no arquivo de dados
         escrever_no_indice(indice,noesq,RRNesq);
         escrever_no_indice(indice,nodir,h->proxRRN);
-
+        //Ajuste dos ponteiros da promoção
         promocao->esq = RRNesq;
         promocao->dir = h->proxRRN;
+        //ajuste dos dados do header
         h->proxRRN++;
         h->nroNos++;
         free(nodir);
@@ -384,9 +432,10 @@ CHAVE_VALOR* split(CHAVE_VALOR* dados, NO* noesq, int RRNesq, ArvBHeader* h, FIL
         //Escrever os nós novamente no arquivo de dados
         escrever_no_indice(indice,noesq,RRNesq);
         escrever_no_indice(indice,nodir,h->proxRRN);
-
+        //Ajuste dos ponteiros da promocao
         promocao->esq = RRNesq;
         promocao->dir = h->proxRRN;
+        //ajuste dos dados do header
         h->proxRRN++;
         h->nroNos++;
         free(nodir);
@@ -413,10 +462,10 @@ CHAVE_VALOR* split(CHAVE_VALOR* dados, NO* noesq, int RRNesq, ArvBHeader* h, FIL
         //Escrever os nós novamente no arquivo de dados
         escrever_no_indice(indice,noesq,RRNesq);
         escrever_no_indice(indice,nodir,h->proxRRN);
-
+        //Ajuste dos ponteiros da promoção
         promocao->esq = RRNesq;
         promocao->dir = h->proxRRN;
-
+        //Ajuste dos dados do header
         h->proxRRN++;
         h->nroNos++;
         free(nodir);
@@ -427,11 +476,21 @@ CHAVE_VALOR* split(CHAVE_VALOR* dados, NO* noesq, int RRNesq, ArvBHeader* h, FIL
     return NULL;
 
 }
-
-CHAVE_VALOR* aux_insercao_promocao(NO* no, ArvBHeader* h, FILE* indice, int RRN,CHAVE_VALOR* dados, int index, int c1, int c2, int c3){
+/*Parâmetros:
+    @params no -> struct do nó em que se tenta inserir
+    @params h -> ponteiro para struct com os dados do header
+    @params indice -> ponteiro para o arquivo de indice
+    @params RRN -> RRN do nó atual
+    @params dados -> dados que deseja-se inserir no nó
+    @params index -> qual descendente será chamado para poder fazer a recursão
+    A função irá auxiliar na chamada da recursão para o descendente correto, além de auxiliar na volta da recursão em que
+    pode se ter uma promocao.
+    O retorno da função será a promoção que pode ser necessário subir para o próximo nível da recursão
+*/
+CHAVE_VALOR* aux_insercao_promocao(NO* no, ArvBHeader* h, FILE* indice, int RRN,CHAVE_VALOR* dados, int index){
     NO* descendente = criar_no();
     ler_no_indice(indice,descendente,no->descendentes[index]);
-    CHAVE_VALOR* promocao = insercao(indice,dados,descendente,h,no->descendentes[index],c1,c2,c3);
+    CHAVE_VALOR* promocao = insercao(indice,dados,descendente,h,no->descendentes[index]);
     if(promocao == NULL){
         free(descendente);
         return NULL;
@@ -482,8 +541,13 @@ CHAVE_VALOR* aux_insercao_promocao(NO* no, ArvBHeader* h, FILE* indice, int RRN,
 }
 
 /*-------------------------------------------------SELECT ----------------------------------------------------------------------*/
+
 long int busca_id_arvB(FILE* indice,int id,NO* no);
+/*
+    Percorre a árvore procurando o nó que contenha a chave igual ao id desejado
+*/
 void busca_arvore(char* nomebin, char* nomeindice,char* campos[],char*valores[],int tamanho,int id){
+    //Abre os arquivos
     FILE* bin = fopen(nomebin,"rb+");
     FILE* indice = fopen(nomeindice,"rb+");
 
@@ -491,14 +555,17 @@ void busca_arvore(char* nomebin, char* nomeindice,char* campos[],char*valores[],
         printf("Falha no processamento do arquivo.\n");
         return;
     }
+    //Crialçao do header e da raiz em memória principal
     ArvBHeader* h = criar_arvB_header();
     ler_arvB_header(indice,h);
     NO* raiz = criar_no();
     ler_no_indice(indice,raiz,h->noRaiz);
+    //busca e retorna a posição do registro
     long int posicaoReg = busca_id_arvB(indice,id,raiz);
-
+    //le o header do arquivo de registros
     HEADER* headerReg = criar_header();
     ler_header(bin,headerReg);
+    //Se o retorno da posicao for valido, vai até a posicao e mostra os dados do registro
     if(posicaoReg != -1){
         fseek(bin,posicaoReg,SEEK_SET);
         REG* reg = ler_registro(bin,headerReg);
@@ -515,8 +582,14 @@ void busca_arvore(char* nomebin, char* nomeindice,char* campos[],char*valores[],
     free(raiz);
     free(h);
 }
-
+/*Parâmetros:
+    @params indice -> ponteiro para o arquivo de indice
+    @params id -> id que se deseja procurar
+    @params no -> no atual que está sendo procurado o id
+Faz a parte da recursão e descida pela arvore a partir do nó raiz
+*/
 long int busca_id_arvB(FILE* indice,int id,NO* no){
+    //Verifica se já chegou em um no raiz sem o id
     if(no->tipoNo == -1 && no->chaves[0] != id && no->chaves[1] != id){
         return -1;
     }
@@ -528,9 +601,10 @@ long int busca_id_arvB(FILE* indice,int id,NO* no){
     if(no->chaves[1] == id){
         return no->registros[1];
     }
-
+    //Parte da recursão descendo pela árvore
     NO* descendente = criar_no();
     long int resultado = -1;
+    //casos de descendentes que devem percorrer, se pela esquerda pelo meio ou pela direita
     if(no->descendentes[0] != -1 && id<no->chaves[0]){
 
         ler_no_indice(indice,descendente,no->descendentes[0]);
@@ -555,8 +629,17 @@ long int busca_id_arvB(FILE* indice,int id,NO* no){
     return -1;
 
 }
-
+/*Parâmetros:
+    @params nomebin -> nome do arquivo com os registros
+    @params nomeindice -> nome do arquivo de indice
+    @params valores -> byteofffsets dos registros inseridos
+    @params tamanho -> quantidade de registros inseridos
+    Com o byteoffset dos registros inseridos é possível encontrar o id deles e inserir o id e o byteoffset dentro do arquivo
+    de indice. Os byteoffsets estão ordenado por ondem de inserção ou seja valores[0] foi inserido primeiro que valores[1] e
+    assim por diante.
+*/
 void ajuste_indice_inserInto(char* nomebin,char* nomeindice,long int *valores,int tamanho){
+    //abertura dos arquivos
     FILE* bin = fopen(nomebin,"rb+");
     FILE* indice = fopen(nomeindice,"rb+");
 
@@ -564,25 +647,28 @@ void ajuste_indice_inserInto(char* nomebin,char* nomeindice,long int *valores,in
         printf("Falha no processamento do arquivo.\n");
         return;
     }
+    //Le o header do arquivo de registros
     HEADER* binHeader = criar_header();
     ler_header(bin, binHeader);
-
+    //Lê o header do arquivo de indice
     ArvBHeader * indiceHeader = criar_arvB_header();
     ler_arvB_header(indice,indiceHeader);
-    
+    //coloca o arquivo como inconsistente
+    fseek(indice,0,SEEK_SET);
+    fwrite("1",sizeof(char),1,indice);
 
-    NO* raiz = criar_no();
-
+    NO* raiz = criar_no();//struct para o nó raiz
+    //insercao no arquivo de indice
     for(int i = 0;i<tamanho;i++){
-
+        //Cria a struct CHAVE VALOR que deve ser inserida no arquivo de indice
         fseek(bin,valores[i],SEEK_SET);
         REG* reg = ler_registro(bin,binHeader);
         CHAVE_VALOR * novaChave = criar_dados();
         novaChave->chave = get_idAttack(reg);
         novaChave->valor = valores[i];
-
+        //Chamada da insercao
         ler_no_indice(indice,raiz,indiceHeader->noRaiz);
-        insercao(indice,novaChave,raiz,indiceHeader,indiceHeader->noRaiz,0,0,0);
+        insercao(indice,novaChave,raiz,indiceHeader,indiceHeader->noRaiz);
         free(reg);
     }
 
