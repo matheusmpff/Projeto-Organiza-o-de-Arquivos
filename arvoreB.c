@@ -797,28 +797,10 @@ bool atualizar_registro(FILE* bin, FILE* indice, HEADER* header, ArvBHeader* arv
         // AQUI TA ERRADO
         
         // Marca o registro atual como removido
-        remover_registro(bin, reg_atual, header, posicao);
+        //remover_registro(bin, reg_atual, header, posicao);
         
         // Insere o novo registro
         long int nova_posicao = inserir_registro_final(bin, header, reg_atualizado);
-        
-        // Atualiza o índice se o idAttack mudou
-        if(get_idAttack(reg_atual) != get_idAttack(reg_atualizado)) {
-            // Remove a entrada antiga do índice
-            // Adiciona a nova entrada no índice
-            CHAVE_VALOR* nova_chave = criar_dados();
-            nova_chave->chave = get_idAttack(reg_atualizado);
-            nova_chave->valor = nova_posicao;
-            
-            NO* raiz = criar_no();
-            ler_no_indice(indice, raiz, arvb_header->noRaiz);
-            insercao(indice, nova_chave, raiz, arvb_header, arvb_header->noRaiz, 0, 0, 0);
-            free(raiz);
-        }
-        
-        // Atualiza o header do arquivo de dados
-        fseek(bin, 0, SEEK_SET);
-        escrever_header(bin, header);
     }
     
     free(reg_atual);
@@ -959,19 +941,11 @@ void executar_update(char* nomeBin, char* nomeIndice, int nUpdates) {
         if(ids_encontrados) free(ids_encontrados);
     }
     
-    // Atualiza os headers nos arquivos
-    fseek(bin, 0, SEEK_SET);
-    escrever_header(bin, headerDados);
-    fseek(indice, 0, SEEK_SET);
-    escrever_arvB_header(indice, headerIndice);
-    
     // Marca os arquivos como consistentes
-    fseek(bin, 0, SEEK_SET);
-    fwrite("1", sizeof(char), 1, bin);
-    fseek(indice, 0, SEEK_SET);
-    fwrite("1", sizeof(char), 1, indice);
-    fflush(bin);
-    fflush(indice);
+    set_status(headerDados, '1');
+    escreverCabecalho(bin, headerDados);
+    headerIndice->status = '1';
+    escrever_arvB_header(indice, headerIndice);
     
     // Chama binarioNaTela para mostrar os arquivos
     binarioNaTela(nomeBin);
