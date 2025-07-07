@@ -389,6 +389,17 @@ void func10(char* nomebin){
 	free(valores);
 }
 
+void func11(char* nomebin) {
+	char nomeIndice[20];
+	scanf("%s", nomeIndice);
+	int numeroUpdate = 0;
+	scanf("%d", &numeroUpdate);
+
+	executar_update(nomebin, nomeIndice, numeroUpdate);
+
+}
+
+
 int main(){
     int func;
     char string1[20];
@@ -396,7 +407,7 @@ int main(){
 
     scanf("%d",&func);
     scanf("%s",string1);
-    
+
 	switch(func) {
 		case 1:
 			scanf("%s",string2);
@@ -425,6 +436,8 @@ int main(){
 			break;
 		case 10:
 			func10(string1);
+		case 11:
+			func11(string1);
 		default:
 		break;
 	}

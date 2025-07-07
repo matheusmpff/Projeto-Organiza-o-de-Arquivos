@@ -452,3 +452,13 @@ long int* insertInto(char* arquivoBin, int numeroInsercoes) {
 
     return posParaindice;
 }
+
+// Função auxiliar para inserir registro no final do arquivo
+long int inserir_registro_final(FILE* bin, HEADER* header, REG* reg) {
+    fseek(bin, 0, SEEK_END);
+    long int posicao = ftell(bin);
+    escrever_registro(bin, reg, header);
+    fseek(bin, 0, SEEK_SET);
+    set_nroReqArq(header, get_nroReqArq(header) + 1);
+    return posicao;
+}

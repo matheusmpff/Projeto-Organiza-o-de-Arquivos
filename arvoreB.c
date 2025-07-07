@@ -7,6 +7,8 @@
 #include "remocao.h"
 #include <math.h>
 #include "insertInto.h"
+#include "main.h"
+#include "RegBusca.h"
 
 #define TamMax 1000
 
@@ -588,6 +590,310 @@ void ajuste_indice_inserInto(char* nomebin,char* nomeindice,long int *valores,in
     free(raiz);
     free(indiceHeader);
     free(binHeader);
+    fclose(bin);
+    fclose(indice);
+}
+
+/* Funcionalidade 11 */
+
+void buscar_registros_para_update(FILE* bin, HEADER* header, char* campos[], char* valores[], int numCampos, int** ids_encontrados, int* count) {
+    fseek(bin, 0, SEEK_END);
+    long int final = ftell(bin);
+    fseek(bin, 0, SEEK_SET);
+
+    HEADER* buffer = criar_header();
+    ler_header(bin, buffer);
+    free(buffer);
+    //fseek(bin, 44, SEEK_SET); // Pula o header
+    
+    *count = 0;
+    int capacidade = 100;
+    *ids_encontrados = malloc(capacidade * sizeof(int));
+    
+    while(ftell(bin) < final) {
+        REG* reg = ler_registro(bin, header);
+        
+        if(get_removido(reg) == '0') { // Registro não removido
+            bool atende_criterios = true;
+
+            atende_criterios = comparCampos(reg, campos, valores, numCampos);
+            
+            if(atende_criterios) {
+                if(*count >= capacidade) {
+                    capacidade *= 2;
+                    *ids_encontrados = realloc(*ids_encontrados, capacidade * sizeof(int));
+                }
+                (*ids_encontrados)[*count] = get_idAttack(reg);
+                (*count)++;
+            }
+        }
+        
+        free(reg);
+    }
+}
+
+bool atualizar_registro(FILE* bin, FILE* indice, HEADER* header, ArvBHeader* arvb_header, int id, char* campos_update[], char* valores_update[], int num_updates) {
+    
+    // Busca a posição do registro usando a árvore-B
+    NO* raiz = criar_no();
+    ler_no_indice(indice, raiz, arvb_header->noRaiz);
+    long int posicao = busca_id_arvB(indice, id, raiz);
+    free(raiz);
+    
+    if(posicao == -1) {
+        return false; // Registro não encontrado
+    }
+    
+    // Lê o registro atual
+    fseek(bin, posicao, SEEK_SET);
+    REG* reg_atual = ler_registro(bin, header);
+    
+    if(get_removido(reg_atual) == '1') {
+        free(reg_atual);
+        return false; // Registro já removido
+    }
+    
+    // Cria uma cópia do registro para atualização
+    REG* reg_atualizado = criar_reg();
+    
+    // Copia os dados atuais
+    set_removido(reg_atualizado, '0');
+    set_tamanhoRegistro(reg_atualizado, get_tamanhoRegistro(reg_atual));
+    set_prox(reg_atualizado, get_prox(reg_atual));
+    set_idAttack(reg_atualizado, get_idAttack(reg_atual));
+    set_year(reg_atualizado, get_year(reg_atual));
+    set_financialLoss(reg_atualizado, get_financialLoss(reg_atual));
+    set_country(reg_atualizado, get_country(reg_atual));
+    set_attackType(reg_atualizado, get_attackType(reg_atual));
+    set_targetIndustry(reg_atualizado, get_targetIndustry(reg_atual));
+    set_defenseMechanism(reg_atualizado, get_defenseMechanism(reg_atual));
+    
+    // Aplica as atualizações
+    for(int i = 0; i < num_updates; i++) {
+        if(strcmp(campos_update[i], "idAttack") == 0) {
+            set_idAttack(reg_atualizado, atoi(valores_update[i]));
+        } else if(strcmp(campos_update[i], "country") == 0) {
+            set_country(reg_atualizado, valores_update[i]);
+        } else if(strcmp(campos_update[i], "targetIndustry") == 0) {
+            set_targetIndustry(reg_atualizado, valores_update[i]);
+        } else if(strcmp(campos_update[i], "financialLoss") == 0) {
+            set_financialLoss(reg_atualizado, atof(valores_update[i]));
+        } else if(strcmp(campos_update[i], "attackType") == 0) {
+            set_attackType(reg_atualizado, valores_update[i]);
+        } else if(strcmp(campos_update[i], "defenseMechanism") == 0) {
+            set_defenseMechanism(reg_atualizado, valores_update[i]);
+        } else if(strcmp(campos_update[i], "year") == 0) {
+            set_year(reg_atualizado, atoi(valores_update[i]));
+        }
+        // Adicionar outros campos conforme necessário
+    }
+    
+    // Calcula o tamanho do registro atualizado
+    int tamanho_atual = get_tamanhoRegistro(reg_atual);
+    int tamanho_atualizado = calcularTamanhoRegistro(reg_atualizado);
+    
+    if(tamanho_atualizado <= tamanho_atual) {
+        // Atualização in-place
+        fseek(bin, posicao, SEEK_SET);
+        escrever_registro(bin, reg_atualizado, header);
+        
+        // Preenche o resto com lixo '$'
+        int espacoRestante = tamanho_atual + sizeof(char) /*char removido*/ + sizeof(int) /*int tamanho registro*/ - tamanho_atualizado;
+        if(espacoRestante > 0) {
+            char lixo = '$';
+            for(long int j = 0; j < espacoRestante; j++) {
+                fwrite(&lixo, sizeof(char), 1, bin);
+            }
+        }
+        fflush(bin);
+        
+    } else {
+        // AQUI TA ERRADO
+        
+        // Marca o registro atual como removido
+        remover_registro(bin, reg_atual, header, posicao);
+        
+        // Insere o novo registro
+        long int nova_posicao = inserir_registro_final(bin, header, reg_atualizado);
+        
+        // Atualiza o índice se o idAttack mudou
+        if(get_idAttack(reg_atual) != get_idAttack(reg_atualizado)) {
+            // Remove a entrada antiga do índice
+            // Adiciona a nova entrada no índice
+            CHAVE_VALOR* nova_chave = criar_dados();
+            nova_chave->chave = get_idAttack(reg_atualizado);
+            nova_chave->valor = nova_posicao;
+            
+            NO* raiz = criar_no();
+            ler_no_indice(indice, raiz, arvb_header->noRaiz);
+            insercao(indice, nova_chave, raiz, arvb_header, arvb_header->noRaiz, 0, 0, 0);
+            free(raiz);
+        }
+        
+        // Atualiza o header do arquivo de dados
+        fseek(bin, 0, SEEK_SET);
+        escrever_header(bin, header);
+    }
+    
+    free(reg_atual);
+    free(reg_atualizado);
+    return true;
+}
+void executar_update(char* nomeBin, char* nomeIndice, int nUpdates) {
+    FILE* bin = fopen(nomeBin, "rb+");
+    FILE* indice = fopen(nomeIndice, "rb+");
+    
+    if(bin == NULL || indice == NULL) {
+        printf("Falha no processamento do arquivo.\n");
+        return;
+    }
+    
+    // Verifica consistência dos arquivos
+    char statusBin, statusIndice;
+    fread(&statusBin, sizeof(char), 1, bin);
+    fread(&statusIndice, sizeof(char), 1, indice);
+    
+    if(statusBin == '0' || statusIndice == '0') {
+        printf("Arquivo inconsistente.\n");
+        fclose(bin);
+        fclose(indice);
+        return;
+    }
+    
+    // Marca os arquivos como inconsistentes durante o processo
+    fseek(bin, 0, SEEK_SET);
+    fwrite("0", sizeof(char), 1, bin);
+    fseek(indice, 0, SEEK_SET);
+    fwrite("0", sizeof(char), 1, indice);
+
+    fseek(bin, 0, SEEK_SET);
+    fseek(indice, 0, SEEK_SET);
+    
+    // Lê os headers
+    HEADER* headerDados = criar_header();
+    ArvBHeader* headerIndice = criar_arvB_header();
+    
+    ler_header(bin, headerDados);
+    ler_arvB_header(indice, headerIndice);
+    
+    // Processa cada update
+    for(int update = 0; update < nUpdates; update++) {
+        int m = 0;
+        int p = 0;
+        scanf("%d", &m);
+    
+        // Lê critérios de busca
+        char* campos_busca[m];
+        char* valores_busca[m];
+        
+        for(int i = 0; i < m; i++) {
+            campos_busca[i] = malloc(50 * sizeof(char));
+            valores_busca[i] = malloc(50 * sizeof(char));
+            scanf("%s", campos_busca[i]);
+            
+            if(strcmp(campos_busca[i],"idAttack") == 0){
+                scanf("%s",valores_busca[i]);
+            }
+            else if(strcmp(campos_busca[i],"year") == 0) {
+                scanf("%s",valores_busca[i]);
+                if(strcmp(valores_busca[i], "NULO") == 0){
+                    strcpy(valores_busca[i], "-1");
+                }
+            }
+            else if(strcmp(campos_busca[i],"financialLoss") == 0) {
+                scanf("%s",valores_busca[i]);
+                if(strcmp(valores_busca[i], "NULO") == 0){
+                    strcpy(valores_busca[i], "-1.0");
+                }
+            }
+            else{
+                scan_quote_string(valores_busca[i]);
+                if(strcmp(valores_busca[i], "") == 0){
+                    strcpy(valores_busca[i], "-1000");
+                }
+            }
+        }
+        
+        scanf("%d", &p);
+        
+        // Lê campos e valores para atualização
+        char* campos_update[p];
+        char* valores_update[p];
+        
+        for(int i = 0; i < p; i++) {
+            campos_update[i] = malloc(50 * sizeof(char));
+            valores_update[i] = malloc(50 * sizeof(char));
+            scanf("%s", campos_update[i]);
+            
+            if(strcmp(campos_update[i],"idAttack") == 0){
+                scanf("%s",valores_update[i]);
+            }
+            else if(strcmp(campos_update[i],"year") == 0) {
+                scanf("%s",valores_update[i]);
+                if(strcmp(valores_update[i], "NULO") == 0){
+                    strcpy(valores_update[i], "-1");
+                }
+            }
+            else if(strcmp(campos_update[i],"financialLoss") == 0) {
+                scanf("%s",valores_update[i]);
+                if(strcmp(valores_update[i], "NULO") == 0){
+                    strcpy(valores_update[i], "-1.0");
+                }
+            }
+            else{
+                scan_quote_string(valores_update[i]);
+                if(strcmp(valores_update[i], "") == 0){
+                    strcpy(valores_update[i], "-1000");
+                }
+            }
+        }
+
+        
+        // Busca registros que atendem aos critérios
+        int* ids_encontrados;
+        int count;
+        buscar_registros_para_update(bin, headerDados, campos_busca, valores_busca, m, &ids_encontrados, &count);
+        
+        // Atualiza cada registro encontrado
+        for(int i = 0; i < count; i++) {
+            atualizar_registro(bin, indice, headerDados, headerIndice, ids_encontrados[i], campos_update, valores_update, p);
+        }
+        
+        // Libera memória
+        for(int i = 0; i < m; i++) {
+            free(campos_busca[i]);
+            free(valores_busca[i]);
+        }
+
+        for(int i = 0; i < p; i++) {
+            free(campos_update[i]);
+            free(valores_update[i]);
+        }
+
+        if(ids_encontrados) free(ids_encontrados);
+    }
+    
+    // Atualiza os headers nos arquivos
+    fseek(bin, 0, SEEK_SET);
+    escrever_header(bin, headerDados);
+    fseek(indice, 0, SEEK_SET);
+    escrever_arvB_header(indice, headerIndice);
+    
+    // Marca os arquivos como consistentes
+    fseek(bin, 0, SEEK_SET);
+    fwrite("1", sizeof(char), 1, bin);
+    fseek(indice, 0, SEEK_SET);
+    fwrite("1", sizeof(char), 1, indice);
+    fflush(bin);
+    fflush(indice);
+    
+    // Chama binarioNaTela para mostrar os arquivos
+    binarioNaTela(nomeBin);
+    binarioNaTela(nomeIndice);
+    
+    // Libera memória e fecha arquivos
+    free(headerDados);
+    free(headerIndice);
     fclose(bin);
     fclose(indice);
 }
